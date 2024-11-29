@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Modules — triellipt documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+    <link rel="stylesheet" href="docpage.css">
+    <script src="docpage.js"></script>
+</head>
+
+<body>
+
+    <div id="top-panel">
+        <div id="page-logo"></div>
+        <div id="top-panel-tool-bar">
+            <div id="global-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="local-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="home-page-btn" class="top-panel-btn" onclick="gotoHomePage()"></div>
+        </div>
+    </div>
+
+    <div id="global-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>Contents</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="global-toc-box__text" class="toc-box__textbox"></div>
+    </div>
+    <div id="local-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>On this page</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="local-toc-box__text" class="toc-box__textbox">
+            <p>
+            <ul>
+                <li><a href="#triellipt.fem">triellipt.fem</a>
+                    <ul>
+                        <li><a href="#getunit">getunit()</a></li>
+                        <li><a href="#femunit">FEMUnit</a>
+                            <ul>
+                                <li><a href="#add_partition">add_partition()</a></li>
+                                <li><a href="#get_partition">get_partition()</a></li>
+                                <li><a href="#set_partition">set_partition()</a></li>
+                                <li><a href="#del_partition">del_partition()</a></li>
+                                <li><a href="#getinterp">getinterp()</a></li>
+                                <li><a href="#massopr">massopr()</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#fempartt">FEMPartt</a>
+                            <ul>
+                                <li><a href="#new_vector">new_vector()</a></li>
+                                <li><a href="#new_matrix">new_matrix()</a></li>
+                                <li><a href="#get_nodes">get_nodes()</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#matrixfem">MatrixFEM</a>
+                            <ul>
+                                <li><a href="#getblock">getblock()</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#vectorfem">VectorFEM</a>
+                            <ul>
+                                <li><a href="#with_body">with_body()</a></li>
+                                <li><a href="#from_func">from_func()</a></li>
+                                <li><a href="#constrained">constrained()</a></li>
+                                <li><a href="#getsection">getsection()</a></li>
+                                <li><a href="#setsection">setsection()</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#mesh_metric">mesh_metric()</a></li>
+                    </ul>
+                </li>
+            </ul>
+            </p>
+        </div>
+    </div>
+
+    <div id="content-box">
+        <div id="title-box">
+            <h1 id="title-box__title"></h1>
+            <h2 id="title-box__annotation"></h2>
+            <hr>
+        </div>
+        <div id="doc-box">
+<div class="toc-anchor"></div><h1>triellipt.fem</h1>
+
+<p>Finite-element solver.</p>
+
+<div class="toc-anchor"></div><h2>getunit()</h2>
+
+<pre class="py-sign">triellipt.fem.<b>getunit</b>(mesh, anchors=<span>None</span>, mode=<span>None</span>)</pre>
+
+<p>Creates a FEM computing unit.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Input triangle mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>anchors</code> : <em>Iterable = None</em></span></p>
+
+<dl><dd>
+  Provides <code>(float, float)</code> points to synchronize the mesh boundary.
+</dd></dl>
+
+<p><span class="vardef"><code>mode</code> : <em>str = None</em></span></p>
+
+<dl><dd>
+  Solver mode — <mark>&quot;fem&quot;</mark> or <mark>&quot;fvm&quot;</mark> (default).
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>FEMUnit</em></span></p>
+
+<dl><dd>
+  FEM computing unit.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>FEMUnit</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMUnit</b>(mesh=<span>None</span>, meta=<span>None</span>)</pre>
+
+<p>FEM computing unit.</p>
+
+<p><b>Properties</b></p>
+
+<p>FEM operators as data-streams:</p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>massmat</code></td>
+        <td>Mass-matrix</td>
+    </tr>
+    <tr>
+        <td><code>massdiag</code></td>
+        <td>Mass-matrix lumped</td>
+    </tr>
+    <tr>
+        <td><code>diff_1y</code></td>
+        <td>1st y-derivative</td>
+    </tr>
+    <tr>
+        <td><code>diff_1x</code></td>
+        <td>1st x-derivative</td>
+    </tr>
+    <tr>
+        <td><code>diff_2y</code></td>
+        <td>2nd y-derivative</td>
+    </tr>
+    <tr>
+        <td><code>diff_2x</code></td>
+        <td>2nd x-derivative</td>
+    </tr>
+</table>
+
+<p>General properties:</p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>grad</code></td>
+        <td>Gradient operator.</td>
+    </tr>
+    <tr>
+        <td><code>perm</code></td>
+        <td>Mesh-to-unit permutation.</td>
+    </tr>
+    <tr>
+        <td><code>base</code></td>
+        <td>Base edge-core partition.</td>
+    </tr>
+    <tr>
+        <td><code>loops</code></td>
+        <td>List of the mesh loops.</td>
+    </tr>
+    <tr>
+        <td><code>partts</code></td>
+        <td>Map of the unit partitions.</td>
+    </tr>
+</table>
+
+<div class="toc-anchor"></div><h3>add_partition()</h3>
+
+<pre class="py-sign">FEMUnit.<b>add_partition</b>(<em>self</em>, partt_spec)</pre>
+
+<p>Adds new partition to the unit.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>partt_spec</code> : <em>dict</em></span></p>
+
+<dl><dd>
+  Partition specification.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>self</em></span></p>
+
+<dl><dd>
+  Unit with the partition added.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>get_partition()</h3>
+
+<pre class="py-sign">FEMUnit.<b>get_partition</b>(<em>self</em>, partt_name)</pre>
+
+<p>Fetches the unit partition.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>partt_name</code> : <em>str</em></span></p>
+
+<dl><dd>
+  Partition name.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>FEMPartt</em></span></p>
+
+<dl><dd>
+  Desired unit partition.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>set_partition()</h3>
+
+<pre class="py-sign">FEMUnit.<b>set_partition</b>(<em>self</em>, partt) → <em>None</em></pre>
+
+<p>Assigns the partition to the unit.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>partt</code> : <em>FEMPartt</em></span></p>
+
+<dl><dd>
+  Input unit partition.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>del_partition()</h3>
+
+<pre class="py-sign">FEMUnit.<b>del_partition</b>(<em>self</em>, name) → <em>None</em></pre>
+
+<p>Deletes the specified partition from the unit.</p>
+
+<div class="toc-anchor"></div><h3>getinterp()</h3>
+
+<pre class="py-sign">FEMUnit.<b>getinterp</b>(<em>self</em>, xnodes, ynodes)</pre>
+
+<p>Creates an interpolator on a mesh.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>xnodes</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  x-coordinates of the interpolation nodes.
+</dd></dl>
+
+<p><span class="vardef"><code>ynodes</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  y-coordinates of the interpolation nodes.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>TriInterp</em></span></p>
+
+<dl><dd>
+  Callable interpolator.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>massopr()</h3>
+
+<pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, is_lumped, add_constr)</pre>
+
+<p>Creates the mass operator from the base partition.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>is_lumped</code> : <em>bool</em></span></p>
+
+<dl><dd>
+  Creates a lumped mass operator, if <i>True</i>.
+</dd></dl>
+
+<p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
+
+<dl><dd>
+  Adds constraints, if <i>True</i>.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>MatrixFEM</em></span></p>
+
+<dl><dd>
+  Mass operator as a matrix.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>FEMPartt</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMPartt</b>(unit, meta, edge)</pre>
+
+<p>FEM unit partition.</p>
+
+<p><b>Properties</b></p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>core</code></td>
+        <td>Core section.</td>
+    </tr>
+    <tr>
+        <td><code>edge</code></td>
+        <td>Map of edge sections.</td>
+    </tr>
+    <tr>
+        <td><code>meta</code></td>
+        <td>Partition metadata.</td>
+    </tr>
+</table>
+
+<div class="toc-anchor"></div><h3>new_vector()</h3>
+
+<pre class="py-sign">FEMPartt.<b>new_vector</b>(<em>self</em>)</pre>
+
+<p>Creates a new FEM vector.</p>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>VectorFEM</em></span></p>
+
+<dl><dd>
+  New empty FEM vector.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>new_matrix()</h3>
+
+<pre class="py-sign">FEMPartt.<b>new_matrix</b>(<em>self</em>, operator, add_constr)</pre>
+
+<p>Creates a new FEM matrix.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>operator</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Linear combination of the basic FEM operators.
+</dd></dl>
+
+<p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
+
+<dl><dd>
+  Constraints are included in the matrix, if <i>True</i>.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>MatrixFEM</em></span></p>
+
+<dl><dd>
+  Resulting FEM matrix.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>get_nodes()</h3>
+
+<pre class="py-sign">FEMPartt.<b>get_nodes</b>(<em>self</em>, key)</pre>
+
+<p>Retrieves the points of the partition section.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>key</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Number of the partition section.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>two-row-float-array</em></span></p>
+
+<dl><dd>
+  Points of the partition section stacked horizontally.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>MatrixFEM</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>MatrixFEM</b>(partt=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
+
+<p>Global FEM matrix.</p>
+
+<div class="toc-anchor"></div><h3>getblock()</h3>
+
+<pre class="py-sign">MatrixFEM.<b>getblock</b>(<em>self</em>, row_id, col_id)</pre>
+
+<p>Extracts a block of a matrix.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>row_id</code> : <em>int</em></span></p>
+
+<dl><dd>
+  ID of the vertical section.
+</dd></dl>
+
+<p><span class="vardef"><code>col_id</code> : <em>int</em></span></p>
+
+<dl><dd>
+  ID of the horizontal section.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>csc-matrix</em></span></p>
+
+<dl><dd>
+  Matrix bock in CSC format.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>VectorFEM</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>VectorFEM</b>(partt=<span>None</span>, body=<span>None</span>)</pre>
+
+<p>FEM vector.</p>
+
+<div class="toc-anchor"></div><h3>with_body()</h3>
+
+<pre class="py-sign">VectorFEM.<b>with_body</b>(<em>self</em>, value)</pre>
+
+<p>Defines the vector body.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>value</code> : <em>scalar | flat-float-array</em></span></p>
+
+<dl><dd>
+  Data that defines the vector body.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>VectorFEM</em></span></p>
+
+<dl><dd>
+  Copy of the vector with the body updated.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>from_func()</h3>
+
+<pre class="py-sign">VectorFEM.<b>from_func</b>(<em>self</em>, func)</pre>
+
+<p>Defines the vector via a function on the mesh nodes.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>func</code> : <em>Callable</em></span></p>
+
+<dl><dd>
+  Function <code>(x, y)</code> that returns the vector body.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>VectorFEM</em></span></p>
+
+<dl><dd>
+  Copy of the vector with the body updated.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>constrained()</h3>
+
+<pre class="py-sign">VectorFEM.<b>constrained</b>(<em>self</em>)</pre>
+
+<p>Constrains the vector on the parent mesh.</p>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>VectorFEM</em></span></p>
+
+<dl><dd>
+  Copy of the vector with the body constrained.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>getsection()</h3>
+
+<pre class="py-sign">VectorFEM.<b>getsection</b>(<em>self</em>, sec_id)</pre>
+
+<p>Returns a copy of the vector section.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>sec_id</code> : <em>int</em></span></p>
+
+<dl><dd>
+  ID of the vector section.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Copy of the vector section.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>setsection()</h3>
+
+<pre class="py-sign">VectorFEM.<b>setsection</b>(<em>self</em>, sec_id, data) → <em>None</em></pre>
+
+<p>Defines the vector section.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>sec_id</code> : <em>int</em></span></p>
+
+<dl><dd>
+  ID of the vector section.
+</dd></dl>
+
+<p><span class="vardef"><code>data</code> : <em>scalar | flat-float-array</em></span></p>
+
+<dl><dd>
+  Data that defines the vector section.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>mesh_metric()</h2>
+
+<pre class="py-sign">triellipt.fem.<b>mesh_metric</b>(mesh)</pre>
+
+<p>Returns the mesh metric properties.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Triangular mesh.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>MeshMetric</em></span></p>
+
+<dl><dd>
+  Object with the metric properties of triangles.
+</dd></dl>
+
+<hr>
+        </div>
+        <p id="footnote">Copyright &copy; 2023, Igor Semenov.</p>
+    </div>
+
+    <footer></footer>
+
+    <script>
+        setDocPage();
+    </script>
+
+</body>
+
+</html>

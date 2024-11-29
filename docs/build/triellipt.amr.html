@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Modules — triellipt documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+    <link rel="stylesheet" href="docpage.css">
+    <script src="docpage.js"></script>
+</head>
+
+<body>
+
+    <div id="top-panel">
+        <div id="page-logo"></div>
+        <div id="top-panel-tool-bar">
+            <div id="global-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="local-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="home-page-btn" class="top-panel-btn" onclick="gotoHomePage()"></div>
+        </div>
+    </div>
+
+    <div id="global-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>Contents</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="global-toc-box__text" class="toc-box__textbox"></div>
+    </div>
+    <div id="local-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>On this page</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="local-toc-box__text" class="toc-box__textbox">
+            <p>
+            <ul>
+                <li><a href="#triellipt.amr">triellipt.amr</a>
+                    <ul>
+                        <li><a href="#getunit">getunit()</a></li>
+                        <li><a href="#amrunit">AMRUnit</a>
+                            <ul>
+                                <li><a href="#refine">refine()</a></li>
+                                <li><a href="#coarsen">coarsen()</a></li>
+                                <li><a href="#find_node">find_node()</a></li>
+                                <li><a href="#find_subset">find_subset()</a></li>
+                                <li><a href="#find_masked">find_masked()</a></li>
+                                <li><a href="#front_coarse">front_coarse()</a></li>
+                                <li><a href="#front_fine">front_fine()</a></li>
+                                <li><a href="#makedata">makedata()</a></li>
+                                <li><a href="#getinterp">getinterp()</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#trifront">TriFront</a>
+                            <ul>
+                                <li><a href="#atrank">atrank()</a></li>
+                                <li><a href="#angles">angles()</a></li>
+                                <li><a href="#scales">scales()</a></li>
+                                <li><a href="#filter_by_mask">filter_by_mask()</a></li>
+                                <li><a href="#filter_by_angle">filter_by_angle()</a></li>
+                                <li><a href="#filter_by_scale">filter_by_scale()</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            </p>
+        </div>
+    </div>
+
+    <div id="content-box">
+        <div id="title-box">
+            <h1 id="title-box__title"></h1>
+            <h2 id="title-box__annotation"></h2>
+            <hr>
+        </div>
+        <div id="doc-box">
+<div class="toc-anchor"></div><h1>triellipt.amr</h1>
+
+<p>Mesh refinement tools.</p>
+
+<div class="toc-anchor"></div><h2>getunit()</h2>
+
+<pre class="py-sign">triellipt.amr.<b>getunit</b>(mesh)</pre>
+
+<p>Creates an AMR unit.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Input triangle mesh.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>AMRUnit</em></span></p>
+
+<dl><dd>
+  AMR unit with the mesh.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>AMRUnit</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.amr.<b>AMRUnit</b>(mesh)</pre>
+
+<p>Mesh refinement unit.</p>
+
+<p><b>Attributes</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Current triangle mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>data</code> : <em>dict</em></span></p>
+
+<dl><dd>
+  Data defined on the unit.
+</dd></dl>
+
+<p><b>Properties</b></p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>refiner</code></td>
+        <td>Data-refiner after refinement.</td>
+    </tr>
+    <tr>
+        <td><code>collector</code></td>
+        <td>Data-collector after coarsening.</td>
+    </tr>
+</table>
+
+<div class="toc-anchor"></div><h3>refine()</h3>
+
+<pre class="py-sign">AMRUnit.<b>refine</b>(<em>self</em>, trinums=<span>None</span>)</pre>
+
+<p>Performs a static mesh refinement.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>trinums</code> : <em>Iterable = None</em></span></p>
+
+<dl><dd>
+  Numbers of triangles to refine, if <i>None</i> takes all triangles.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>AMRUnit</em></span></p>
+
+<dl><dd>
+  Unit with the refined mesh.
+</dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>
+<ul class="md-list">
+    <li>The <code>data-refiner</code> is included in the mesh metadata.</li>
+    <li>The void ears are not refined to keep the mesh 1-irregular.</li>
+</ul>
+</p>
+
+<div class="toc-anchor"></div><h3>coarsen()</h3>
+
+<pre class="py-sign">AMRUnit.<b>coarsen</b>(<em>self</em>, trinums_cores)</pre>
+
+<p>Performs a static mesh coarsening.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>trinums_cores</code> : <em>Iterable</em></span></p>
+
+<dl><dd>
+  Numbers of the super-triangle-cores to coarsen.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>AMRUnit</em></span></p>
+
+<dl><dd>
+  Unit with the coarsened mesh.
+</dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>
+<ul class="md-list">
+    <li>The <code>data-collector</code> is included in the mesh metadata.</li>
+</ul>
+</p>
+
+<div class="toc-anchor"></div><h3>find_node()</h3>
+
+<pre class="py-sign">AMRUnit.<b>find_node</b>(<em>self</em>, anchor)</pre>
+
+<p>Finds the neighborhood of an anchor point.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>anchor</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Coordinates of an anchor point.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-int-array</em></span></p>
+
+<dl><dd>
+  Numbers of triangles near the anchor point.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>find_subset()</h3>
+
+<pre class="py-sign">AMRUnit.<b>find_subset</b>(<em>self</em>, count, anchor, remove_heads=<span>False</span>)</pre>
+
+<p>Finds a convex subset of a mesh.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>count</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Seed number of triangles in a subset.
+</dd></dl>
+
+<p><span class="vardef"><code>anchor</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Anchor point for a starting triangle.
+</dd></dl>
+
+<p><span class="vardef"><code>remove_heads</code> : <em>bool = False</em></span></p>
+
+<dl><dd>
+  Removes single-paired triangles, if <i>True</i>.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-int-array</em></span></p>
+
+<dl><dd>
+  Numbers of triangles in a subset.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>find_masked()</h3>
+
+<pre class="py-sign">AMRUnit.<b>find_masked</b>(<em>self</em>, mask)</pre>
+
+<p>Finds triangles by a mask-function.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mask</code> : <em>function</em></span></p>
+
+<dl><dd>
+  Boolean mask <code>(x, y) </code> on the triangles centroids.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-int-array</em></span></p>
+
+<dl><dd>
+  Numbers of the found triangles.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>front_coarse()</h3>
+
+<pre class="py-sign">AMRUnit.<b>front_coarse</b>(<em>self</em>)</pre>
+
+<p>Finds a front of coarse triangles.</p>
+
+<div class="toc-anchor"></div><h3>front_fine()</h3>
+
+<pre class="py-sign">AMRUnit.<b>front_fine</b>(<em>self</em>)</pre>
+
+<p>Finds a front of fine triangles.</p>
+
+<div class="toc-anchor"></div><h3>makedata()</h3>
+
+<pre class="py-sign">AMRUnit.<b>makedata</b>(<em>self</em>, key, func, constrained=<span>True</span>)</pre>
+
+<p>Generates a unit data item from a given function.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
+
+<dl><dd>
+  Key of the unit data item.
+</dd></dl>
+
+<p><span class="vardef"><code>func</code> : <em>Callable</em></span></p>
+
+<dl><dd>
+  The item-source function <code>(x, y)</code> on the mesh nodes.
+</dd></dl>
+
+<p><span class="vardef"><code>constrained</code> : <em>bool = True</em></span></p>
+
+<dl><dd>
+  Constrains the new data item on the mesh, if <i>True</i>.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>self</em></span></p>
+
+<dl><dd>
+  The unit with the new data item.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>getinterp()</h3>
+
+<pre class="py-sign">AMRUnit.<b>getinterp</b>(<em>self</em>, xnodes, ynodes)</pre>
+
+<p>Creates an interpolator on a mesh.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>xnodes</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  x-coordinates of the interpolation nodes.
+</dd></dl>
+
+<p><span class="vardef"><code>ynodes</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  y-coordinates of the interpolation nodes.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>TriInterp</em></span></p>
+
+<dl><dd>
+  Callable interpolator.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>TriFront</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.amr.<b>TriFront</b>(unit=<span>None</span>, data=<span>None</span>)</pre>
+
+<p>Front of triangles.</p>
+
+<p><b>Properties</b></p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>trinums</code></td>
+        <td>Indices of the front-facing triangles.</td>
+    </tr>
+    <tr>
+        <td><code>voidnums</code></td>
+        <td>Indices of void triangles in the front.</td>
+    </tr>
+</table>
+
+<div class="toc-anchor"></div><h3>atrank()</h3>
+
+<pre class="py-sign">TriFront.<b>atrank</b>(<em>self</em>, rank)</pre>
+
+<p>Selects the front with the specified rank.</p>
+
+<div class="toc-anchor"></div><h3>angles()</h3>
+
+<pre class="py-sign">TriFront.<b>angles</b>(<em>self</em>)</pre>
+
+<p>Computes the orientation angles of the front.</p>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Angles between the voids and the front centroids.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>scales()</h3>
+
+<pre class="py-sign">TriFront.<b>scales</b>(<em>self</em>)</pre>
+
+<p>Computes the normalized front scales.</p>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Normalized distances between the front centroids and voids.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>filter_by_mask()</h3>
+
+<pre class="py-sign">TriFront.<b>filter_by_mask</b>(<em>self</em>, mask)</pre>
+
+<p>Filters the front by the mask.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mask</code> : <em>function</em></span></p>
+
+<dl><dd>
+  Boolean mask <code>(x, y) </code> on the triangles centroids.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>TriFront</em></span></p>
+
+<dl><dd>
+  New front.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>filter_by_angle()</h3>
+
+<pre class="py-sign">TriFront.<b>filter_by_angle</b>(<em>self</em>, angmin, angmax)</pre>
+
+<p>Filters the front by the orientation angles.</p>
+
+<div class="toc-anchor"></div><h3>filter_by_scale()</h3>
+
+<pre class="py-sign">TriFront.<b>filter_by_scale</b>(<em>self</em>, minval, maxval)</pre>
+
+<p>Filters the front by the scales.</p>
+
+<hr>
+        </div>
+        <p id="footnote">Copyright &copy; 2023, Igor Semenov.</p>
+    </div>
+
+    <footer></footer>
+
+    <script>
+        setDocPage();
+    </script>
+
+</body>
+
+</html>

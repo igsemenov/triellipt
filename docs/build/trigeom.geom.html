@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Modules — triellipt documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+    <link rel="stylesheet" href="docpage.css">
+    <script src="docpage.js"></script>
+</head>
+
+<body>
+
+    <div id="top-panel">
+        <div id="page-logo"></div>
+        <div id="top-panel-tool-bar">
+            <div id="global-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="local-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="home-page-btn" class="top-panel-btn" onclick="gotoHomePage()"></div>
+        </div>
+    </div>
+
+    <div id="global-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>Contents</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="global-toc-box__text" class="toc-box__textbox"></div>
+    </div>
+    <div id="local-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>On this page</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="local-toc-box__text" class="toc-box__textbox">
+            <p>
+            <ul>
+                <li><a href="#triellipt.geom">triellipt.geom</a>
+                    <ul>
+                        <li><a href="#line">line()</a></li>
+                        <li><a href="#elliparc">elliparc()</a></li>
+                        <li><a href="#bezier2">bezier2()</a></li>
+                        <li><a href="#bezier3">bezier3()</a></li>
+                        <li><a href="#makeloop">makeloop()</a></li>
+                        <li><a href="#makerect">makerect()</a></li>
+                        <li><a href="#makeellip">makeellip()</a></li>
+                        <li><a href="#makecycle">makecycle()</a></li>
+                        <li><a href="#curve">Curve</a>
+                            <ul>
+                                <li><a href="#getpath">getpath()</a></li>
+                                <li><a href="#linspace">linspace()</a></li>
+                                <li><a href="#partition">partition()</a></li>
+                                <li><a href="#length">length()</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#curvesloop">CurvesLoop</a>
+                            <ul>
+                                <li><a href="#partition-1">partition()</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#pathmap">PathMap</a>
+                            <ul>
+                                <li><a href="#ascycle">ascycle()</a></li>
+                                <li><a href="#subpath">subpath()</a></li>
+                                <li><a href="#repaint">repaint()</a></li>
+                                <li><a href="#rshift">rshift()</a></li>
+                                <li><a href="#lshift">lshift()</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#cycpath">CycPath</a>
+                            <ul>
+                                <li><a href="#angles">angles()</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            </p>
+        </div>
+    </div>
+
+    <div id="content-box">
+        <div id="title-box">
+            <h1 id="title-box__title"></h1>
+            <h2 id="title-box__annotation"></h2>
+            <hr>
+        </div>
+        <div id="doc-box">
+<div class="toc-anchor"></div><h1>triellipt.geom</h1>
+
+<p>Geometry module.</p>
+
+<div class="toc-anchor"></div><h2>line()</h2>
+
+<pre class="py-sign">triellipt.geom.<b>line</b>(startpoint, endpoint)</pre>
+
+<p>Creates a line between two points.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>startpoint</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  Start point.
+</dd></dl>
+
+<p><span class="vardef"><code>endpoint</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  End point.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>Line</em></span></p>
+
+<dl><dd>
+  The resulting curve.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>elliparc()</h2>
+
+<pre class="py-sign">triellipt.geom.<b>elliparc</b>(center, axes, phis, tilt=0)</pre>
+
+<p>Creates an elliptic arc.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>center</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  Ellipse center.
+</dd></dl>
+
+<p><span class="vardef"><code>axes</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Major and minor ellipse axes.
+</dd></dl>
+
+<p><span class="vardef"><code>phis</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Start and end arc angles.
+</dd></dl>
+
+<p><span class="vardef"><code>tilt</code> : <em>float = 0</em></span></p>
+
+<dl><dd>
+  Ellipse rotation angle around the center. 
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>EllipArc</em></span></p>
+
+<dl><dd>
+  The resulting curve.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>bezier2()</h2>
+
+<pre class="py-sign">triellipt.geom.<b>bezier2</b>(point0, point1, point2)</pre>
+
+<p>Creates a quadratic Bezier curve.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>point0</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  1st control point (startpoint).
+</dd></dl>
+
+<p><span class="vardef"><code>point1</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  2nd control point.
+</dd></dl>
+
+<p><span class="vardef"><code>point2</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  3rd control point (endpoint).
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>Bezier2</em></span></p>
+
+<dl><dd>
+  The resulting curve.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>bezier3()</h2>
+
+<pre class="py-sign">triellipt.geom.<b>bezier3</b>(point0, point1, point2, point3)</pre>
+
+<p>Creates a cubic Bezier curve.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>point0</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  1st control point (startpoint).
+</dd></dl>
+
+<p><span class="vardef"><code>point1</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  2nd control point.
+</dd></dl>
+
+<p><span class="vardef"><code>point2</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  3rd control point.
+</dd></dl>
+
+<p><span class="vardef"><code>point3</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  4th control point (endpoint).
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>Bezier3</em></span></p>
+
+<dl><dd>
+  The resulting curve.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>makeloop()</h2>
+
+<pre class="py-sign">triellipt.geom.<b>makeloop</b>(*curves)</pre>
+
+<p>Creates a loop of connected curves.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>curves</code> : <em>*one-of-the-curves</em></span></p>
+
+<dl><dd>
+  Sequence of connected curves.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>CurvesLoop</em></span></p>
+
+<dl><dd>
+  The resulting curves loop.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>makerect()</h2>
+
+<pre class="py-sign">triellipt.geom.<b>makerect</b>(corner, dims)</pre>
+
+<p>Creates a rectangle as a loop.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>corner</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  South-west rectangle corner.
+</dd></dl>
+
+<p><span class="vardef"><code>dims</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Width and height of the rectangle.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>CurvesLoop</em></span></p>
+
+<dl><dd>
+  Loop of rectangle sides (south-east-north-west).
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>makeellip()</h2>
+
+<pre class="py-sign">triellipt.geom.<b>makeellip</b>(center, axes, tilt=0)</pre>
+
+<p>Creates a closed ellipse as a loop.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>center</code> : <em>complex</em></span></p>
+
+<dl><dd>
+  Ellipse center.
+</dd></dl>
+
+<p><span class="vardef"><code>axes</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Major and minor axes.
+</dd></dl>
+
+<p><span class="vardef"><code>tilt</code> : <em>float = 0</em></span></p>
+
+<dl><dd>
+  Ellipse rotation angle.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>CurvesLoop</em></span></p>
+
+<dl><dd>
+  Ellipse as a single-curve-loop.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>makecycle()</h2>
+
+<pre class="py-sign">triellipt.geom.<b>makecycle</b>(path)</pre>
+
+<p>Creates a cyclic path.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>path</code> : <em>flat-complex-array</em></span></p>
+
+<dl><dd>
+  Input path.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>CycPath</em></span></p>
+
+<dl><dd>
+  The resulting cyclic path.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>Curve</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.geom.<b>Curve</b>()</pre>
+
+<p>Base class for parametric curves on [0, 1].</p>
+
+<div class="toc-anchor"></div><h3>getpath()</h3>
+
+<pre class="py-sign">Curve.<b>getpath</b>(<em>self</em>, *args)</pre>
+
+<p>Picks points on the curve.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>args</code> : <em>*float</em></span></p>
+
+<dl><dd>
+  Parameters in [0, 1].
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-complex-array</em></span></p>
+
+<dl><dd>
+  Points on the curve.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>linspace()</h3>
+
+<pre class="py-sign">Curve.<b>linspace</b>(<em>self</em>, nparts)</pre>
+
+<p>Splits the curve uniformly in the parameter space.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>nparts</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Number of intervals in the parameter space.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-complex-array</em></span></p>
+
+<dl><dd>
+  The resulting polygonal path.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>partition()</h3>
+
+<pre class="py-sign">Curve.<b>partition</b>(<em>self</em>, nparts, ratio=1)</pre>
+
+<p>Splits the curve into segments based on length.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>nparts</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Number of segments in the partition.
+</dd></dl>
+
+<p><span class="vardef"><code>ratio</code> : <em>float = 1</em></span></p>
+
+<dl><dd>
+  Ratio of segments lengths (last-to-first).
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-complex-array</em></span></p>
+
+<dl><dd>
+  The resulting polygonal chain.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>length()</h3>
+
+<pre class="py-sign">Curve.<b>length</b>(<em>self</em>, *, places=4, maxitr=10)</pre>
+
+<p>Estimates the curve length iteratively.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>places</code> : <em>int = 4</em></span></p>
+
+<dl><dd>
+  Number of decimal places to resolve.
+</dd></dl>
+
+<p><span class="vardef"><code>maxitr</code> : <em>int = 10</em></span></p>
+
+<dl><dd>
+  Maximum number of iterations.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>float</em></span></p>
+
+<dl><dd>
+  Length estimate.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>CurvesLoop</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.geom.<b>CurvesLoop</b>(curves=<span>None</span>)</pre>
+
+<p>Loop of connected curves.</p>
+
+<p><b>Attributes</b></p>
+
+<p><span class="vardef"><code>curves</code> : <em>tuple</em></span></p>
+
+<dl><dd>
+  Sequence of connected curves.
+</dd></dl>
+
+<p><b>Properties</b></p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>startpoints</code></td>
+        <td>Curves start points.</td>
+    </tr>
+    <tr>
+        <td><code>endpoints</code></td>
+        <td>Curves end points.</td>
+    </tr>
+</table>
+
+<div class="toc-anchor"></div><h3>partition()</h3>
+
+<pre class="py-sign">CurvesLoop.<b>partition</b>(<em>self</em>, *params)</pre>
+
+<p>Discretizes the curves loop.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>params</code> : <em>*(nparts, ratio)</em></span></p>
+
+<dl><dd>
+  Partition parameters for each curve, see <code>Curve().partition()</code>
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>PathsMap</em></span></p>
+
+<dl><dd>
+  The resulting path map.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>PathMap</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.geom.<b>PathMap</b>(nodes=<span>None</span>)</pre>
+
+<p>Polygonal path with colored nodes.</p>
+
+<p><b>Properties</b></p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>colors</code></td>
+        <td>Nodes colors.</td>
+    </tr>
+    <tr>
+        <td><code>numbers</code></td>
+        <td>Nodes numbers.</td>
+    </tr>
+    <tr>
+        <td><code>points</code></td>
+        <td>Nodes positions.</td>
+    </tr>
+</table>
+
+<p><b>Notes</b></p>
+
+<p>
+<ul class="md-list">
+    <li>Actions that change colors return new paths.</li>
+    <li>Actions on colors do nothing, if colors are not found.</li>
+    <li>Colors contacts are from the left to the right (cyclic).</li>
+</ul>
+</p>
+
+<div class="toc-anchor"></div><h3>ascycle()</h3>
+
+<pre class="py-sign">PathMap.<b>ascycle</b>(<em>self</em>)</pre>
+
+<p>Converts the path map to a cyclic path.</p>
+
+<div class="toc-anchor"></div><h3>subpath()</h3>
+
+<pre class="py-sign">PathMap.<b>subpath</b>(<em>self</em>, color)</pre>
+
+<p>Fetches a subpath with the specified color.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>color</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Color of the subpath.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>PathMap</em></span></p>
+
+<dl><dd>
+  The resulting single-color path.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>repaint()</h3>
+
+<pre class="py-sign">PathMap.<b>repaint</b>(<em>self</em>, color, newcolor)</pre>
+
+<p>Changes the specified color to the new one.</p>
+
+<div class="toc-anchor"></div><h3>rshift()</h3>
+
+<pre class="py-sign">PathMap.<b>rshift</b>(<em>self</em>, color1, color2)</pre>
+
+<p>Shifts the contact of two colors to the right by one node.</p>
+
+<div class="toc-anchor"></div><h3>lshift()</h3>
+
+<pre class="py-sign">PathMap.<b>lshift</b>(<em>self</em>, color1, color2)</pre>
+
+<p>Shifts the contact of two colors to the left by one node.</p>
+
+<div class="toc-anchor"></div><h2>CycPath</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.geom.<b>CycPath</b>(nodes=<span>None</span>)</pre>
+
+<p>Cyclic path with focus on geometry.</p>
+
+<p><b>Properties</b></p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>points</code></td>
+        <td>Nodes positions.</td>
+    </tr>
+    <tr>
+        <td><code>numbers</code></td>
+        <td>Nodes numbers.</td>
+    </tr>
+    <tr>
+        <td><code>previnds</code></td>
+        <td>Cyclic index with the shift −1</td>
+    </tr>
+    <tr>
+        <td><code>nextinds</code></td>
+        <td>Cyclic index with the shift +1</td>
+    </tr>
+</table>
+
+<div class="toc-anchor"></div><h3>angles()</h3>
+
+<pre class="py-sign">CycPath.<b>angles</b>(<em>self</em>)</pre>
+
+<p>Provides rotation angles of edges.</p>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Rotation angles of edges at each node.
+</dd></dl>
+
+<hr>
+        </div>
+        <p id="footnote">Copyright &copy; 2023, Igor Semenov.</p>
+    </div>
+
+    <footer></footer>
+
+    <script>
+        setDocPage();
+    </script>
+
+</body>
+
+</html>
