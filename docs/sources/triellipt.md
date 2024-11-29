@@ -1,0 +1,147 @@
+<!--
+{
+  "webtitle": "Modules — triellipt documentation",
+  "doctitle": "triellipt — Modules"
+}
+-->
+
+## Annotations
+
+Module                   | Description           
+------------------------ | ----------------------
+<b>triellipt.geom</b>    | Geometry module.      
+<b>triellipt.mesher</b>  | Meshing tools.        
+<b>triellipt.trimesh</b> | Triangle mesh object. 
+<b>triellipt.mshread</b> | Reader of Gmsh meshes.
+
+## Reference
+
+### triellipt.geom
+
+<p>
+<ul class="ref-list" id="mod-refs">
+    <li><a href="triellipt.geom.md#triellipt.geom">triellipt.geom</a>
+        <ul>
+            <li><a href="triellipt.geom.md#line">line()</a></li>
+            <li><a href="triellipt.geom.md#elliparc">elliparc()</a></li>
+            <li><a href="triellipt.geom.md#bezier2">bezier2()</a></li>
+            <li><a href="triellipt.geom.md#bezier3">bezier3()</a></li>
+            <li><a href="triellipt.geom.md#makeloop">makeloop()</a></li>
+            <li><a href="triellipt.geom.md#makerect">makerect()</a></li>
+            <li><a href="triellipt.geom.md#makeellip">makeellip()</a></li>
+            <li><a href="triellipt.geom.md#makecycle">makecycle()</a></li>
+            <li><a href="triellipt.geom.md#curve">Curve</a>
+                <ul>
+                    <li><a href="triellipt.geom.md#getpath">getpath()</a></li>
+                    <li><a href="triellipt.geom.md#linspace">linspace()</a></li>
+                    <li><a href="triellipt.geom.md#partition">partition()</a></li>
+                    <li><a href="triellipt.geom.md#length">length()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.geom.md#curvesloop">CurvesLoop</a>
+                <ul>
+                    <li><a href="triellipt.geom.md#partition-1">partition()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.geom.md#pathmap">PathMap</a>
+                <ul>
+                    <li><a href="triellipt.geom.md#ascycle">ascycle()</a></li>
+                    <li><a href="triellipt.geom.md#subpath">subpath()</a></li>
+                    <li><a href="triellipt.geom.md#repaint">repaint()</a></li>
+                    <li><a href="triellipt.geom.md#rshift">rshift()</a></li>
+                    <li><a href="triellipt.geom.md#lshift">lshift()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.geom.md#cycpath">CycPath</a>
+                <ul>
+                    <li><a href="triellipt.geom.md#angles">angles()</a></li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+</p>
+
+### triellipt.mesher
+
+<p>
+<ul class="ref-list" id="mod-refs">
+    <li><a href="triellipt.mesher.md#triellipt.mesher">triellipt.mesher</a>
+        <ul>
+            <li><a href="triellipt.mesher.md#trigrid">trigrid()</a></li>
+        </ul>
+    </li>
+</ul>
+</p>
+
+### triellipt.trimesh
+
+<p>
+<ul class="ref-list" id="mod-refs">
+    <li><a href="triellipt.trimesh.md#triellipt.trimesh">triellipt.trimesh</a>
+        <ul>
+            <li><a href="triellipt.trimesh.md#trimesh">TriMesh</a>
+                <ul>
+                    <li><a href="triellipt.trimesh.md#submesh">submesh()</a></li>
+                    <li><a href="triellipt.trimesh.md#deltriangs">deltriangs()</a></li>
+                    <li><a href="triellipt.trimesh.md#meshedge">meshedge()</a></li>
+                    <li><a href="triellipt.trimesh.md#edgesmap">edgesmap()</a></li>
+                    <li><a href="triellipt.trimesh.md#nodesmap">nodesmap()</a></li>
+                    <li><a href="triellipt.trimesh.md#delghosts">delghosts()</a></li>
+                    <li><a href="triellipt.trimesh.md#supertriu">supertriu()</a></li>
+                    <li><a href="triellipt.trimesh.md#reduced">reduced()</a></li>
+                    <li><a href="triellipt.trimesh.md#layout">layout()</a></li>
+                    <li><a href="triellipt.trimesh.md#split">split()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.trimesh.md#meshedge-1">MeshEdge</a>
+                <ul>
+                    <li><a href="triellipt.trimesh.md#getloops">getloops()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.trimesh.md#edgeloop">EdgeLoop</a>
+                <ul>
+                    <li><a href="triellipt.trimesh.md#synctoedge">synctoedge()</a></li>
+                    <li><a href="triellipt.trimesh.md#synctonode">synctonode()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.trimesh.md#edgesmap-1">EdgesMap</a>
+                <ul>
+                    <li><a href="triellipt.trimesh.md#getspec">getspec()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.trimesh.md#nodesmap-1">NodesMap</a>
+                <ul>
+                    <li><a href="triellipt.trimesh.md#atnode">atnode()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.trimesh.md#supertriu-1">SuperTriu</a>
+                <ul>
+                    <li><a href="triellipt.trimesh.md#strip">strip()</a></li>
+                    <li><a href="triellipt.trimesh.md#smooth">smooth()</a></li>
+                    <li><a href="triellipt.trimesh.md#detach">detach()</a></li>
+                    <li><a href="triellipt.trimesh.md#reduce">reduce()</a></li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+</p>
+
+### triellipt.mshread
+
+<p>
+<ul class="ref-list" id="mod-refs">
+    <li><a href="triellipt.mshread.md#triellipt.mshread">triellipt.mshread</a>
+        <ul>
+            <li><a href="triellipt.mshread.md#mshreader">MSHReader</a>
+                <ul>
+                    <li><a href="triellipt.mshread.md#with_root">with_root()</a></li>
+                    <li><a href="triellipt.mshread.md#listmeshes">listmeshes()</a></li>
+                    <li><a href="triellipt.mshread.md#read_mesh">read_mesh()</a></li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+</p>
