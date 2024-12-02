@@ -2,7 +2,7 @@
 """Super triangulation.
 """
 import numpy as np
-from triellipt.trimesh.utils import tables
+from triellipt.utils import tables
 from triellipt.trimesh import superoprs
 
 
@@ -80,7 +80,7 @@ class SuperData:
 
     def subtriu(self, *trinums):
         return self.update_data(
-            new_data=self.data[:, trinums]
+            self.data[:, trinums]
         )
 
     def deltriangs(self, *trinums):
@@ -90,6 +90,23 @@ class SuperData:
         )
 
         return self.update_data(new_data)
+
+    def supvoids(self):
+        """Fetches a super-triangulation made of voids.
+        """
+        return superoprs.SupVoids.from_suptriu(self).supvoids()
+
+    def atcores(self, *corenums):
+        """Fetches a super-triangulation with the specified cores.
+        """
+
+        to_delete = np.isin(
+            self.trinums, corenums
+        )
+
+        return self.update_data(
+            np.compress(to_delete, self.data, axis=1)
+        )
 
 
 class SuperTriu(SuperData):
@@ -129,6 +146,12 @@ class SuperTriu(SuperData):
 
     def strip(self):
         """Remove links from a super-triangulation.
+
+        Notes
+        -----
+
+        See `EdgesMap.getspec()` for links definition.
+
         """
 
         if self.size == 0:
@@ -144,6 +167,11 @@ class SuperTriu(SuperData):
         ----------
         iterate : bool = True
             Runs smoothing until possible, if True.
+
+        Notes
+        -----
+
+        See `EdgesMap.getspec()` for heads and spots definition.
 
         """
 
@@ -166,26 +194,23 @@ class SuperTriu(SuperData):
         cleaner = superoprs.SupDetach.from_suptriu(self)
         return cleaner.cleaned()
 
-    def flatten(self, rtol):
-
-        if self.size == 0:
-            return self
-
-        cleaner = superoprs.SupFlat.from_suptriu(self)
-        return cleaner.flatten(rtol)
-
     def reduce(self, iterate=True):
         """Extracts a compact super-triangulation, if possible.
 
         Parameters
         ----------
         iterate : bool = True
-            Turns on compression of the stripped mesh in case of failure.
+            Triggers cleaning and retry in case of failure (i).
 
         Returns
         -------
         SuperTriu | None
             Compact super-triangulation or None, if failed.
+
+        Notes
+        -----
+
+        (i) Cleaning is a strip-and-smooth action.
 
         """
 
@@ -198,9 +223,6 @@ class SuperTriu(SuperData):
             return reducer.compress()
         return reducer.reduce()
 
-    def supvoids(self):
-        return superoprs.SupVoids.from_suptriu(self).supvoids()
-
 
 class Triangler:
     """Super triangulator.
@@ -209,7 +231,7 @@ class Triangler:
     APEXES_OVER_EDGES = np.r_[2, 0, 1]
 
     def __init__(self, mesh):
-        self.edges = _EdgesMap.from_mesh(mesh)
+        self.edges = EdgesMap.from_mesh(mesh)
 
     def getsuptriu(self):
 
@@ -286,7 +308,7 @@ class Triangler:
         return self.edges.secondary_edgesmap()
 
 
-class _EdgesMap:
+class EdgesMap:
     """Temporary edges map.
     """
 

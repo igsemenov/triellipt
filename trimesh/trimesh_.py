@@ -2,19 +2,22 @@
 """Triangle mesh object.
 """
 import numpy as np
-from triellipt.trimesh.utils import pairs
-from triellipt.trimesh import meshedge_
-from triellipt.trimesh import edgesmap_
-from triellipt.trimesh import nodesmap_
-from triellipt.trimesh import delghosts_
-from triellipt.trimesh import supertriu_
-from triellipt.trimesh import trireduce
-from triellipt.trimesh import trisplit
-from triellipt.trimesh import renumer
+from triellipt.utils import pairs
+from triellipt.trimesh import (
+    meshedge_,
+    edgesmap_,
+    nodesmap_,
+    delghosts_,
+    delmouths_,
+    supertriu_,
+    trireduce,
+    trisplit,
+    renumer
+)
 
 
 class TriData:
-    """Root of a trimesh.
+    """Triangle mesh data.
     """
 
     def __init__(self, points=None, triangs=None):
@@ -41,9 +44,18 @@ class TriData:
             self.points, new_triangs
         )
 
-    def addtriangs(self, new_triangs):
+    def add_triangs(self, new_triangs):
         return self.update_triangs(
-            np.vstack([self.triangs, new_triangs])
+            np.vstack(
+                [self.triangs, new_triangs]
+            )
+        )
+
+    def add_points(self, new_points):
+        return self.update_points(
+            np.hstack(
+                [self.points, new_points]
+            )
         )
 
     @classmethod
@@ -85,6 +97,11 @@ class TriData:
             self.triangs[:, [0, 1, 2, 0]]
         )
 
+
+class _TriMesh(TriData):
+    """Root of a trimesh.
+    """
+
     def hasghosts(self) -> bool:
         """Checks for ghosts.
         """
@@ -110,7 +127,52 @@ class TriData:
         return self.getvoids().size != 0
 
     def renumed(self, permuter):
-        return renumer.Renumer(self).renumed(permuter)
+        _ = renumer.Renumer.from_mesh(self)
+        return _.renumed(permuter)
+
+    def shuffled(self, permuter):
+        _ = renumer.Shuffler.from_mesh(self)
+        return _.shuffled(permuter)
+
+    def twin(self):
+        return self.from_data(
+            self.points, self.triangs
+        )
+
+    def alignmesh(self):
+        """Places edge triangles at the top of triangles table.
+
+        Returns
+        -------
+        TriMesh
+            New mesh.
+
+        """
+        _ = renumer.AlignMesh.from_mesh(self)
+        return _.aligned()
+
+    def alignnodes(self, *anchors):
+        """Numbers mesh points in the edge-core order.
+
+        Parameters
+        ----------
+        anchors : *int
+            Node numbers used to synchronize the edge loops.
+
+        Returns
+        -------
+        TriMesh | None
+            New mesh or None, if loops cannot be fetched.
+
+        """
+        _ = renumer.AlignNodes.from_mesh(self)
+        return _.aligned(*anchors)
+
+    def alignvoids(self):
+        """Numbers mesh points so that voids pivots stay at the end. 
+        """
+        _ = renumer.AlignVoids.from_mesh(self)
+        return _.aligned()
 
     def save(self, file) -> None:
         """Saves the mesh to `.npz` file.
@@ -148,7 +210,7 @@ class TriData:
         )
 
 
-class TriMesh(TriData):
+class TriMesh(_TriMesh):
     """Triangle mesh.
 
     Attributes
@@ -180,6 +242,10 @@ class TriMesh(TriData):
     @property
     def nnodes(self):
         return self.nodes_range.size
+
+    @property
+    def edgesize(self):
+        return self.meshedge().nedges
 
     @property
     def nodes_range(self):
@@ -247,6 +313,9 @@ class TriMesh(TriData):
 
         return self.update_triangs(new_triangs)
 
+    def delvoids(self):
+        return self.deltriangs(*self.getvoids())
+
     def meshedge(self):
         """Extracts the mesh edge.
 
@@ -299,6 +368,17 @@ class TriMesh(TriData):
         """
         return delghosts_.DelGhosts(self).cleanmesh()
 
+    def delmouths(self):
+        """Removes mouths from the mesh.
+
+        Returns
+        -------
+        TriMesh
+            New mesh.
+
+        """
+        return delmouths_.clean_mesh(self)
+
     def supertriu(self):
         """Creates a super triangulation.
 
@@ -316,40 +396,23 @@ class TriMesh(TriData):
         Parameters
         ----------
         shrink : int = None
-            Controls shrinking of a super-triangulation (a).
+            Controls shrinking of super-triangulations (i).
         detach : bool = False
             Runs the edge detachment before compression, if True.
 
         Returns
         -------
         TriMesh
-            New mesh (b).
+            New mesh.
 
         Notes
         -----
 
-        - (a) Number of shrinking steps after compression.
-        - (b) Has unchanged mesh data if compression failed.
+        (i) Number of shrinking steps after one compression event.
 
         """
-        reducer = trireduce.TriReduce.from_mesh(self)
-        return reducer.reduced(shrink, detach)
-
-    def layout(self, *anchors):
-        """Numbers mesh points in the edge-core order.
-
-        Parameters
-        ----------
-        anchors : *int
-            Possible anchors on the mesh edge.
-
-        Returns
-        -------
-        TriMesh | None
-            New mesh or None, if failed.
-
-        """
-        return renumer.Arranger(self).arrange(*anchors)
+        _ = trireduce.MeshReduce.from_mesh(self)
+        return _.reduced(shrink, detach)
 
     def split(self):
         """Splits the mesh into homogeneous parts.

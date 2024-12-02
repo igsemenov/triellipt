@@ -2,7 +2,7 @@
 """Loops fetcher.
 """
 import numpy as np
-from triellipt.trimesh.utils import tables
+from triellipt.utils import tables
 
 
 class LoopsAsInds:

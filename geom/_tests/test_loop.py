@@ -23,7 +23,7 @@ class TestCurvesLoop(unittest.TestCase):
 
     def test_discretize(self):
         assert isinstance(
-            self.loop_normal.partition((10, 1)), loop.PathMap
+            self.loop_normal.discretize((10, 1)), loop.PathMap
         )
 
     @property

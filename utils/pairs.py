@@ -20,8 +20,23 @@ def sympaired(ipos, jpos):
     )
 
 
+def szupaired(ipos, jpos):
+    """Szudzik pairing of two integers.
+    """
+
+    ipos = ipos.astype(np.int64)
+    jpos = jpos.astype(np.int64)
+
+    upair = ipos + jpos * jpos
+    lpair = jpos + ipos * ipos + ipos
+
+    return np.where(
+        ipos < jpos, upair, lpair
+    )
+
+
 def paircols(table):
-    """Piaring of table columns.
+    """Pairing of table columns.
 
     Parameters
     ----------
@@ -31,7 +46,7 @@ def paircols(table):
     Returns
     -------
     n-column-int64-table
-        Table of praired columns.
+        Table of paired columns.
 
     """
 

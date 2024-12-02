@@ -31,5 +31,30 @@ class TestRenum(unittest.TestCase):
         return self.MESH.meshedge()
 
 
+class TestShuffle(unittest.TestCase):
+
+    def test_edge_primary(self):
+        assert self.edge_primary.tolist() == [1, 2, 5, 6]
+
+    def test_edge_aligned(self):
+        assert self.edge_aligned.tolist() == [0, 1, 2, 3]
+
+    @property
+    def edge_aligned(self):
+        return self.mesh_aligned.meshedge().trinums_unique
+
+    @property
+    def edge_primary(self):
+        return self.mesh_primary.meshedge().trinums_unique
+
+    @property
+    def mesh_primary(self):
+        return mesher.trigrid(3, 3, 'west-snake')
+
+    @property
+    def mesh_aligned(self):
+        return self.mesh_primary.alignmesh()
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -9,12 +9,57 @@
 
 Module                   | Description           
 ------------------------ | ----------------------
+<b>triellipt.fem</b>     | Finite-element solver.
 <b>triellipt.geom</b>    | Geometry module.      
-<b>triellipt.mesher</b>  | Meshing tools.        
+<b>triellipt.mesher</b>  | Mesh generation tools.
 <b>triellipt.trimesh</b> | Triangle mesh object. 
 <b>triellipt.mshread</b> | Reader of Gmsh meshes.
 
 ## Reference
+
+### triellipt.fem
+
+<p>
+<ul class="ref-list" id="mod-refs">
+    <li><a href="triellipt.fem.md#triellipt.fem">triellipt.fem</a>
+        <ul>
+            <li><a href="triellipt.fem.md#getunit">getunit()</a></li>
+            <li><a href="triellipt.fem.md#femunit">FEMUnit</a>
+                <ul>
+                    <li><a href="triellipt.fem.md#get_factory">get_factory()</a></li>
+                    <li><a href="triellipt.fem.md#get_interp">get_interp()</a></li>
+                    <li><a href="triellipt.fem.md#new_vector">new_vector()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.fem.md#femfactory">FEMFactory</a>
+                <ul>
+                    <li><a href="triellipt.fem.md#feed_data">feed_data()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.fem.md#matrixfem">MatrixFEM</a>
+                <ul>
+                    <li><a href="triellipt.fem.md#with_name">with_name()</a></li>
+                    <li><a href="triellipt.fem.md#dirichsplit">dirichsplit()</a></li>
+                    <li><a href="triellipt.fem.md#partitioned">partitioned()</a></li>
+                    <li><a href="triellipt.fem.md#getblock">getblock()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.fem.md#vectorfem">VectorFEM</a>
+                <ul>
+                    <li><a href="triellipt.fem.md#with_name-1">with_name()</a></li>
+                    <li><a href="triellipt.fem.md#with_body">with_body()</a></li>
+                    <li><a href="triellipt.fem.md#from_func">from_func()</a></li>
+                    <li><a href="triellipt.fem.md#dirichsplit-1">dirichsplit()</a></li>
+                    <li><a href="triellipt.fem.md#partitioned-1">partitioned()</a></li>
+                    <li><a href="triellipt.fem.md#getsection">getsection()</a></li>
+                    <li><a href="triellipt.fem.md#setsection">setsection()</a></li>
+                    <li><a href="triellipt.fem.md#sectionxy">sectionxy()</a></li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+</p>
 
 ### triellipt.geom
 
@@ -40,7 +85,7 @@ Module                   | Description
             </li>
             <li><a href="triellipt.geom.md#curvesloop">CurvesLoop</a>
                 <ul>
-                    <li><a href="triellipt.geom.md#partition-1">partition()</a></li>
+                    <li><a href="triellipt.geom.md#discretize">discretize()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.geom.md#pathmap">PathMap</a>
@@ -88,9 +133,9 @@ Module                   | Description
                     <li><a href="triellipt.trimesh.md#edgesmap">edgesmap()</a></li>
                     <li><a href="triellipt.trimesh.md#nodesmap">nodesmap()</a></li>
                     <li><a href="triellipt.trimesh.md#delghosts">delghosts()</a></li>
+                    <li><a href="triellipt.trimesh.md#delmouths">delmouths()</a></li>
                     <li><a href="triellipt.trimesh.md#supertriu">supertriu()</a></li>
                     <li><a href="triellipt.trimesh.md#reduced">reduced()</a></li>
-                    <li><a href="triellipt.trimesh.md#layout">layout()</a></li>
                     <li><a href="triellipt.trimesh.md#split">split()</a></li>
                 </ul>
             </li>

@@ -4,8 +4,8 @@
 import numpy as np
 
 
-class TriReduce:
-    """Reducer of a triangle mesh.
+class MeshAgent:
+    """Operator on a trimesh.
     """
 
     def __init__(self, mesh=None):
@@ -16,8 +16,17 @@ class TriReduce:
         return cls(mesh)
 
     @property
+    def mesh_twin(self):
+        return self.mesh.twin()
+
+    @property
     def mesh_suptriu(self):
         return self.mesh.supertriu()
+
+
+class MeshReduce(MeshAgent):
+    """Performs a mesh-reduction event.
+    """
 
     def reduced(self, shrink=None, detach=False):
         """Tries to compress a triangle mesh.
@@ -66,27 +75,37 @@ class TriReduce:
         for _ in range(niters):
             suptriu = suptriu.strip().smooth()
 
+        if self.is_empty_suptriu(suptriu):
+            return None
+
         return suptriu
 
     def from_suptriu(self, suptriu):
 
-        if self.is_empty_suptriu(suptriu):
-            return self.mesh
+        if suptriu is None:
+            return self.mesh_twin
+
+        imesh, omesh = self.gen_mesh_duet(suptriu)
+
+        new_mesh = self.run_mesh_merge(imesh, omesh)
+        return new_mesh
+
+    def gen_mesh_duet(self, suptriu):
 
         inner_mesh = suptriu.supmesh
         outer_mesh = suptriu.mesh.deltriangs(*suptriu.supbodies)
 
-        merger = MeshMerge(
-            inner_mesh, outer_mesh
-        )
+        yield inner_mesh
+        yield outer_mesh
 
-        new_mesh = merger.mesh_merge()
+    def run_mesh_merge(self, imesh, omesh):
+
+        new_mesh = MeshMerge(imesh, omesh).mesh_merge()
 
         if new_mesh is None:
-            return self.mesh
+            return self.mesh_twin
 
-        new_mesh = new_mesh.delghosts()
-        return new_mesh
+        return new_mesh.delghosts()
 
     def is_empty_suptriu(self, suptriu):
         if suptriu is None:
@@ -131,13 +150,13 @@ class MeshMerge(MeshDuet):
         return self.from_loops(iloop, oloop)
 
     def make_loops(self):
-        return _GetLoops.with_meshes(self.imesh, self.omesh).get_loops()
+        return GetLoops.with_meshes(self.imesh, self.omesh).get_loops()
 
     def from_loops(self, iloop, oloop):
         return LoopsMerge.with_loops(iloop, oloop).mesh_merge()
 
 
-class _GetLoops:
+class GetLoops:
     """Fetcher of the duet loops.
     """
 
@@ -251,10 +270,10 @@ class LoopsMerge(LoopsDuet):
         itris = self.iloop.mesh.triangs
         otris = self.oloop.mesh.triangs
 
-        ctris = self.get_contact_triangs()
+        voids = self.get_contact_voids()
 
         data = [
-            itris, ctris, otris  # order matters
+            itris, voids, otris  # order matters
         ]
 
         return np.vstack(data)
@@ -269,8 +288,8 @@ class LoopsMerge(LoopsDuet):
 
         return self.primary_points
 
-    def get_contact_triangs(self):
-        """Defines void  triangles between synchronized loops.
+    def get_contact_voids(self):
+        """Defines void triangles between synchronized loops.
         """
 
         hanging_nums = self.get_hanging_nums()

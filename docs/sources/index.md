@@ -9,6 +9,7 @@
 ## Contents
 
 - [Modules](triellipt.md)
+  - [fem](triellipt.fem.md)
   - [geom](triellipt.geom.md)
   - [mesher](triellipt.mesher.md)
   - [trimesh](triellipt.trimesh.md)

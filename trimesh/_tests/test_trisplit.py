@@ -14,7 +14,7 @@ class TestVoids(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.MESH = cls.mesh().addtriangs(cls.EXTRA_TRIS)
+        cls.MESH = cls.mesh().add_triangs(cls.EXTRA_TRIS)
 
     @classmethod
     def mesh(cls):

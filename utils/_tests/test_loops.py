@@ -3,7 +3,7 @@
 """
 import unittest
 import numpy as np
-from triellipt.trimesh.utils import loops
+from triellipt.utils import loops
 
 
 class TestNodesMap(unittest.TestCase):

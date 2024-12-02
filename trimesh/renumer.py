@@ -19,6 +19,53 @@ class MeshAgent:
     def points_range(self):
         return np.arange(self.mesh.npoints)
 
+    @property
+    def pivotsnums(self):
+        return self.mesh.triangs[self.voidsnums, 2]
+
+    @property
+    def voidsnums(self):
+        return self.mesh.getvoids()
+
+    @property
+    def hasvoids(self):
+        return self.mesh.hasvoids()
+
+    @property
+    def mesh_twin(self):
+        return self.mesh.twin()
+
+
+class Shuffler(MeshAgent):
+    """Triangles shuffler.
+    """
+
+    def shuffled(self, permuter):
+        """Shuffles mesh triangles.
+
+        Parameters
+        ----------
+        permuter : flat-int-array
+            Permutation of mesh triangles.
+
+        Returns
+        -------
+        TriMesh
+            New mesh.
+
+        """
+
+        new_triangs = self.make_new_triangs(permuter)
+        new_mesh = self.from_new_triangs(new_triangs)
+
+        return new_mesh
+
+    def make_new_triangs(self, permuter):
+        return self.mesh.triangs[permuter, :]
+
+    def from_new_triangs(self, new_triangs):
+        return self.mesh.update_triangs(new_triangs)
+
 
 class Renumer(MeshAgent):
     """Mesh renumerator.
@@ -66,11 +113,11 @@ class Renumer(MeshAgent):
         return returninds[self.mesh.triangs]
 
 
-class Arranger(MeshAgent):
+class AlignNodes(MeshAgent):
     """Numbers mesh points in the edge-core order.
     """
 
-    def arrange(self, *anchors):
+    def aligned(self, *anchors):
 
         loops = self.make_loops(anchors)
         new_mesh = self.from_loops(loops)
@@ -137,3 +184,69 @@ class Arranger(MeshAgent):
 
     def from_permuter(self, permuter):
         return self.mesh.renumed(permuter)
+
+
+class AlignVoids(MeshAgent):
+    """Numbers mesh points so that voids pivots stay at then end.
+    """
+
+    def aligned(self):
+
+        if not self.hasvoids:
+            return self.mesh_twin
+
+        permuter = self.make_permuter()
+        new_mesh = self.from_permuter(permuter)
+
+        return new_mesh
+
+    def make_permuter(self):
+
+        points = self.points_range
+        pivots = self.pivotsnums
+
+        numbers = [
+            np.delete(points, pivots), pivots
+        ]
+
+        return np.hstack(numbers)
+
+    def from_permuter(self, permuter):
+        return self.mesh.renumed(permuter)
+
+
+class AlignMesh(MeshAgent):
+    """Shuffles mesh triangles in the edge-core-order.
+    """
+
+    def aligned(self):
+
+        edge = self.take_mesh_edge()
+        mesh = self.from_mesh_edge(edge)
+
+        return mesh
+
+    def take_mesh_edge(self):
+        return self.mesh.meshedge()
+
+    def from_mesh_edge(self, edge):
+
+        perm = self.getpermuter(edge)
+        mesh = self.run_shuffle(perm)
+
+        return mesh
+
+    def getpermuter(self, edge):
+
+        edge_triangs = edge.trinums_unique
+
+        core_triangs = np.delete(
+            np.arange(self.mesh.ntriangs), edge_triangs
+        )
+
+        return np.r_[
+            edge_triangs, core_triangs
+        ]
+
+    def run_shuffle(self, perm):
+        return self.mesh.shuffled(perm)

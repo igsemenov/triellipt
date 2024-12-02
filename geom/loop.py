@@ -102,7 +102,7 @@ class CurvesLoop:
             curve1.endpoint, curve2.startpoint
         )
 
-    def partition(self, *params):
+    def discretize(self, *params):
         """Discretizes the curves loop.
 
         Parameters
@@ -113,7 +113,7 @@ class CurvesLoop:
         Returns
         -------
         PathsMap
-            The resulting path map.
+            Polygonal path colored at curves.
 
         """
 
@@ -156,13 +156,6 @@ class PathMap:
     `colors`   | Nodes colors.
     `numbers`  | Nodes numbers.
     `points`   | Nodes positions.
-
-    Notes
-    -----
-
-    - Actions that change colors return new paths.
-    - Actions on colors do nothing, if colors are not found.
-    - Colors contacts are from the left to the right (cyclic).
 
     """
 

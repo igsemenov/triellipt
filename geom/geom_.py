@@ -20,7 +20,7 @@ def line(startpoint, endpoint):
     Returns
     -------
     Line
-        The resulting curve.
+        Line as a curve-like object.
 
     """
     return curves_.Line(startpoint, endpoint)
@@ -43,7 +43,7 @@ def elliparc(center, axes, phis, tilt=0):
     Returns
     -------
     EllipArc
-        The resulting curve.
+        Elliptic arc as a curve-like object.
 
     """
     return curves_.EllipArc(center, axes, phis, tilt)
@@ -64,7 +64,7 @@ def bezier2(point0, point1, point2):
     Returns
     -------
     Bezier2
-        The resulting curve.
+        Curve-like object.
 
     """
     return curves_.Bezier2(point0, point1, point2)
@@ -87,7 +87,7 @@ def bezier3(point0, point1, point2, point3):
     Returns
     -------
     Bezier3
-        The resulting curve.
+        Curve-like object.
 
     """
     return curves_.Bezier3(
@@ -106,7 +106,7 @@ def makeloop(*curves):
     Returns
     -------
     CurvesLoop
-        The resulting curves loop.
+        Loop of connected curves.
 
     """
     return loop.CurvesLoop.from_curves(*curves)
@@ -166,7 +166,7 @@ def makeellip(center, axes, tilt=0):
     Returns
     -------
     CurvesLoop
-        Ellipse as a single-curve-loop.
+        Ellipse as a single-curve loop.
 
     """
 
@@ -188,7 +188,7 @@ def makecycle(path):
     Returns
     -------
     CycPath
-        The resulting cyclic path.
+        Path closed to a cycle.
 
     """
     return cycle.CycPath.from_path(path)

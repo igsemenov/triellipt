@@ -144,6 +144,20 @@ Related methods:
 - `.hasghosts()` shows if there are any ghosts
 - `.getghosts()` returns ghost numbers, if any
 
+### delmouths()
+
+<pre class="py-sign">TriMesh.<b>delmouths</b>(<em>self</em>)</pre>
+
+Removes mouths from the mesh.
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TriMesh</em></span></p>
+
+<dl><dd>
+  New mesh.
+</dd></dl>
+
 ### supertriu()
 
 <pre class="py-sign">TriMesh.<b>supertriu</b>(<em>self</em>)</pre>
@@ -169,7 +183,7 @@ Tries to compress the mesh.
 <p><span class="vardef"><code>shrink</code> : <em>int = None</em></span></p>
 
 <dl><dd>
-  Controls shrinking of a super-triangulation (a).
+  Controls shrinking of super-triangulations (i).
 </dd></dl>
 
 <p><span class="vardef"><code>detach</code> : <em>bool = False</em></span></p>
@@ -183,35 +197,12 @@ Tries to compress the mesh.
 <p><span class="vardef"><em>TriMesh</em></span></p>
 
 <dl><dd>
-  New mesh (b).
+  New mesh.
 </dd></dl>
 
 <b>Notes</b>
 
-- (a) Number of shrinking steps after compression.
-- (b) Has unchanged mesh data if compression failed.
-
-### layout()
-
-<pre class="py-sign">TriMesh.<b>layout</b>(<em>self</em>, *anchors)</pre>
-
-Numbers mesh points in the edge-core order.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>anchors</code> : <em>*int</em></span></p>
-
-<dl><dd>
-  Possible anchors on the mesh edge.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>TriMesh | None</em></span></p>
-
-<dl><dd>
-  New mesh or <i>None</i>, if failed.
-</dd></dl>
+(i) Number of shrinking steps after one compression event.
 
 ### split()
 
@@ -291,14 +282,14 @@ Loop on the mesh edge.
 
 <pre class="py-sign">EdgeLoop.<b>synctoedge</b>(<em>self</em>, edgeind)</pre>
 
-Synchronizes to the specified edge.
+Synchronizes to the specified segment.
 
 <b>Parameters</b>
 
 <p><span class="vardef"><code>edgeind</code> : <em>int</em></span></p>
 
 <dl><dd>
-  Index of the edge to synchronize to.
+  Index of the segment to synchronize to.
 </dd></dl>
 
 <b>Returns</b>
@@ -462,6 +453,10 @@ Name       | Description
 
 Remove links from a super-triangulation.
 
+<b>Notes</b>
+
+See `EdgesMap.getspec()` for links definition.
+
 ### smooth()
 
 <pre class="py-sign">SuperTriu.<b>smooth</b>(<em>self</em>, iterate=<span>True</span>)</pre>
@@ -475,6 +470,10 @@ Removes heads and spots from a super-triangulation.
 <dl><dd>
   Runs smoothing until possible, if <i>True</i>.
 </dd></dl>
+
+<b>Notes</b>
+
+See `EdgesMap.getspec()` for heads and spots definition.
 
 ### detach()
 
@@ -493,7 +492,7 @@ Extracts a compact super-triangulation, if possible.
 <p><span class="vardef"><code>iterate</code> : <em>bool = True</em></span></p>
 
 <dl><dd>
-  Turns on compression of the stripped mesh in case of failure.
+  Triggers cleaning and retry in case of failure (i).
 </dd></dl>
 
 <b>Returns</b>
@@ -503,3 +502,7 @@ Extracts a compact super-triangulation, if possible.
 <dl><dd>
   Compact super-triangulation or <i>None</i>, if failed.
 </dd></dl>
+
+<b>Notes</b>
+
+(i) Cleaning is a strip-and-smooth action.

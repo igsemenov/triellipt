@@ -5,17 +5,15 @@ import numpy as np
 
 
 class CycPath:
-    """Cyclic path with focus on geometry.
+    """Cyclic polygonal path.
 
     Properties
     ----------
 
      Name      | Description
-    -----------|---------------------------------------------
+    -----------|----------------------
     `points`   | Nodes positions.
     `numbers`  | Nodes numbers.
-    `previnds` | Cyclic index with the shift −1
-    `nextinds` | Cyclic index with the shift +1
 
     """
 
@@ -28,7 +26,7 @@ class CycPath:
 
     @classmethod
     def from_path(cls, path):
-        """Creates a cycle from a polygonal chain.
+        """Creates a cycle from a polygonal path.
         """
 
         nodes = np.array(

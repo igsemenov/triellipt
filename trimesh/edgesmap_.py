@@ -2,7 +2,7 @@
 """Mapping inner edges.
 """
 import numpy as np
-from triellipt.trimesh.utils import tables
+from triellipt.utils import tables
 
 
 class EdgesData:

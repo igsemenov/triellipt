@@ -7,7 +7,7 @@
 
 # triellipt.mesher
 
-Meshing tools.
+Mesh generation tools.
 
 ## trigrid()
 
@@ -32,7 +32,7 @@ Creates a triangle grid.
 <p><span class="vardef"><code>slopes</code> : <em>str</em></span></p>
 
 <dl><dd>
-  Controls the orientation of triangles (i).
+  Controls orientation of triangles (i).
 </dd></dl>
 
 <b>Returns</b>

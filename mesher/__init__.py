@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
-"""Meshing tools.
+"""Mesh generation tools.
 """
 from .mesher_ import *

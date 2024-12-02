@@ -4,7 +4,7 @@
 import itertools as itr
 import unittest
 import numpy as np
-from triellipt.trimesh.utils import tables
+from triellipt.utils import tables
 
 
 class TestTableMap(unittest.TestCase):

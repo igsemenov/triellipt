@@ -35,6 +35,7 @@
                 <li><a href="#annotations">Annotations</a></li>
                 <li><a href="#reference">Reference</a>
                     <ul>
+                        <li><a href="#triellipt.fem">triellipt.fem</a></li>
                         <li><a href="#triellipt.geom">triellipt.geom</a></li>
                         <li><a href="#triellipt.mesher">triellipt.mesher</a></li>
                         <li><a href="#triellipt.trimesh">triellipt.trimesh</a></li>
@@ -61,12 +62,16 @@
         <th>Description</th>
     </tr>
     <tr>
+        <td><b>triellipt.fem</b></td>
+        <td>Finite-element solver.</td>
+    </tr>
+    <tr>
         <td><b>triellipt.geom</b></td>
         <td>Geometry module.</td>
     </tr>
     <tr>
         <td><b>triellipt.mesher</b></td>
-        <td>Meshing tools.</td>
+        <td>Mesh generation tools.</td>
     </tr>
     <tr>
         <td><b>triellipt.trimesh</b></td>
@@ -79,6 +84,50 @@
 </table>
 
 <div class="toc-anchor"></div><h2>Reference</h2>
+
+<div class="toc-anchor"></div><h3>triellipt.fem</h3>
+
+<p>
+<ul class="ref-list" id="mod-refs">
+    <li><a href="triellipt.fem.html#triellipt.fem">triellipt.fem</a>
+        <ul>
+            <li><a href="triellipt.fem.html#getunit">getunit()</a></li>
+            <li><a href="triellipt.fem.html#femunit">FEMUnit</a>
+                <ul>
+                    <li><a href="triellipt.fem.html#get_factory">get_factory()</a></li>
+                    <li><a href="triellipt.fem.html#get_interp">get_interp()</a></li>
+                    <li><a href="triellipt.fem.html#new_vector">new_vector()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.fem.html#femfactory">FEMFactory</a>
+                <ul>
+                    <li><a href="triellipt.fem.html#feed_data">feed_data()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.fem.html#matrixfem">MatrixFEM</a>
+                <ul>
+                    <li><a href="triellipt.fem.html#with_name">with_name()</a></li>
+                    <li><a href="triellipt.fem.html#dirichsplit">dirichsplit()</a></li>
+                    <li><a href="triellipt.fem.html#partitioned">partitioned()</a></li>
+                    <li><a href="triellipt.fem.html#getblock">getblock()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.fem.html#vectorfem">VectorFEM</a>
+                <ul>
+                    <li><a href="triellipt.fem.html#with_name-1">with_name()</a></li>
+                    <li><a href="triellipt.fem.html#with_body">with_body()</a></li>
+                    <li><a href="triellipt.fem.html#from_func">from_func()</a></li>
+                    <li><a href="triellipt.fem.html#dirichsplit-1">dirichsplit()</a></li>
+                    <li><a href="triellipt.fem.html#partitioned-1">partitioned()</a></li>
+                    <li><a href="triellipt.fem.html#getsection">getsection()</a></li>
+                    <li><a href="triellipt.fem.html#setsection">setsection()</a></li>
+                    <li><a href="triellipt.fem.html#sectionxy">sectionxy()</a></li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+</p>
 
 <div class="toc-anchor"></div><h3>triellipt.geom</h3>
 
@@ -104,7 +153,7 @@
             </li>
             <li><a href="triellipt.geom.html#curvesloop">CurvesLoop</a>
                 <ul>
-                    <li><a href="triellipt.geom.html#partition-1">partition()</a></li>
+                    <li><a href="triellipt.geom.html#discretize">discretize()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.geom.html#pathmap">PathMap</a>
@@ -152,9 +201,9 @@
                     <li><a href="triellipt.trimesh.html#edgesmap">edgesmap()</a></li>
                     <li><a href="triellipt.trimesh.html#nodesmap">nodesmap()</a></li>
                     <li><a href="triellipt.trimesh.html#delghosts">delghosts()</a></li>
+                    <li><a href="triellipt.trimesh.html#delmouths">delmouths()</a></li>
                     <li><a href="triellipt.trimesh.html#supertriu">supertriu()</a></li>
                     <li><a href="triellipt.trimesh.html#reduced">reduced()</a></li>
-                    <li><a href="triellipt.trimesh.html#layout">layout()</a></li>
                     <li><a href="triellipt.trimesh.html#split">split()</a></li>
                 </ul>
             </li>

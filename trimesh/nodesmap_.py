@@ -2,7 +2,7 @@
 """Mapping mesh nodes.
 """
 import numpy as np
-from triellipt.trimesh.utils import tables
+from triellipt.utils import tables
 
 
 def _maptable(table):

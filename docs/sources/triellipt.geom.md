@@ -34,7 +34,7 @@ Creates a line between two points.
 <p><span class="vardef"><em>Line</em></span></p>
 
 <dl><dd>
-  The resulting curve.
+  Line as a curve-like object.
 </dd></dl>
 
 ## elliparc()
@@ -74,7 +74,7 @@ Creates an elliptic arc.
 <p><span class="vardef"><em>EllipArc</em></span></p>
 
 <dl><dd>
-  The resulting curve.
+  Elliptic arc as a curve-like object.
 </dd></dl>
 
 ## bezier2()
@@ -108,7 +108,7 @@ Creates a quadratic Bezier curve.
 <p><span class="vardef"><em>Bezier2</em></span></p>
 
 <dl><dd>
-  The resulting curve.
+  Curve-like object.
 </dd></dl>
 
 ## bezier3()
@@ -148,7 +148,7 @@ Creates a cubic Bezier curve.
 <p><span class="vardef"><em>Bezier3</em></span></p>
 
 <dl><dd>
-  The resulting curve.
+  Curve-like object.
 </dd></dl>
 
 ## makeloop()
@@ -170,7 +170,7 @@ Creates a loop of connected curves.
 <p><span class="vardef"><em>CurvesLoop</em></span></p>
 
 <dl><dd>
-  The resulting curves loop.
+  Loop of connected curves.
 </dd></dl>
 
 ## makerect()
@@ -232,7 +232,7 @@ Creates a closed ellipse as a loop.
 <p><span class="vardef"><em>CurvesLoop</em></span></p>
 
 <dl><dd>
-  Ellipse as a single-curve-loop.
+  Ellipse as a single-curve loop.
 </dd></dl>
 
 ## makecycle()
@@ -254,7 +254,7 @@ Creates a cyclic path.
 <p><span class="vardef"><em>CycPath</em></span></p>
 
 <dl><dd>
-  The resulting cyclic path.
+  Path closed to a cycle.
 </dd></dl>
 
 ## Curve
@@ -384,9 +384,9 @@ Loop of connected curves.
 `startpoints` | Curves start points.
 `endpoints`   | Curves end points.
 
-### partition()
+### discretize()
 
-<pre class="py-sign">CurvesLoop.<b>partition</b>(<em>self</em>, *params)</pre>
+<pre class="py-sign">CurvesLoop.<b>discretize</b>(<em>self</em>, *params)</pre>
 
 Discretizes the curves loop.
 
@@ -403,7 +403,7 @@ Discretizes the curves loop.
 <p><span class="vardef"><em>PathsMap</em></span></p>
 
 <dl><dd>
-  The resulting path map.
+  Polygonal path colored at curves.
 </dd></dl>
 
 ## PathMap
@@ -419,12 +419,6 @@ Polygonal path with colored nodes.
 `colors`   | Nodes colors.
 `numbers`  | Nodes numbers.
 `points`   | Nodes positions.
-
-<b>Notes</b>
-
-- Actions that change colors return new paths.
-- Actions on colors do nothing, if colors are not found.
-- Colors contacts are from the left to the right (cyclic).
 
 ### ascycle()
 
@@ -476,16 +470,14 @@ Shifts the contact of two colors to the left by one node.
 
 <pre class="py-sign"><b><em>class</em></b> triellipt.geom.<b>CycPath</b>(nodes=<span>None</span>)</pre>
 
-Cyclic path with focus on geometry.
+Cyclic polygonal path.
 
 <b>Properties</b>
 
  Name      | Description
------------|---------------------------------------------
+-----------|----------------------
 `points`   | Nodes positions.
 `numbers`  | Nodes numbers.
-`previnds` | Cyclic index with the shift −1
-`nextinds` | Cyclic index with the shift +1
 
 ### angles()
 

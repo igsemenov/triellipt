@@ -2,8 +2,8 @@
 """Finds the mesh edge.
 """
 import numpy as np
-from triellipt.trimesh.utils import tables
-from triellipt.trimesh.utils import loops
+from triellipt.utils import tables
+from triellipt.utils import loops
 
 
 class EdgeData:
@@ -84,9 +84,9 @@ class EdgeData:
             self.mesh.points2d[:, self.nodnums1], order='C'
         )
 
-    def updatedata(self, newdata):
+    def update_data(self, new_data):
         return self.from_data(
-            self.mesh, np.copy(newdata, order='C')
+            self.mesh, np.copy(new_data, order='C')
         )
 
 
@@ -149,7 +149,7 @@ class MeshEdge(EdgeData):
         )
 
     def permutedata(self, permuter):
-        return self.updatedata(
+        return self.update_data(
             self.data[:, permuter]
         )
 
@@ -208,12 +208,12 @@ class EdgeLoop(EdgeData):
         return nodenum in self.nodnums1
 
     def synctoedge(self, edgeind):
-        """Synchronizes to the specified edge.
+        """Synchronizes to the specified segment.
 
         Parameters
         ----------
         edgeind : int
-            Index of the edge to synchronize to.
+            Index of the segment to synchronize to.
 
         Returns
         -------
@@ -230,7 +230,7 @@ class EdgeLoop(EdgeData):
             self.data, -index, axis=1
         )
 
-        return self.updatedata(new_data)
+        return self.update_data(new_data)
 
     def synctonode(self, nodenum):
         """Synchronizes to the specified node.

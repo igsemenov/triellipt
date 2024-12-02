@@ -52,7 +52,7 @@
                         </li>
                         <li><a href="#curvesloop">CurvesLoop</a>
                             <ul>
-                                <li><a href="#partition-1">partition()</a></li>
+                                <li><a href="#discretize">discretize()</a></li>
                             </ul>
                         </li>
                         <li><a href="#pathmap">PathMap</a>
@@ -112,7 +112,7 @@
 <p><span class="vardef"><em>Line</em></span></p>
 
 <dl><dd>
-  The resulting curve.
+  Line as a curve-like object.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>elliparc()</h2>
@@ -152,7 +152,7 @@
 <p><span class="vardef"><em>EllipArc</em></span></p>
 
 <dl><dd>
-  The resulting curve.
+  Elliptic arc as a curve-like object.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>bezier2()</h2>
@@ -186,7 +186,7 @@
 <p><span class="vardef"><em>Bezier2</em></span></p>
 
 <dl><dd>
-  The resulting curve.
+  Curve-like object.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>bezier3()</h2>
@@ -226,7 +226,7 @@
 <p><span class="vardef"><em>Bezier3</em></span></p>
 
 <dl><dd>
-  The resulting curve.
+  Curve-like object.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>makeloop()</h2>
@@ -248,7 +248,7 @@
 <p><span class="vardef"><em>CurvesLoop</em></span></p>
 
 <dl><dd>
-  The resulting curves loop.
+  Loop of connected curves.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>makerect()</h2>
@@ -310,7 +310,7 @@
 <p><span class="vardef"><em>CurvesLoop</em></span></p>
 
 <dl><dd>
-  Ellipse as a single-curve-loop.
+  Ellipse as a single-curve loop.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>makecycle()</h2>
@@ -332,7 +332,7 @@
 <p><span class="vardef"><em>CycPath</em></span></p>
 
 <dl><dd>
-  The resulting cyclic path.
+  Path closed to a cycle.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>Curve</h2>
@@ -472,9 +472,9 @@
     </tr>
 </table>
 
-<div class="toc-anchor"></div><h3>partition()</h3>
+<div class="toc-anchor"></div><h3>discretize()</h3>
 
-<pre class="py-sign">CurvesLoop.<b>partition</b>(<em>self</em>, *params)</pre>
+<pre class="py-sign">CurvesLoop.<b>discretize</b>(<em>self</em>, *params)</pre>
 
 <p>Discretizes the curves loop.</p>
 
@@ -491,7 +491,7 @@
 <p><span class="vardef"><em>PathsMap</em></span></p>
 
 <dl><dd>
-  The resulting path map.
+  Polygonal path colored at curves.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>PathMap</h2>
@@ -520,16 +520,6 @@
         <td>Nodes positions.</td>
     </tr>
 </table>
-
-<p><b>Notes</b></p>
-
-<p>
-<ul class="md-list">
-    <li>Actions that change colors return new paths.</li>
-    <li>Actions on colors do nothing, if colors are not found.</li>
-    <li>Colors contacts are from the left to the right (cyclic).</li>
-</ul>
-</p>
 
 <div class="toc-anchor"></div><h3>ascycle()</h3>
 
@@ -581,7 +571,7 @@
 
 <pre class="py-sign"><b><em>class</em></b> triellipt.geom.<b>CycPath</b>(nodes=<span>None</span>)</pre>
 
-<p>Cyclic path with focus on geometry.</p>
+<p>Cyclic polygonal path.</p>
 
 <p><b>Properties</b></p>
 
@@ -597,14 +587,6 @@
     <tr>
         <td><code>numbers</code></td>
         <td>Nodes numbers.</td>
-    </tr>
-    <tr>
-        <td><code>previnds</code></td>
-        <td>Cyclic index with the shift −1</td>
-    </tr>
-    <tr>
-        <td><code>nextinds</code></td>
-        <td>Cyclic index with the shift +1</td>
     </tr>
 </table>
 

@@ -4,6 +4,13 @@
 import numpy as np
 
 
+def maptable(table):
+    """Creates a map of table values.
+    """
+    _ = TableMapper.from_table(table)
+    return _.makemap()
+
+
 def table_image(table, cast):
     """Performs unstructured table indexing.
 
@@ -25,6 +32,13 @@ def table_image(table, cast):
     return table.flat[
         bias * base + cast
     ]
+
+
+def trisorts(table_triplets):
+    """Returns a sorter for a table of 0-1-2 triplets.
+    """
+    _ = TriSorter()
+    return _.trisorts(table_triplets)
 
 
 class TableMap:
@@ -200,7 +214,7 @@ class TableAgent:
 
 
 class TableMapper(TableAgent):
-    """Maker of the table map.
+    """Maker of a table map.
     """
 
     def makemap(self):
@@ -241,13 +255,6 @@ class TableMapper(TableAgent):
 
     def get_table_map(self, data):
         return TableMap(data)
-
-
-def trisorts(table):
-    """Returns sorter for a table of 0-1-2 triplets.
-    """
-    sorter = TriSorter()
-    return sorter.trisorts(table)
 
 
 class TriSorter:

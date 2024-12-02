@@ -14,7 +14,7 @@ def trigrid(xsize, ysize, slopes):
     ysize : int
         Number of nodes in y-direction.
     slopes : str
-        Controls the orientation of triangles (i).
+        Controls orientation of triangles (i).
 
     Returns
     -------

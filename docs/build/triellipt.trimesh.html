@@ -42,9 +42,9 @@
                                 <li><a href="#edgesmap">edgesmap()</a></li>
                                 <li><a href="#nodesmap">nodesmap()</a></li>
                                 <li><a href="#delghosts">delghosts()</a></li>
+                                <li><a href="#delmouths">delmouths()</a></li>
                                 <li><a href="#supertriu">supertriu()</a></li>
                                 <li><a href="#reduced">reduced()</a></li>
-                                <li><a href="#layout">layout()</a></li>
                                 <li><a href="#split">split()</a></li>
                             </ul>
                         </li>
@@ -247,6 +247,20 @@
 </ul>
 </p>
 
+<div class="toc-anchor"></div><h3>delmouths()</h3>
+
+<pre class="py-sign">TriMesh.<b>delmouths</b>(<em>self</em>)</pre>
+
+<p>Removes mouths from the mesh.</p>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>TriMesh</em></span></p>
+
+<dl><dd>
+  New mesh.
+</dd></dl>
+
 <div class="toc-anchor"></div><h3>supertriu()</h3>
 
 <pre class="py-sign">TriMesh.<b>supertriu</b>(<em>self</em>)</pre>
@@ -272,7 +286,7 @@
 <p><span class="vardef"><code>shrink</code> : <em>int = None</em></span></p>
 
 <dl><dd>
-  Controls shrinking of a super-triangulation (a).
+  Controls shrinking of super-triangulations (i).
 </dd></dl>
 
 <p><span class="vardef"><code>detach</code> : <em>bool = False</em></span></p>
@@ -286,39 +300,12 @@
 <p><span class="vardef"><em>TriMesh</em></span></p>
 
 <dl><dd>
-  New mesh (b).
+  New mesh.
 </dd></dl>
 
 <p><b>Notes</b></p>
 
-<p>
-<ul class="md-list">
-    <li>(a) Number of shrinking steps after compression.</li>
-    <li>(b) Has unchanged mesh data if compression failed.</li>
-</ul>
-</p>
-
-<div class="toc-anchor"></div><h3>layout()</h3>
-
-<pre class="py-sign">TriMesh.<b>layout</b>(<em>self</em>, *anchors)</pre>
-
-<p>Numbers mesh points in the edge-core order.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>anchors</code> : <em>*int</em></span></p>
-
-<dl><dd>
-  Possible anchors on the mesh edge.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>TriMesh | None</em></span></p>
-
-<dl><dd>
-  New mesh or <i>None</i>, if failed.
-</dd></dl>
+<p>(i) Number of shrinking steps after one compression event.</p>
 
 <div class="toc-anchor"></div><h3>split()</h3>
 
@@ -445,14 +432,14 @@
 
 <pre class="py-sign">EdgeLoop.<b>synctoedge</b>(<em>self</em>, edgeind)</pre>
 
-<p>Synchronizes to the specified edge.</p>
+<p>Synchronizes to the specified segment.</p>
 
 <p><b>Parameters</b></p>
 
 <p><span class="vardef"><code>edgeind</code> : <em>int</em></span></p>
 
 <dl><dd>
-  Index of the edge to synchronize to.
+  Index of the segment to synchronize to.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -712,6 +699,10 @@
 
 <p>Remove links from a super-triangulation.</p>
 
+<p><b>Notes</b></p>
+
+<p>See <code>EdgesMap.getspec()</code> for links definition.</p>
+
 <div class="toc-anchor"></div><h3>smooth()</h3>
 
 <pre class="py-sign">SuperTriu.<b>smooth</b>(<em>self</em>, iterate=<span>True</span>)</pre>
@@ -725,6 +716,10 @@
 <dl><dd>
   Runs smoothing until possible, if <i>True</i>.
 </dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>See <code>EdgesMap.getspec()</code> for heads and spots definition.</p>
 
 <div class="toc-anchor"></div><h3>detach()</h3>
 
@@ -743,7 +738,7 @@
 <p><span class="vardef"><code>iterate</code> : <em>bool = True</em></span></p>
 
 <dl><dd>
-  Turns on compression of the stripped mesh in case of failure.
+  Triggers cleaning and retry in case of failure (i).
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -753,6 +748,10 @@
 <dl><dd>
   Compact super-triangulation or <i>None</i>, if failed.
 </dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>(i) Cleaning is a strip-and-smooth action.</p>
 
 <hr>
         </div>

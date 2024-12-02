@@ -216,55 +216,24 @@ class SupReduce(SupCompress):
 
     def reduce(self):
 
-        maxitr = self.suptri.size
-
-        for _ in range(maxitr):
+        while True:
 
             if self.suptri.size == 0:
                 return None
 
-            triu_compressed = self.compress()
+            suptri_compressed = self.trial_reduce()
 
-            if triu_compressed is not None:
-                return triu_compressed
+            if suptri_compressed is not None:
+                return suptri_compressed
 
-            self.cleaning()
-
-        return None
-
-    def cleaning(self):
-        self.suptri = self.suptri.strip()
-        self.suptri = self.suptri.smooth()
-
-
-class SupFlat(SupAgent):
-    """Cleans the edge until low distortion.
-    """
-
-    def flatten(self, rtol):
-
-        maxitr = self.suptri.size
-
-        for _ in range(maxitr):
-
-            if self.suptri.size == 0:
-                return None
-
-            edge_quality = self.edge_quality()
-
-            if edge_quality < rtol:
-                return self.suptri
-
-            self.cleaning()
+            self.clean_suptri()
 
         return None
 
-    def edge_quality(self):
-        return np.amax(
-            EdgeEval(self.suptri).edges_distorts()
-        )
+    def trial_reduce(self):
+        return self.compress()
 
-    def cleaning(self):
+    def clean_suptri(self):
         self.suptri = self.suptri.strip()
         self.suptri = self.suptri.smooth()
 
@@ -275,70 +244,25 @@ class SupVoids(SupAgent):
 
     def supvoids(self):
 
-        voids_nums = self.take_voids_nums()
-        new_suptri = self.from_voids_nums(voids_nums)
+        voidsnums = self.take_voids_nums()
+        newsuptri = self.from_voids_nums(voidsnums)
 
-        return new_suptri
+        return newsuptri
 
     def take_voids_nums(self):
         return self.suptri.mesh.getvoids()
 
-    def from_voids_nums(self, nums):
+    def from_voids_nums(self, trinums):
 
-        if nums.size == 0:
+        if trinums.size == 0:
             return None
 
         mask = np.isin(
-            self.suptri.trinums, nums, assume_unique=True
+            self.suptri.trinums, trinums, assume_unique=True
         )
 
         inds, = np.where(mask)
         return self.suptri.subtriu(*inds)
-
-
-class EdgeEval:
-    """Evaluates the edge of a super-triangulation.
-    """
-
-    def __init__(self, suptri):
-        self.suptri = suptri
-
-    def edges_distorts(self):
-
-        verts_onedge, edges_metric = self.get_data_to_eval()
-        distorts = self.get_distorts(verts_onedge, edges_metric)
-
-        return distorts
-
-    def get_data_to_eval(self):
-
-        sup_edges_metric = self.sup_edges_metric()
-        ker_verts_onedge = self.ker_verts_onedge(sup_edges_metric)
-
-        yield ker_verts_onedge
-        yield sup_edges_metric
-
-    def get_distorts(self, ker_verts_onedge, sup_edges_metric):
-
-        kernodes = ker_verts_onedge
-        supmidis = sup_edges_metric['centers']
-        supspans = sup_edges_metric['lengths']
-
-        return np.abs(kernodes - supmidis) / supspans
-
-    def sup_edges_metric(self):
-        return _mesh_edges_metric(self.suptri.supmesh)
-
-    def ker_verts_onedge(self, sup_edges_metric):
-
-        sup_edges_trinums = sup_edges_metric['trinums']
-        sup_edges_locnums = sup_edges_metric['locnums']
-
-        ker_verts_locnums = (sup_edges_locnums + 1) % 3
-
-        return _mesh_subpoints(
-            self.suptri.kermesh, sup_edges_trinums, ker_verts_locnums
-        )
 
 
 def triangs_distorts(supverts, kerverts):
@@ -397,32 +321,3 @@ def triangs_qscores(verts):
     )
 
     return theta / np.amax(theta)
-
-
-def _mesh_edges_metric(mesh):
-
-    edge = mesh.meshedge()
-
-    centers = 0.5 * np.sum(
-        mesh.points[edge.edges2d], axis=0
-    )
-
-    lengths = np.abs(
-        np.diff(mesh.points[edge.edges2d], axis=0)
-    )
-
-    locnums = edge.locnums.copy('C')
-    trinums = edge.trinums.copy('C')
-
-    return {
-        'centers': centers,
-        'lengths': lengths.flatten(),
-        'locnums': locnums,
-        'trinums': trinums
-    }
-
-
-def _mesh_subpoints(mesh, trinums, locnums):
-    return mesh.points[
-        mesh.triangs.flat[3 * trinums + locnums]
-    ]
