@@ -35,6 +35,23 @@ def szupaired(ipos, jpos):
     )
 
 
+def szuunpaired(argz):
+    """Szudzik unpairing function.
+    """
+
+    sqrtz = np.array(
+        np.floor(np.sqrt(argz)), dtype=np.int64
+    )
+
+    dist1 = argz - sqrtz * sqrtz
+    dist2 = argz - sqrtz * sqrtz - sqrtz
+
+    argx = np.where(dist2 < 0, dist1, sqrtz)
+    argy = np.where(dist2 < 0, sqrtz, dist2)
+
+    return argx, argy
+
+
 def paircols(table):
     """Pairing of table columns.
 

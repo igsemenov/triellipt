@@ -37,9 +37,10 @@
                         <li><a href="#getunit">getunit()</a></li>
                         <li><a href="#femunit">FEMUnit</a>
                             <ul>
-                                <li><a href="#get_factory">get_factory()</a></li>
-                                <li><a href="#get_interp">get_interp()</a></li>
+                                <li><a href="#fem_factory">fem_factory()</a></li>
                                 <li><a href="#new_vector">new_vector()</a></li>
+                                <li><a href="#makecoeff">makecoeff()</a></li>
+                                <li><a href="#getinterp">getinterp()</a></li>
                             </ul>
                         </li>
                         <li><a href="#femfactory">FEMFactory</a>
@@ -67,6 +68,7 @@
                                 <li><a href="#sectionxy">sectionxy()</a></li>
                             </ul>
                         </li>
+                        <li><a href="#mesh_metric">mesh_metric()</a></li>
                     </ul>
                 </li>
             </ul>
@@ -119,18 +121,78 @@
 
 <p>FEM computing unit.</p>
 
-<div class="toc-anchor"></div><h3>get_factory()</h3>
+<p><b>Properties</b></p>
 
-<pre class="py-sign">FEMUnit.<b>get_factory</b>(<em>self</em>, with_constraints=<span>True</span>)</pre>
+<p>FEM local operators:</p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>massmat</code></td>
+        <td>Mass-matrix</td>
+    </tr>
+    <tr>
+        <td><code>massdiag</code></td>
+        <td>Mass-matrix lumped</td>
+    </tr>
+    <tr>
+        <td><code>laplace</code></td>
+        <td>Laplace operator</td>
+    </tr>
+    <tr>
+        <td><code>diff_1y</code></td>
+        <td>1st-y derivative</td>
+    </tr>
+    <tr>
+        <td><code>diff_1x</code></td>
+        <td>1st-x derivative</td>
+    </tr>
+    <tr>
+        <td><code>diff_2y</code></td>
+        <td>2nd-y derivative</td>
+    </tr>
+    <tr>
+        <td><code>diff_2x</code></td>
+        <td>2nd-x derivative</td>
+    </tr>
+</table>
+
+<p>FEM global matrices:</p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>massmat_fem</code></td>
+        <td>Mass-matrix</td>
+    </tr>
+    <tr>
+        <td><code>massdiag_fem</code></td>
+        <td>Mass-matrix lumped</td>
+    </tr>
+    <tr>
+        <td><code>laplace_fem</code></td>
+        <td>Laplace operator</td>
+    </tr>
+</table>
+
+<div class="toc-anchor"></div><h3>fem_factory()</h3>
+
+<pre class="py-sign">FEMUnit.<b>fem_factory</b>(<em>self</em>, add_constraints=<span>True</span>)</pre>
 
 <p>Creates a factory of FEM matrices.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>with_constraints</code> : <em>bool = True</em></span></p>
+<p><span class="vardef"><code>add_constraints</code> : <em>bool = True</em></span></p>
 
 <dl><dd>
-  If <i>False</i>, constraints are not included in the matrix.
+  If <i>True</i>, forces constraints to be included in the matrix.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -141,9 +203,37 @@
   Resulting factory of FEM matrices.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>get_interp()</h3>
+<div class="toc-anchor"></div><h3>new_vector()</h3>
 
-<pre class="py-sign">FEMUnit.<b>get_interp</b>(<em>self</em>, xnodes, ynodes)</pre>
+<pre class="py-sign">FEMUnit.<b>new_vector</b>(<em>self</em>)</pre>
+
+<p>Returns a new FEM vector.</p>
+
+<div class="toc-anchor"></div><h3>makecoeff()</h3>
+
+<pre class="py-sign">FEMUnit.<b>makecoeff</b>(<em>self</em>, mesh_data)</pre>
+
+<p>Generates a coefficient for local FEM operators.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh_data</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Coefficient defined over the mesh triangles.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Coefficient matching the sizes of local FEM operators.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>getinterp()</h3>
+
+<pre class="py-sign">FEMUnit.<b>getinterp</b>(<em>self</em>, xnodes, ynodes)</pre>
 
 <p>Creates an interpolator on a mesh.</p>
 
@@ -169,12 +259,6 @@
   Interpolator object.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>new_vector()</h3>
-
-<pre class="py-sign">FEMUnit.<b>new_vector</b>(<em>self</em>)</pre>
-
-<p>Returns a new FEM vector.</p>
-
 <div class="toc-anchor"></div><h2>FEMFactory</h2>
 
 <pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMFactory</b>(unit=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
@@ -185,14 +269,14 @@
 
 <pre class="py-sign">FEMFactory.<b>feed_data</b>(<em>self</em>, data)</pre>
 
-<p>Transmits data to the matrix.</p>
+<p>Transmits data to the FEM matrix.</p>
 
 <p><b>Parameters</b></p>
 
 <p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Data stream compatible with ij-stream of the FEM unit.
+  Combination of local FEM operators (a).
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -202,6 +286,10 @@
 <dl><dd>
   Resulting FEM matrix.
 </dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>(a) Data stream compatible with ij-stream of the FEM unit.</p>
 
 <div class="toc-anchor"></div><h2>MatrixFEM</h2>
 
@@ -248,7 +336,7 @@
 <p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
 
 <dl><dd>
-  Partition meta data (name and sections).
+  Partition meta data (name and sections) (i).
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -258,6 +346,17 @@
 <dl><dd>
   Copy of the matrix with the partition defined.
 </dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>(i) Partition map:</p>
+
+<p>
+<ul class="md-list">
+    <li>Keys are the names of the sections.</li>
+    <li>Values are flat arrays with nodes numbers.</li>
+</ul>
+</p>
 
 <div class="toc-anchor"></div><h3>getblock()</h3>
 
@@ -384,7 +483,7 @@
 <p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
 
 <dl><dd>
-  Partition meta data (name and sections).
+  Partition meta data (name and sections) (i).
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -394,6 +493,10 @@
 <dl><dd>
   Copy of the vector with the partition defined.
 </dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>(i) Same as for the FEM matrix.</p>
 
 <div class="toc-anchor"></div><h3>getsection()</h3>
 
@@ -457,6 +560,28 @@
 
 <dl><dd>
   xy-coordinates of the vector section.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>mesh_metric()</h2>
+
+<pre class="py-sign">triellipt.fem.<b>mesh_metric</b>(mesh) → <em>dict</em></pre>
+
+<p>Returns the mesh metric properties.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Triangular mesh.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>dict</em></span></p>
+
+<dl><dd>
+  Metric properties of triangles.
 </dd></dl>
 
 <hr>

@@ -5,14 +5,14 @@ import numpy as np
 from triellipt.utils import pairs
 
 
-def get_sup_voids(mesh):
+def get_supvoids(mesh):
     """Returns super voids for a mesh.
     """
     return SupVoids.from_mesh(mesh)
 
 
 class SupVoids:
-    """Proxy of a voids super-triangulation (only ears).
+    """Super-triangulation of voids (only ears).
     """
 
     def __init__(self, mesh, data):
@@ -21,8 +21,7 @@ class SupVoids:
 
     @classmethod
     def from_mesh(cls, mesh):
-        _ = SupVoidsMaker(mesh).with_meta()
-        return _.get_sup_voids()
+        return SupVoidsMaker(mesh).get_sup_voids()
 
     @property
     def trinums(self):
@@ -57,23 +56,19 @@ class MeshAgent:
 
     def __init__(self, mesh):
         self.mesh = mesh
-        self.meta = None
+        self.meta = self.fetch_meta()
 
-    def with_meta(self):
-        self.meta = self.make_meta()
-        return self
+    def fetch_meta(self):
 
-    def make_meta(self):
-
-        voids_meta = self.make_meta_voids()
-        pairs_data = self.make_data_nodes_paired()
+        voids_meta = self.make_voids_meta()
+        pairs_data = self.make_verts_paired()
 
         return {
             'voids': voids_meta,
             'pairs': pairs_data
         }
 
-    def make_meta_voids(self):
+    def make_voids_meta(self):
 
         voids_trinums = self.mesh.getvoids()
         voids_triangs = self.mesh.triangs[voids_trinums, :]
@@ -85,7 +80,7 @@ class MeshAgent:
             'pivnums': voids_pivnums
         }
 
-    def make_data_nodes_paired(self):
+    def make_verts_paired(self):
         return pairs.paircols(
             self.mesh.triangs[:, [0, 1, 2, 0]]
         )
@@ -103,7 +98,7 @@ class MeshAgent:
         return self.meta['voids'].get('pivnums')
 
     @property
-    def mesh_nodes_paired(self):
+    def triangs_verts_paired(self):
         return self.meta['pairs']
 
 
@@ -112,14 +107,32 @@ class SupVoidsMaker(MeshAgent):
     """
 
     def get_sup_voids(self):
-        dat = self.make_data()
-        obj = self.from_data(dat)
+
+        dat = self.make_supvoids_data()
+        obj = self.from_supvoids_data(dat)
+
         return obj
 
-    def make_data(self):
+    def from_supvoids_data(self, data):
+        return SupVoids(self.mesh, data)
 
-        west_trinums = self.get_west_trinums()
-        east_trinums = self.get_east_trinums()
+    def make_supvoids_data(self):
+
+        ears = self.find_ears()
+        data = self.push_data(ears)
+
+        return data
+
+    def find_ears(self):
+        return {
+            'west-ears': self.get_west_ears_trinums(),
+            'east-ears': self.get_east_ears_trinums()
+        }
+
+    def push_data(self, ears_trinums):
+
+        west_trinums = ears_trinums['west-ears']
+        east_trinums = ears_trinums['east-ears']
 
         data = [
             self.voids_trinums, west_trinums, east_trinums
@@ -127,58 +140,52 @@ class SupVoidsMaker(MeshAgent):
 
         return np.vstack(data)
 
-    def from_data(self, data):
-        return SupVoids(self.mesh, data)
+    def get_west_ears_trinums(self):
 
-    def get_west_trinums(self):
-
-        targets = pairs.sympaired(
+        codes = pairs.sympaired(
             self.voids_triangs[:, 1], self.voids_triangs[:, 2]
         )
 
-        return self.find_targets_trinums(targets)
+        return self.find_ears_by_pair_codes(codes)
 
-    def get_east_trinums(self):
+    def get_east_ears_trinums(self):
 
-        targets = pairs.sympaired(
+        codes = pairs.sympaired(
             self.voids_triangs[:, 2], self.voids_triangs[:, 0]
         )
 
-        return self.find_targets_trinums(targets)
+        return self.find_ears_by_pair_codes(codes)
 
-    def find_targets_trinums(self, targetpairs):
+    def find_ears_by_pair_codes(self, ears_codes):
 
-        trinums = _find_targets_in_table(
-            targetpairs, self.mesh_nodes_paired
+        trinums, _ = _find_in_table(
+            self.triangs_verts_paired, ears_codes
         )
 
         trinums = np.setdiff1d(
             trinums, self.voids_trinums
         )
 
-        permuter = _sync_table_to_pivots(
+        permuter = _rowsort_table_by_pivots(
             self.mesh.triangs[trinums, :], self.voids_pivots
         )
 
         return trinums[permuter]
 
 
-def _find_targets_in_table(targets, table):
+def _find_in_table(table, vals):
 
-    mask = np.isin(table, targets)
+    mask = np.isin(table, vals)
 
-    rows, = np.where(
-        np.sum(mask, axis=1)
-    )
-
-    return rows
+    rows, cols = np.where(mask)
+    return rows, cols
 
 
-def _sync_table_to_pivots(table, pivots):
+def _rowsort_table_by_pivots(table, pivots):
 
-    pivots_in_table = table[
-        *np.where(np.isin(table, pivots))
-    ]
+    rows, cols = _find_in_table(table, pivots)
+
+    pivots_in_table = table[rows, cols]
 
     _, ind1, ind2 = np.intersect1d(
         pivots_in_table, pivots, return_indices=True

@@ -81,6 +81,98 @@ Removes triangles from the mesh.
   New mesh object.
 </dd></dl>
 
+### delghosts()
+
+<pre class="py-sign">TriMesh.<b>delghosts</b>(<em>self</em>)</pre>
+
+Removes ghost points from the mesh.
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TriMesh</em></span></p>
+
+<dl><dd>
+  New mesh.
+</dd></dl>
+
+<b>Notes</b>
+
+Related methods:
+
+- `.hasghosts()` shows if there are any ghosts
+- `.getghosts()` returns ghost numbers, if any
+
+### getvoids()
+
+<pre class="py-sign">TriMesh.<b>getvoids</b>(<em>self</em>)</pre>
+
+Finds empty triangles (voids).
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>flat-int-array</em></span></p>
+
+<dl><dd>
+  Numbers of empty triangles.
+</dd></dl>
+
+<b>Notes</b>
+
+Related methods:
+
+- `.hasvoids()` shows if there are any voids
+- `.delvoids()` deletes voids from the mesh
+
+### alignnodes()
+
+<pre class="py-sign">TriMesh.<b>alignnodes</b>(<em>self</em>, *anchors)</pre>
+
+Numbers mesh points in the edge-core order.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>anchors</code> : <em>*int</em></span></p>
+
+<dl><dd>
+  Node numbers used to synchronize the edge loops.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TriMesh | None</em></span></p>
+
+<dl><dd>
+  New mesh or <i>None</i>, if loops cannot be fetched.
+</dd></dl>
+
+### renumed()
+
+<pre class="py-sign">TriMesh.<b>renumed</b>(<em>self</em>, permuter)</pre>
+
+Renumbers the mesh nodes.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>permuter</code> : <em>flat-int-array</em></span></p>
+
+<dl><dd>
+  Permutation of mesh nodes.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TriMesh</em></span></p>
+
+<dl><dd>
+  Mesh with the nodes renumbered.
+</dd></dl>
+
+### shuffled()
+
+<pre class="py-sign">TriMesh.<b>shuffled</b>(<em>self</em>, permuter)</pre>
+
+Shuffles the mesh triangles.
+
 ### meshedge()
 
 <pre class="py-sign">TriMesh.<b>meshedge</b>(<em>self</em>)</pre>
@@ -121,41 +213,6 @@ Maps nodes to hosting triangles.
 
 <dl><dd>
   Nodes-to-triangles map.
-</dd></dl>
-
-### delghosts()
-
-<pre class="py-sign">TriMesh.<b>delghosts</b>(<em>self</em>)</pre>
-
-Removes ghost points from the mesh.
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>TriMesh</em></span></p>
-
-<dl><dd>
-  New mesh.
-</dd></dl>
-
-<b>Notes</b>
-
-Related methods:
-
-- `.hasghosts()` shows if there are any ghosts
-- `.getghosts()` returns ghost numbers, if any
-
-### delmouths()
-
-<pre class="py-sign">TriMesh.<b>delmouths</b>(<em>self</em>)</pre>
-
-Removes mouths from the mesh.
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>TriMesh</em></span></p>
-
-<dl><dd>
-  New mesh.
 </dd></dl>
 
 ### supertriu()
@@ -446,6 +503,14 @@ Name       | Description
 `nodnums1` | 1st CCW vertex. 
 `nodnums2` | 2nd CCW vertex.
 `nodnums3` | 3rd CCW vertex.
+
+<b>Notes</b>
+
+Non-standard nodes pairing for `supmesh-kermesh` transition:
+
+- (0, 1) → 1
+- (1, 2) → 2
+- (2, 0) → 0
 
 ### strip()
 

@@ -44,7 +44,7 @@ class MatrixData:
         return self.meta['partition']['name']
 
     @property
-    def matrix_name(self):
+    def name(self):
         if self.is_named:
             return self.meta['name']
         return str(id(self))
@@ -65,17 +65,27 @@ class MatrixData:
 
         if not self.haspartition:
             raise MatrixFEMError(
-                f"matrix '{self.matrix_name}' has not partition"
+                f"matrix '{self.name}' has not partition"
             )
 
         indexer = self.meta['partition']['sections'].get(name)
 
         if indexer is None:
             raise MatrixFEMError(
-                f"no section '{name}' in matrix '{self.matrix_name}'"
+                f"no section '{name}' in matrix '{self.name}'"
             )
 
         return indexer
+
+    def with_no_zeros(self):
+        self.body.eliminate_zeros()
+        return self
+
+    @property
+    def pattern(self):
+        body = self.body_copy
+        body.data.fill(1)
+        return body
 
     @property
     def body_copy(self):
@@ -122,12 +132,20 @@ class MatrixFEM(MatrixData):
         Parameters
         ----------
         meta : dict
-            Partition meta data (name and sections).
+            Partition meta data (name and sections) (i).
 
         Returns
         -------
         MatrixFEM
             Copy of the matrix with the partition defined.
+
+        Notes
+        -----
+
+        (i) Partition map:
+
+        - Keys are the names of the sections.
+        - Values are flat arrays with nodes numbers.
 
         """
 

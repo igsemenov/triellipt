@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests the mesh skeleton.
+"""Tests super voids (only ears).
 
 TEST-MESH:
 
@@ -15,7 +15,7 @@ TEST-MESH:
 import unittest
 import numpy as np
 from triellipt import trimesh
-from triellipt.fem import joints
+from triellipt.fem import supvoids
 
 
 POINTS = [
@@ -42,12 +42,11 @@ class TestSkeleton(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.MESH = cls.getmesh()
-        cls.SKEL = cls.getskel()
+        cls.SUPVOIDS = cls.getsupvoids()
 
     @classmethod
-    def getskel(cls):
-        return joints.getskeleton(cls.getmesh())
+    def getsupvoids(cls):
+        return supvoids.get_supvoids(cls.getmesh())
 
     @classmethod
     def getmesh(cls):
@@ -55,19 +54,15 @@ class TestSkeleton(unittest.TestCase):
             np.array(POINTS), np.array(TRIANGS)
         )
 
-    def test_mesh(self):
-        assert self.MESH.getvoids().tolist() == [2]
+    def test_trinums_voids(self):
+        assert self.SUPVOIDS.trinums.tolist() == [2]
 
-    def test_body(self):
-        assert self.SKEL.body.triangs.tolist() == [
-            [0, 3, 1], [6, 5, 2]
-        ]
+    def test_trinums_ears(self):
+        assert self.SUPVOIDS.trinums2.tolist() == [3]
+        assert self.SUPVOIDS.trinums3.tolist() == [4]
 
-    def test_joints(self):
-        assert self.SKEL.wests.triangs.tolist() == [[4, 0, 5]]
-        assert self.SKEL.easts.triangs.tolist() == [[4, 6, 3]]
-        assert self.SKEL.cores.triangs.tolist() == [[4, 5, 6]]
-        assert self.SKEL.voids.triangs.tolist() == [[3, 0, 4]]
+    def test_voids_triangs(self):
+        assert self.SUPVOIDS.voids_triangs.tolist() == [[3, 0, 4]]
 
 
 if __name__ == '__main__':

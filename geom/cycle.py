@@ -2,6 +2,7 @@
 """Cyclic path.
 """
 import numpy as np
+from triellipt.geom import loop
 
 
 class CycPath:
@@ -52,6 +53,10 @@ class CycPath:
         return self.nodes[:]['z']
 
     @property
+    def points2d(self):
+        return _unpack_complex(self.points)
+
+    @property
     def prev_points(self):
         """Left side neighbours of path points.
         """
@@ -84,6 +89,38 @@ class CycPath:
             self.prev_points, self.points, self.next_points
         )
 
+    def split(self, threshold_angle):
+        """Splits the cycle based on rotation angle.
+
+        Parameters
+        ----------
+        threshold_angle : float
+            Threshold angle for a node to become a corner.
+
+        Returns
+        -------
+        PathMap
+            Resulting partition of a cycle.
+
+        """
+
+        corners, = np.where(
+            self.angles() >= threshold_angle
+        )
+
+        if corners.size == 0:
+            return loop.PathMap.from_paths(self.points)
+
+        paths = np.split(
+            self.points, corners
+        )
+
+        paths = [
+            path for path in paths if path.size != 0
+        ]
+
+        return loop.PathMap.from_paths(*paths)
+
 
 def _triplet_angles(zone, ztwo, ztri):
 
@@ -91,4 +128,10 @@ def _triplet_angles(zone, ztwo, ztri):
 
     return np.angle(
         np.abs(zdisp) * (ztri - ztwo) / zdisp
+    )
+
+
+def _unpack_complex(argz):
+    return np.vstack(
+        [argz.real, argz.imag]
     )

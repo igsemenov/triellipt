@@ -40,7 +40,7 @@ Creates a triangle grid.
 <p><span class="vardef"><em>TriMesh</em></span></p>
 
 <dl><dd>
-  New mesh.
+  Resulting triangle mesh.
 </dd></dl>
 
 <b>Notes</b>
@@ -52,3 +52,31 @@ Creates a triangle grid.
 - "west-snake" — snake-like, starting from the west slope
 - "east-snake" — snake-like, starting from the east slope
 - "cross-wise" — by both diagonals
+
+## trilattice()
+
+<pre class="py-sign">triellipt.mesher.<b>trilattice</b>(xsize, ysize)</pre>
+
+Creates a lattice of equilateral triangles.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>xsize</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Number of nodes in x-direction.
+</dd></dl>
+
+<p><span class="vardef"><code>ysize</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Number of nodes in y-direction.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TriMesh</em></span></p>
+
+<dl><dd>
+  Triangle mesh with metadata on the lattice shape.
+</dd></dl>

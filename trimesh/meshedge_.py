@@ -84,6 +84,10 @@ class EdgeData:
             self.mesh.points2d[:, self.nodnums1], order='C'
         )
 
+    @property
+    def nodes_complex(self):
+        return _pack_complex(*self.nodes2d)
+
     def update_data(self, new_data):
         return self.from_data(
             self.mesh, np.copy(new_data, order='C')
@@ -310,3 +314,7 @@ def _normindex(index, size):
     return min(
         abs(index), size - 1
     )
+
+
+def _pack_complex(argx, argy):
+    return argx + 1j * argy

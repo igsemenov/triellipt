@@ -16,6 +16,23 @@ def getskeleton(mesh):
 
 class MeshSkeleton:
     """Mesh in skeleton format.
+
+    Attributes
+    ----------
+    body : TriMesh
+        Skeleton body.
+    joints : dict
+        Submeshes for joints parts (wests, easts, cores).
+
+    Properties
+    ----------
+    wests : TriMesh | None
+        West triangles in joints.
+    easts : TriMesh | None
+        East triangles in joints.
+    cores : TriMesh | None
+        Core triangles in joints.
+
     """
 
     def __init__(self, body, joints):
@@ -46,14 +63,14 @@ class MeshSkeleton:
     def from_mesh(cls, mesh):
 
         if mesh.hasvoids():
-            return MeshConverter(mesh).get_skeleton()
+            return SkeletonMaker(mesh).get_skeleton()
 
         return cls(
             mesh, {}
         )
 
 
-class MeshConverter:
+class SkeletonMaker:
     """Converts a mesh into a mesh skeleton.
     """
 
@@ -62,35 +79,35 @@ class MeshConverter:
 
     def get_skeleton(self):
 
-        joints_data = self.make_joints_data()
-        mesh_skeleton = self.from_joints_data(joints_data)
+        meta = self.make_joints_meta()
+        skel = self.from_joints_meta(meta)
 
-        return mesh_skeleton
+        return skel
 
-    def make_joints_data(self):
-        return self.joints_collector.get_joints_data()
+    def make_joints_meta(self):
+        return self.joints_meta_cache.get_joints_meta()
 
-    def from_joints_data(self, joints_data):
+    def from_joints_meta(self, meta):
 
-        body = self.make_body(joints_data)
-        joints = self.make_joints(joints_data)
+        body = self.make_body(meta)
+        joints = self.make_joints(meta)
 
         return MeshSkeleton(body, joints)
 
-    def make_body(self, joints_data):
+    def make_body(self, joints_meta):
 
         trinums_to_remove = [
-            o['trinums'] for o in joints_data.values()
+            o['trinums'] for o in joints_meta.values()
         ]
 
         return self.mesh.deltriangs(
             *np.hstack(trinums_to_remove)
         )
 
-    def make_joints(self, joints_data):
+    def make_joints(self, joints_meta):
 
         triangs = {
-            k: v['triangs'] for k, v in joints_data.items()
+            k: v['triangs'] for k, v in joints_meta.items()
         }
 
         return {
@@ -98,8 +115,8 @@ class MeshConverter:
         }
 
     @property
-    def joints_collector(self):
-        return JointsCollector.from_mesh(self.mesh)
+    def joints_meta_cache(self):
+        return JointsMetaCache.from_mesh(self.mesh)
 
 
 class MeshAgent:
@@ -107,50 +124,45 @@ class MeshAgent:
     """
 
     def __init__(self, mesh):
-
         self.mesh = mesh
-        self.suptri_prime = None
-        self.suptri_voids = None
-
-        self.add_suptri_items()
+        self.meta = self.fetch_meta()
 
     @classmethod
     def from_mesh(cls, mesh):
         return cls(mesh)
 
-    def add_suptri_items(self):
+    def fetch_meta(self):
+        return {
+            'suptri-prime': self.fetch_suptri_prime(),
+            'suptri-voids': self.fetch_suptri_voids()
+        }
 
-        self.add_suptri_prime()
-        self.add_suptri_voids()
-
-    def add_suptri_prime(self):
-        self.suptri_prime = self.mesh_supertriu
-
-    def add_suptri_voids(self):
-        self.add_suptri_voids_proxy()
-
-    def add_suptri_voids_prime(self):
-        self.suptri_voids = self.suptri_prime.supvoids()
-
-    def add_suptri_voids_proxy(self):
-        self.suptri_voids = supvoids.get_sup_voids(self.mesh)
-
-    @property
-    def mesh_supertriu(self):
+    def fetch_suptri_prime(self):
         return self.mesh.supertriu()
 
+    def fetch_suptri_voids(self):
+        return supvoids.get_supvoids(self.mesh)
+
     @property
-    def pivots(self):
+    def suptri_prime(self):
+        return self.meta.get('suptri-prime')
+
+    @property
+    def suptri_voids(self):
+        return self.meta.get('suptri-voids')
+
+    @property
+    def voids_pivots(self):
         return self.mesh.triangs[
             self.suptri_voids.trinums, 2
         ]
 
 
-class JointsCollector(MeshAgent):
-    """Collects joints from the mesh.
+class JointsMetaCache(MeshAgent):
+    """Collects joints metadata.
     """
 
-    def get_joints_data(self):
+    def get_joints_meta(self):
         return {
             'wests': self.get_wests(),
             'easts': self.get_easts(),
@@ -159,13 +171,13 @@ class JointsCollector(MeshAgent):
         }
 
     def get_wests(self):
-        return WestsFinder(self).get_data()
+        return WestsFinder(self).get_meta()
 
     def get_easts(self):
-        return EastsFinder(self).get_data()
+        return EastsFinder(self).get_meta()
 
     def get_cores(self):
-        return CoresFinder(self).get_data()
+        return CoresFinder(self).get_meta()
 
     def get_voids(self):
         return {
@@ -175,6 +187,8 @@ class JointsCollector(MeshAgent):
 
 
 class SubAgent(ABC):
+    """Operator on a mesh agent.
+    """
 
     def __init__(self, agent):
         self.agent = agent
@@ -184,15 +198,15 @@ class SubAgent(ABC):
         return cls(agent)
 
     @property
-    def pivots(self):
-        return self.agent.pivots
+    def voids_pivots(self):
+        return self.agent.voids_pivots
 
 
 class JointsFinder(SubAgent):
     """Base finder of joints items.
     """
 
-    def get_data(self):
+    def get_meta(self):
 
         trinums = self.find_trinums()
         triangs = self.make_triangs(trinums)
@@ -224,7 +238,7 @@ class JointsFinder(SubAgent):
         """
 
         _, pivs_locnums = np.where(
-            triangs_with_pivots == self.pivots[..., None]
+            triangs_with_pivots == self.voids_pivots[..., None]
         )
 
         return pivs_locnums
@@ -272,7 +286,7 @@ class CoresFinder(JointsFinder):
 
     def find_trinums_prime(self):
 
-        neighbours = self.pair_neighbours()
+        neighbours = self.pair_suptrinums()
         voids_ears = self.pair_voids_ears()
 
         mask_table = np.isin(
@@ -296,8 +310,8 @@ class CoresFinder(JointsFinder):
 
         triangs_prime = self.agent.mesh.triangs[trinums_prime, :]
 
-        permuter = _sync_table_to_pivots(
-            triangs_prime, self.agent.pivots
+        permuter = _rowsort_table_by_pivots(
+            triangs_prime, self.voids_pivots
         )
 
         return trinums_prime[permuter]
@@ -310,7 +324,7 @@ class CoresFinder(JointsFinder):
             supv.trinums2, supv.trinums3
         )
 
-    def pair_neighbours(self):
+    def pair_suptrinums(self):
 
         supt = self.agent.suptri_prime
 
@@ -323,11 +337,19 @@ class CoresFinder(JointsFinder):
         )
 
 
-def _sync_table_to_pivots(table, pivots):
+def _find_in_table(table, vals):
 
-    pivots_in_table = table[
-        *np.where(np.isin(table, pivots))
-    ]
+    mask = np.isin(table, vals)
+
+    rows, cols = np.where(mask)
+    return rows, cols
+
+
+def _rowsort_table_by_pivots(table, pivots):
+
+    rows, cols = _find_in_table(table, pivots)
+
+    pivots_in_table = table[rows, cols]
 
     _, ind1, ind2 = np.intersect1d(
         pivots_in_table, pivots, return_indices=True

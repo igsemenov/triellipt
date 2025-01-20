@@ -2,9 +2,10 @@
 """Removes mesh mouths.
 """
 import numpy as np
+from triellipt.utils import pairs
 
 
-def clean_mesh(mesh):
+def remove_mouths(mesh):
     """Removes mesh mouths.
 
     Returns
@@ -15,409 +16,330 @@ def clean_mesh(mesh):
     """
 
     if not mesh.hasvoids():
-        return mesh.twin()
+        return mesh
 
-    _ = make_cleaner(mesh)
-    return _.mesh_cleaned()
-
-
-def make_cleaner(mesh):
-
-    cleaner = DelMouthes(mesh)
-
-    cleaner = cleaner.enriched()
-    cleaner = cleaner.with_tongues()
-    cleaner = cleaner.with_mouthes()
-
-    return cleaner
+    _ = MouthsCleaner.from_mesh(mesh)
+    return _.release_mesh()
 
 
 class MeshAgent:
     """Operator on a trimesh.
     """
 
-    def __init__(self, mesh=None):
+    def __init__(self, mesh):
         self.mesh = mesh
-        self.is_enriched = False
+        self.meta = self.fetch_meta()
 
     @classmethod
     def from_mesh(cls, mesh):
         return cls(mesh)
 
-    @property
-    def mesh_twin(self):
-        return self.mesh.twin()
+    def fetch_meta(self):
 
-    def enriched(self):
+        suptri_prime = self.fetch_suptri_prime()
+        suptri_voids = self.fetch_suptri_voids(suptri_prime)
 
-        self.add_voids_nums()
-        self.add_super_triu()
+        return {
+            'suptri-prime': suptri_prime,
+            'suptri-voids': suptri_voids
+        }
 
-        self.is_enriched = True
-        return self
+    def fetch_suptri_prime(self):
+        return self.mesh.supertriu()
 
-    def add_voids_nums(self):
-        self.mesh.voids_nums = self.mesh.getvoids()
-
-    def add_super_triu(self):
-        self.mesh.super_triu = self.mesh.supertriu()
+    def fetch_suptri_voids(self, suptri_prime):
+        return suptri_prime.supvoids()
 
     @property
-    def voids_trinums(self):
-        return self.mesh.voids_nums
+    def suptri_prime(self):
+        return self.meta.get('suptri-prime')
 
     @property
-    def voids_triangs(self):
-        return self.mesh.triangs[self.voids_trinums, :]
-
-    @property
-    def voids_pivots(self):
-        return self.mesh.triangs[self.voids_trinums, 2]
+    def suptri_voids(self):
+        return self.meta.get('suptri-voids')
 
 
-class GetMouthes(MeshAgent):
-    """Finds mesh mouths.
+class MouthsCleaner(MeshAgent):
+    """Cleaner of mesh mouths.
     """
 
-    def __init__(self, mesh=None):
+    def __init__(self, mesh):
         super().__init__(mesh)
 
-        self.tongues = None
-        self.mouthes = None
+        self.supmouths = None
+        self.mesh_alpha = None
+        self.mesh_beta = None
 
-    def with_tongues(self):
-        self.tongues = self.find_tongues()
-        return self
+    def release_mesh(self):
 
-    def with_mouthes(self):
-        self.mouthes = self.make_mouthes()
-        return self
+        self.mesh_beta = self.make_mesh_beta()
+
+        if self.mesh_beta is self.mesh:
+            return self.mesh
+
+        return self.mesh_beta.delghosts()
+
+    def make_mesh_beta(self):
+
+        self.mesh_alpha = self.make_mesh_alpha()
+
+        if self.mesh_alpha is self.mesh:
+            return self.mesh
+
+        return self.maker_mesh_beta.get_mesh()
+
+    def make_mesh_alpha(self):
+
+        self.supmouths = self.find_supmouths()
+
+        if self.supmouths.size == 0:
+            return self.mesh
+
+        return self.maker_mesh_alpha.get_mesh()
+
+    def find_supmouths(self):
+        return self.maker_supmouths.get_suptriu()
 
     @property
-    def is_empty(self):
-        if self.tongues and self.mouthes:
-            return False
-        return True
+    def maker_supmouths(self):
+        return MakerSupMouths.from_cleaner(self)
 
-    def find_tongues(self):
+    @property
+    def maker_mesh_alpha(self):
+        return MakerMeshAlpha.from_cleaner(self)
 
-        if self.is_enriched is False:
-            return None
+    @property
+    def maker_mesh_beta(self):
+        return MakerMeshBeta.from_cleaner(self)
 
-        return GetTongues(self.mesh).find_tongues()
 
-    def make_mouthes(self):
+class CleanerAgent:
+    """Operator on a mesh cleaner.
+    """
 
-        if not self.tongues:
-            return None
+    def __init__(self, cleaner):
+        self.cleaner = cleaner
 
-        return self.mesh.super_triu.atcores(*self.tongues.trinums)
+    @classmethod
+    def from_cleaner(cls, cleaner):
+        return cls(cleaner)
 
-    def find_triangs_to_del(self):
 
-        voids = self.pick_voids_to_del()
-        cores = self.pick_cores_to_del()
+class MakerSupMouths(CleanerAgent):
+    """Finds a suptriu made of mouths.
+    """
 
-        return np.hstack(
-            [voids, cores]
-        )
+    def get_suptriu(self):
 
-    def pick_voids_to_del(self):
+        codescache = self.make_pairing_codes()
+        supmouths = self.from_pairing_codes(codescache)
+
+        return supmouths
+
+    def make_pairing_codes(self):
+        return {
+            'voids_ears': self.pair_voids_ears(),
+            'suptrinums': self.pair_suptrinums()
+        }
+
+    def from_pairing_codes(self, codes):
 
         mask = np.isin(
-            self.voids_pivots, self.tongues.triangs
+            codes['suptrinums'], codes['voids_ears']
         )
 
-        return self.voids_trinums[mask]
+        inds_mouths, = np.where(
+            np.sum(mask, axis=1) == 2
+        )
 
-    def pick_cores_to_del(self):
-        return self.mouthes.supbodies.flatten()
+        return self.cleaner.suptri_prime.subtriu(*inds_mouths)
+
+    def pair_voids_ears(self):
+
+        supv = self.cleaner.suptri_voids
+
+        return pairs.sympaired(
+            supv.trinums2, supv.trinums3
+        )
+
+    def pair_suptrinums(self):
+
+        supt = self.cleaner.suptri_prime
+
+        trio = _pack_cols(
+            supt.trinums1, supt.trinums2, supt.trinums3
+        )
+
+        return pairs.paircols(
+            trio[:, [0, 1, 2, 0]]
+        )
+
+
+class MakerMeshAlpha(CleanerAgent):
+    """Maker of an alpha-stage mesh.
+    """
+
+    @property
+    def supmouths(self):
+        return self.cleaner.supmouths
+
+    def get_mesh(self):
+
+        meta = self.make_mesher_meta()
+        mesh = self.from_mesher_meta(meta)
+
+        return mesh
+
+    def from_mesher_meta(self, meta):
+
+        mesh = self.cleaner.mesh
+
+        mesh = self.draft_new_mesh(mesh, meta)
+        mesh = self.align_new_voids(mesh, meta)
+
+        return mesh
+
+    def align_new_voids(self, mesh, meta):
+
+        voids = meta['triangs-to-add']['extravoids']
+
+        west = mesh.points[voids[:, 0]]
+        east = mesh.points[voids[:, 1]]
+
+        mesh.points[voids[:, 2]] = 0.5 * (west + east)
+        return mesh
+
+    def draft_new_mesh(self, mesh, meta):
+
+        mesh = mesh.deltriangs(*meta['trinums-to-del'])
+        mesh = mesh.add_triangs(meta['triangs-to-add']['suptriangs'])
+        mesh = mesh.add_triangs(meta['triangs-to-add']['extravoids'])
+
+        return mesh
+
+    def make_mesher_meta(self):
+        return {
+            'triangs-to-add': self.make_triangs_to_add(),
+            'trinums-to-del': self.make_trinums_to_del()
+        }
+
+    def make_trinums_to_del(self):
+        return self.supmouths.supbodies.flatten()
 
     def make_triangs_to_add(self):
 
-        new_cores = self.pick_new_cores()
-        new_voids = self.make_new_voids()
+        suptriangs = self.make_suptriangs_to_add()
+        extravoids = self.make_extravoids_to_add()
 
         return {
-            'new-cores': new_cores.astype(int),
-            'new-voids': new_voids.astype(int)
+            'suptriangs': suptriangs,
+            'extravoids': extravoids
         }
 
-    def pick_new_cores(self):
-        return self.mouthes.supmesh.triangs
+    def make_extravoids_to_add(self):
 
-    def make_new_voids(self):
+        sup = np.hsplit(self.supmouths.supmesh.triangs, 3)
+        ker = np.hsplit(self.supmouths.kermesh.triangs, 3)
 
-        vtx0, vtx1 = self.pick_new_voids_bases()
-        vtx2 = self.pick_new_voids_pivots()
+        voids_0 = _stack_cols(sup[1], sup[0], ker[1])
+        voids_1 = _stack_cols(sup[2], sup[1], ker[2])
+        voids_2 = _stack_cols(sup[0], sup[2], ker[0])
 
-        triangs = _pack_cols(vtx0, vtx1, vtx2)
-        return triangs
+        assert voids_0.shape[1] == 3, voids_0.shape
+        assert voids_1.shape[1] == 3, voids_1.shape
+        assert voids_2.shape[1] == 3, voids_2.shape
 
-    def pick_new_voids_bases(self):
+        extra_voids = np.vstack(
+            [voids_0, voids_1, voids_2]
+        )
 
-        suptris = self.mouthes.supmesh.triangs
-        locnums = self.tongues.locnums_apexes
+        return extra_voids
 
-        locnums1 = (locnums + 0) % 3
-        locnums2 = (locnums + 2) % 3
-
-        yield _pick_one_per_row(suptris, locnums1)
-        yield _pick_one_per_row(suptris, locnums2)
-
-    def pick_new_voids_pivots(self):
-        return self.tongues.nodnums_apexes
+    def make_suptriangs_to_add(self):
+        return self.supmouths.supmesh.triangs
 
 
-class DelMouthes(GetMouthes):
-    """Removes mesh mouthes.
+class MakerMeshBeta(CleanerAgent):
+    """Makes a beta-mesh from an alpha-mesh.
     """
 
-    def mesh_cleaned(self):
+    def __init__(self, agent):
+        super().__init__(agent)
+        self.meta = self.fetch_meta()
 
-        if self.is_empty:
-            return self.mesh_twin
+    @property
+    def mesh_alpha(self):
+        return self.cleaner.mesh_alpha
 
-        tridata = self.pick_triangs_data()
-        newmesh = self.from_triangs_data(tridata)
+    @property
+    def voids_trinums(self):
+        return self.meta.get('voids')['trinums']
 
-        return newmesh
+    @property
+    def voids_triangs(self):
+        return self.meta.get('voids')['triangs']
 
-    def pick_triangs_data(self):
+    def fetch_meta(self):
         return {
-            'trinums-to-del': self.find_triangs_to_del(),
-            'triangs-to-add': self.make_triangs_to_add()
+            'voids': self.fetch_voids_meta()
         }
 
-    def from_triangs_data(self, tridata):
+    def fetch_voids_meta(self):
 
-        mesh = self.mesh
+        trinums = self.mesh_alpha.getvoids()
+        triangs = self.mesh_alpha.triangs[trinums, :]
 
-        mesh = self.del_mesh_triangs(
-            mesh, tridata['trinums-to-del']
+        return {
+            'trinums': trinums,
+            'triangs': triangs
+        }
+
+    def get_mesh(self):
+
+        twins_nums = self.find_twins_voids()
+        clean_mesh = self.pull_twins_voids(twins_nums)
+
+        return clean_mesh
+
+    def pull_twins_voids(self, twins_nums):
+
+        if twins_nums.size == 0:
+            return self.mesh_alpha
+
+        return self.mesh_alpha.deltriangs(*twins_nums)
+
+    def find_twins_voids(self):
+
+        twins_inds = _find_twins(
+            self.make_voids_codes()
         )
 
-        mesh = self.add_mesh_triangs(
-            mesh, tridata['triangs-to-add']
+        return self.voids_trinums[twins_inds]
+
+    def make_voids_codes(self):
+        return pairs.sympaired(
+            self.voids_triangs[:, 0], self.voids_triangs[:, 1]
         )
-
-        mesh = self.del_mesh_ghosts(mesh)
-        return mesh
-
-    def del_mesh_ghosts(self, mesh):
-        return mesh.delghosts()
-
-    def del_mesh_triangs(self, mesh, trinums_to_del):
-        return mesh.deltriangs(*trinums_to_del)
-
-    def add_mesh_triangs(self, mesh, triangs_to_add):
-
-        new_cores = triangs_to_add['new-cores']
-        new_voids = triangs_to_add['new-voids']
-
-        new_triangs = np.vstack(
-            [new_cores, new_voids]
-        )
-
-        mesh = mesh.add_triangs(new_triangs)
-
-        mesh = self.flat_new_voids(mesh, new_voids)
-        return mesh
-
-    def flat_new_voids(self, mesh, voids_triangs):
-
-        new_points = _flat_triplets(
-            mesh.points, voids_triangs.T
-        )
-
-        return mesh.update_points(new_points)
-
-
-class GetTongues(MeshAgent):
-    """Finds tongues of mesh mouths.
-    """
-
-    def find_tongues(self):
-        """Returns toungues (hangers that are not corners).
-        """
-
-        hangers, corners = self.find_hangers_corners()
-        tongues = self.diff_hangers_corners(hangers, corners)
-
-        if tongues.size == 0:
-            return None
-        return tongues
-
-    def diff_hangers_corners(self, hangers, corners):
-        return hangers.deltriangs(corners)
-
-    def find_hangers_corners(self):
-        yield self.find_hangers()
-        yield self.find_corners()
-
-    def find_hangers(self):
-        return GetHangers(self.mesh).find_hangers()
-
-    def find_corners(self):
-        return GetCorners(self.mesh).find_corners()
-
-
-class GetHangers(MeshAgent):
-    """Finds triangles with two voids pivots as vertices.
-    """
-
-    def find_hangers(self):
-
-        mask = self.mask_triangs_in_pivots()
-        data = self.from_triangs_in_pivots(mask)
-
-        return data
-
-    def from_triangs_in_pivots(self, mask):
-
-        rows, cols = _pick_rows_one_true(mask)
-
-        trinums_two_pivots = rows
-        locnums_not_pivots = cols
-
-        data = np.vstack(
-            [trinums_two_pivots, locnums_not_pivots]
-        )
-
-        return Hangers(
-            self.mesh, data
-        )
-
-    def mask_triangs_in_pivots(self):
-        return np.isin(
-            self.mesh.triangs, self.voids_pivots, invert=True
-        )
-
-
-class GetCorners(MeshAgent):
-    """Finds triangles with two voids as neighbours.
-    """
-
-    @property
-    def suptri_bodies(self):
-        return np.vstack(
-            list(self.gen_suptri_bodies())
-        )
-
-    def gen_suptri_bodies(self):
-        yield self.mesh.super_triu.trinums1
-        yield self.mesh.super_triu.trinums2
-        yield self.mesh.super_triu.trinums3
-
-    def find_corners(self):
-        """Returns numbers of triangles that are corners.
-        """
-
-        mask = self.mask_trinums_touch_two_voids()
-        nums = self.pick_trinums_touch_two_voids(mask)
-
-        return nums
-
-    def pick_trinums_touch_two_voids(self, mask):
-        return self.mesh.super_triu.trinums[mask]
-
-    def mask_trinums_touch_two_voids(self):
-        return _mask_cols_two_trues(
-            self.mask_suptriangs_in_voids()
-        )
-
-    def mask_suptriangs_in_voids(self):
-        return np.isin(
-            self.suptri_bodies, self.voids_trinums
-        )
-
-
-class Hangers:
-    """Triangles with two voids-pivots as vertices. 
-    """
-
-    def __init__(self, mesh=None, data=None):
-        self.mesh = mesh
-        self.data = data
-
-    @property
-    def size(self):
-        return self.data.shape[1]
-
-    def update_data(self, newdata):
-        return self.__class__(
-            self.mesh, newdata.copy('C')
-        )
-
-    def deltriangs(self, *trinums):
-        """Deletes hangers with the specified global numbers.
-        """
-
-        mask = np.isin(
-            self.trinums, trinums, invert=True
-        )
-
-        return self.update_data(
-            newdata=self.data[:, mask]
-        )
-
-    @property
-    def trinums(self):
-        return self.data[0, :]
-
-    @property
-    def triangs(self):
-        """Triangles table for hangers.
-        """
-        return self.mesh.triangs[self.trinums, :]
-
-    @property
-    def locnums_apexes(self):
-        """Local numbers of non-pivot vertices in hangers. 
-        """
-        return self.data[1, :]
-
-    @property
-    def nodnums_apexes(self):
-        return self.mesh.triangs[
-            self.trinums, self.locnums_apexes
-        ]
-
-
-def _mask_cols_two_trues(mask_in_rows):
-    return np.sum(mask_in_rows, axis=0) == 2
-
-
-def _pick_rows_one_true(mask_table):
-
-    rows, cols = np.where(mask_table)
-
-    _, retinds, counts = np.unique(
-        rows, return_index=True, return_counts=True
-    )
-
-    one_true = retinds[counts == 1]
-
-    yield rows[one_true]
-    yield cols[one_true]
-
-
-def _pick_one_per_row(table, colinds):
-    return table[
-        np.arange(table.shape[0]), colinds
-    ]
 
 
 def _pack_cols(*cols):
-    return np.vstack(list(cols)).T.copy('C')
+    return np.vstack(cols).T.copy('C')
 
 
-def _flat_triplets(points, triplets):
+def _stack_cols(*cols):
+    return np.hstack(cols)
 
-    pos0, pos1, pos2 = triplets
 
-    points[pos2] = 0.5 * (
-        points[pos0] + points[pos1]
+def _find_twins(data):
+
+    _, invinds, counts = np.unique(
+        data, return_inverse=True, return_counts=True
     )
 
-    return points
+    twins_mask = counts[invinds] == 2
+
+    twins_inds = np.compress(
+        twins_mask, np.arange(data.size)
+    )
+
+    return twins_inds

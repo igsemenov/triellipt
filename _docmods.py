@@ -8,6 +8,7 @@ DOCPATH = 'docs/sources'
 
 MODULES = [
     triellipt.fem,
+    triellipt.amr,
     triellipt.geom,
     triellipt.mesher,
     triellipt.trimesh,

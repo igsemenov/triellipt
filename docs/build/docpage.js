@@ -217,6 +217,7 @@ docPage.contents = `<p>
     <li><a class="global-toc__top-item" href="triellipt.html">Modules</a>
         <ul>
             <li><a href="triellipt.fem.html">fem</a></li>
+            <li><a href="triellipt.amr.html">amr</a></li>
             <li><a href="triellipt.geom.html">geom</a></li>
             <li><a href="triellipt.mesher.html">mesher</a></li>
             <li><a href="triellipt.trimesh.html">trimesh</a></li>

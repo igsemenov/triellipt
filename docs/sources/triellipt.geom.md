@@ -420,15 +420,9 @@ Polygonal path with colored nodes.
 `numbers`  | Nodes numbers.
 `points`   | Nodes positions.
 
-### ascycle()
+### atcolor()
 
-<pre class="py-sign">PathMap.<b>ascycle</b>(<em>self</em>)</pre>
-
-Converts the path map to a cyclic path.
-
-### subpath()
-
-<pre class="py-sign">PathMap.<b>subpath</b>(<em>self</em>, color)</pre>
+<pre class="py-sign">PathMap.<b>atcolor</b>(<em>self</em>, color)</pre>
 
 Fetches a subpath with the specified color.
 
@@ -466,6 +460,20 @@ Shifts the contact of two colors to the right by one node.
 
 Shifts the contact of two colors to the left by one node.
 
+### split()
+
+<pre class="py-sign">PathMap.<b>split</b>(<em>self</em>) → <em>list</em></pre>
+
+Splits the path into subpaths based on color.
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>list[PathMap]</em></span></p>
+
+<dl><dd>
+  List of unicoloured subpaths.
+</dd></dl>
+
 ## CycPath
 
 <pre class="py-sign"><b><em>class</em></b> triellipt.geom.<b>CycPath</b>(nodes=<span>None</span>)</pre>
@@ -491,4 +499,26 @@ Provides rotation angles of edges.
 
 <dl><dd>
   Rotation angles of edges at each node.
+</dd></dl>
+
+### split()
+
+<pre class="py-sign">CycPath.<b>split</b>(<em>self</em>, threshold_angle)</pre>
+
+Splits the cycle based on rotation angle.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>threshold_angle</code> : <em>float</em></span></p>
+
+<dl><dd>
+  Threshold angle for a node to become a corner.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>PathMap</em></span></p>
+
+<dl><dd>
+  Resulting partition of a cycle.
 </dd></dl>

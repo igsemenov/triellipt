@@ -6,3 +6,4 @@ from .femunit_ import FEMUnit
 from .femfactory import FEMFactory
 from .femmatrix import MatrixFEM
 from .femvector import VectorFEM
+from .femoprs import mesh_metric

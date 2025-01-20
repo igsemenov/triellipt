@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Modules — triellipt documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+    <link rel="stylesheet" href="docpage.css">
+    <script src="docpage.js"></script>
+</head>
+
+<body>
+
+    <div id="top-panel">
+        <div id="page-logo"></div>
+        <div id="top-panel-tool-bar">
+            <div id="global-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="local-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="home-page-btn" class="top-panel-btn" onclick="gotoHomePage()"></div>
+        </div>
+    </div>
+
+    <div id="global-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>Contents</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="global-toc-box__text" class="toc-box__textbox"></div>
+    </div>
+    <div id="local-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>On this page</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="local-toc-box__text" class="toc-box__textbox">
+            <p>
+            <ul>
+                <li><a href="#triellipt.amr">triellipt.amr</a>
+                    <ul>
+                        <li><a href="#refine_mesh">refine_mesh()</a></li>
+                        <li><a href="#mesh_subset">mesh_subset()</a></li>
+                        <li><a href="#mass_collector">mass_collector()</a></li>
+                    </ul>
+                </li>
+            </ul>
+            </p>
+        </div>
+    </div>
+
+    <div id="content-box">
+        <div id="title-box">
+            <h1 id="title-box__title"></h1>
+            <h2 id="title-box__annotation"></h2>
+            <hr>
+        </div>
+        <div id="doc-box">
+<div class="toc-anchor"></div><h1>triellipt.amr</h1>
+
+<p>Mesh refinement tools.</p>
+
+<div class="toc-anchor"></div><h2>refine_mesh()</h2>
+
+<pre class="py-sign">triellipt.amr.<b>refine_mesh</b>(mesh, trinums=<span>None</span>)</pre>
+
+<p>Performs static mesh refinement.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Triangle mesh to refine.
+</dd></dl>
+
+<p><span class="vardef"><code>trinums</code> : <em>Iterable[int] = None</em></span></p>
+
+<dl><dd>
+  Numbers of triangles to refine, if <i>None</i> takes all triangles.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>TriMesh</em></span></p>
+
+<dl><dd>
+  Refined mesh (a).
+</dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>
+<ul class="md-list">
+    <li>(a) The data refiner is included in the mesh metadata.</li>
+    <li>(b) The neighborhood of the voids is not refined.</li>
+</ul>
+</p>
+
+<div class="toc-anchor"></div><h2>mesh_subset()</h2>
+
+<pre class="py-sign">triellipt.amr.<b>mesh_subset</b>(mesh, count, anchor)</pre>
+
+<p>Finds a convex subset of a mesh.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Input triangle mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>count</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Seed number of triangles in a subset.
+</dd></dl>
+
+<p><span class="vardef"><code>anchor</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Anchor point to find a starting triangle.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-int-array</em></span></p>
+
+<dl><dd>
+  Numbers of triangles in a subset.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>mass_collector()</h2>
+
+<pre class="py-sign">triellipt.amr.<b>mass_collector</b>(mesh1, mesh2, mode)</pre>
+
+<p>Creates a mass collector for a master-slave pair of meshes.</p>
+
+<p>
+<ul class="md-list">
+    <li>Only for meshes with no hanging nodes.</li>
+    <li>No scaling by the area in a structured mode.</li>
+</ul>
+</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh1</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Master (parent) mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>mesh2</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Mesh obtained by the refinement of the parent mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>mode</code> : <em>str</em></span></p>
+
+<dl><dd>
+  Defines the type of a collector (i).
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>MassCollector</em></span></p>
+
+<dl><dd>
+  Mass collector object.
+</dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>(i) Collector types:</p>
+
+<p>
+<ul class="md-list">
+    <li><mark>&quot;scaled&quot;</mark> — for general unstructured meshes</li>
+    <li><mark>&quot;structed&quot;</mark> — for meshes with equal triangles</li>
+</ul>
+</p>
+
+<hr>
+        </div>
+        <p id="footnote">Copyright &copy; 2023, Igor Semenov.</p>
+    </div>
+
+    <footer></footer>
+
+    <script>
+        setDocPage();
+    </script>
+
+</body>
+
+</html>

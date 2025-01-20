@@ -43,6 +43,7 @@ class FEMData:
         self.masks = meta['masks']
         self.loops = meta['loops']
         self.femat = meta['femat']
+        self.perms = meta['perms']
 
     @classmethod
     def from_mesh(cls, mesh, anchors=None):
@@ -156,6 +157,10 @@ class FEMRoot(FEMData):
         return self.femat['femoprs']['massmat']
 
     @property
+    def massdiag(self):
+        return self.femat['femoprs']['massdiag']
+
+    @property
     def diff_1x(self):
         return self.femat['femoprs']['diff_1x']
 
@@ -178,15 +183,39 @@ class FEMRoot(FEMData):
 
 class FEMUnit(FEMRoot):
     """FEM computing unit.
+
+    Properties
+    ----------
+
+    FEM local operators:
+
+    Name        | Description
+    ------------|---------------------
+    `massmat`   | Mass-matrix
+    `massdiag`  | Mass-matrix lumped
+    `laplace`   | Laplace operator
+    `diff_1y`   | 1st-y derivative
+    `diff_1x`   | 1st-x derivative
+    `diff_2y`   | 2nd-y derivative
+    `diff_2x`   | 2nd-x derivative
+
+    FEM global matrices:
+
+    Name           | Description
+    -------------- |---------------------
+    `massmat_fem`  | Mass-matrix
+    `massdiag_fem` | Mass-matrix lumped
+    `laplace_fem`  | Laplace operator
+
     """
 
-    def get_factory(self, with_constraints=True):
+    def fem_factory(self, add_constraints=True):
         """Creates a factory of FEM matrices.
 
         Parameters
         ----------
-        with_constraints : bool = True
-            If False, constraints are not included in the matrix.
+        add_constraints : bool = True
+            If True, forces constraints to be included in the matrix.
 
         Returns
         -------
@@ -194,9 +223,32 @@ class FEMUnit(FEMRoot):
             Resulting factory of FEM matrices.
 
         """
-        return femfactory.FEMFactory.from_unit(self, with_constraints)
+        return femfactory.FEMFactory.from_unit(self, add_constraints)
 
-    def get_interp(self, xnodes, ynodes):
+    def new_vector(self):
+        """Returns a new FEM vector.
+        """
+        return femvector.VectorFEM.from_unit(self)
+
+    def makecoeff(self, mesh_data):
+        """Generates a coefficient for local FEM operators.
+
+        Parameters
+        ----------
+        mesh_data : flat-float-array
+            Coefficient defined over the mesh triangles.
+
+        Returns
+        -------
+        flat-float-array
+            Coefficient matching the sizes of local FEM operators.
+
+        """
+        return mesh_data[
+            self.ij_stream.trinums
+        ]
+
+    def getinterp(self, xnodes, ynodes):
         """Creates an interpolator on a mesh.
 
         Parameters
@@ -214,7 +266,14 @@ class FEMUnit(FEMRoot):
         """
         return trinterp.getinterp(self, xnodes, ynodes)
 
-    def new_vector(self):
-        """Returns a new FEM vector.
-        """
-        return femvector.VectorFEM.from_unit(self)
+    @property
+    def massmat_fem(self):
+        return self.fem_factory(0).feed_data(self.massmat)
+
+    @property
+    def massdiag_fem(self):
+        return self.fem_factory(0).feed_data(self.massdiag).with_no_zeros()
+
+    @property
+    def laplace_fem(self):
+        return self.fem_factory(1).feed_data(self.laplace)

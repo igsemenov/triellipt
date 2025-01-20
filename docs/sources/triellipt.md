@@ -10,6 +10,7 @@
 Module                   | Description           
 ------------------------ | ----------------------
 <b>triellipt.fem</b>     | Finite-element solver.
+<b>triellipt.amr</b>     | Mesh refinement tools.
 <b>triellipt.geom</b>    | Geometry module.      
 <b>triellipt.mesher</b>  | Mesh generation tools.
 <b>triellipt.trimesh</b> | Triangle mesh object. 
@@ -26,9 +27,10 @@ Module                   | Description
             <li><a href="triellipt.fem.md#getunit">getunit()</a></li>
             <li><a href="triellipt.fem.md#femunit">FEMUnit</a>
                 <ul>
-                    <li><a href="triellipt.fem.md#get_factory">get_factory()</a></li>
-                    <li><a href="triellipt.fem.md#get_interp">get_interp()</a></li>
+                    <li><a href="triellipt.fem.md#fem_factory">fem_factory()</a></li>
                     <li><a href="triellipt.fem.md#new_vector">new_vector()</a></li>
+                    <li><a href="triellipt.fem.md#makecoeff">makecoeff()</a></li>
+                    <li><a href="triellipt.fem.md#getinterp">getinterp()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.fem.md#femfactory">FEMFactory</a>
@@ -56,6 +58,21 @@ Module                   | Description
                     <li><a href="triellipt.fem.md#sectionxy">sectionxy()</a></li>
                 </ul>
             </li>
+            <li><a href="triellipt.fem.md#mesh_metric">mesh_metric()</a></li>
+        </ul>
+    </li>
+</ul>
+</p>
+
+### triellipt.amr
+
+<p>
+<ul class="ref-list" id="mod-refs">
+    <li><a href="triellipt.amr.md#triellipt.amr">triellipt.amr</a>
+        <ul>
+            <li><a href="triellipt.amr.md#refine_mesh">refine_mesh()</a></li>
+            <li><a href="triellipt.amr.md#mesh_subset">mesh_subset()</a></li>
+            <li><a href="triellipt.amr.md#mass_collector">mass_collector()</a></li>
         </ul>
     </li>
 </ul>
@@ -90,16 +107,17 @@ Module                   | Description
             </li>
             <li><a href="triellipt.geom.md#pathmap">PathMap</a>
                 <ul>
-                    <li><a href="triellipt.geom.md#ascycle">ascycle()</a></li>
-                    <li><a href="triellipt.geom.md#subpath">subpath()</a></li>
+                    <li><a href="triellipt.geom.md#atcolor">atcolor()</a></li>
                     <li><a href="triellipt.geom.md#repaint">repaint()</a></li>
                     <li><a href="triellipt.geom.md#rshift">rshift()</a></li>
                     <li><a href="triellipt.geom.md#lshift">lshift()</a></li>
+                    <li><a href="triellipt.geom.md#split">split()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.geom.md#cycpath">CycPath</a>
                 <ul>
                     <li><a href="triellipt.geom.md#angles">angles()</a></li>
+                    <li><a href="triellipt.geom.md#split-1">split()</a></li>
                 </ul>
             </li>
         </ul>
@@ -114,6 +132,7 @@ Module                   | Description
     <li><a href="triellipt.mesher.md#triellipt.mesher">triellipt.mesher</a>
         <ul>
             <li><a href="triellipt.mesher.md#trigrid">trigrid()</a></li>
+            <li><a href="triellipt.mesher.md#trilattice">trilattice()</a></li>
         </ul>
     </li>
 </ul>
@@ -129,11 +148,14 @@ Module                   | Description
                 <ul>
                     <li><a href="triellipt.trimesh.md#submesh">submesh()</a></li>
                     <li><a href="triellipt.trimesh.md#deltriangs">deltriangs()</a></li>
+                    <li><a href="triellipt.trimesh.md#delghosts">delghosts()</a></li>
+                    <li><a href="triellipt.trimesh.md#getvoids">getvoids()</a></li>
+                    <li><a href="triellipt.trimesh.md#alignnodes">alignnodes()</a></li>
+                    <li><a href="triellipt.trimesh.md#renumed">renumed()</a></li>
+                    <li><a href="triellipt.trimesh.md#shuffled">shuffled()</a></li>
                     <li><a href="triellipt.trimesh.md#meshedge">meshedge()</a></li>
                     <li><a href="triellipt.trimesh.md#edgesmap">edgesmap()</a></li>
                     <li><a href="triellipt.trimesh.md#nodesmap">nodesmap()</a></li>
-                    <li><a href="triellipt.trimesh.md#delghosts">delghosts()</a></li>
-                    <li><a href="triellipt.trimesh.md#delmouths">delmouths()</a></li>
                     <li><a href="triellipt.trimesh.md#supertriu">supertriu()</a></li>
                     <li><a href="triellipt.trimesh.md#reduced">reduced()</a></li>
                     <li><a href="triellipt.trimesh.md#split">split()</a></li>

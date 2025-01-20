@@ -36,6 +36,56 @@ class MeshAgent:
         return self.mesh.twin()
 
 
+class Renumer(MeshAgent):
+    """Nodes renumerator.
+    """
+
+    def renumed(self, permuter):
+        """Renumerates the mesh nodes.
+
+        Parameters
+        ----------
+        permuter : flat-int-array
+            Permutation of points numbers.
+
+        Returns
+        -------
+        TriMesh
+            New mesh.
+
+        """
+
+        new_points, new_triangs = self.make_new_mesh_data(permuter)
+        new_mesh = self.from_new_mesh_data(new_points, new_triangs)
+
+        new_mesh = new_mesh.add_meta(
+            {'nodes-permuter': permuter}
+        )
+
+        return new_mesh
+
+    def from_new_mesh_data(self, new_points, new_triangs):
+        return self.mesh.from_data(new_points, new_triangs)
+
+    def make_new_mesh_data(self, permuter):
+        yield self.make_new_points(permuter)
+        yield self.make_new_triangs(permuter)
+
+    def make_new_points(self, permuter):
+        return self.mesh.points[permuter]
+
+    def make_new_triangs(self, permuter):
+        returninds = self.make_return_map(permuter)
+        newtriangs = self.from_return_map(returninds)
+        return newtriangs
+
+    def make_return_map(self, permuter):
+        return self.points_range[np.argsort(permuter)]
+
+    def from_return_map(self, returninds):
+        return returninds[self.mesh.triangs]
+
+
 class Shuffler(MeshAgent):
     """Triangles shuffler.
     """
@@ -58,6 +108,10 @@ class Shuffler(MeshAgent):
         new_triangs = self.make_new_triangs(permuter)
         new_mesh = self.from_new_triangs(new_triangs)
 
+        new_mesh = new_mesh.add_meta(
+            {'triangs-permuter': permuter}
+        )
+
         return new_mesh
 
     def make_new_triangs(self, permuter):
@@ -65,52 +119,6 @@ class Shuffler(MeshAgent):
 
     def from_new_triangs(self, new_triangs):
         return self.mesh.update_triangs(new_triangs)
-
-
-class Renumer(MeshAgent):
-    """Mesh renumerator.
-    """
-
-    def renumed(self, permuter):
-        """Renumerates the mesh.
-
-        Parameters
-        ----------
-        permuter : flat-int-array
-            Permutation of points numbers.
-
-        Returns
-        -------
-        TriMesh
-            New mesh.
-
-        """
-
-        new_points, new_triangs = self.make_new_mesh_data(permuter)
-        new_trimesh = self.from_new_mesh_data(new_points, new_triangs)
-
-        return new_trimesh
-
-    def from_new_mesh_data(self, new_points, new_triangs):
-        return self.mesh.from_data(new_points, new_triangs)
-
-    def make_new_mesh_data(self, permuter):
-        yield self.make_new_points(permuter)
-        yield self.make_new_triangs(permuter)
-
-    def make_new_points(self, permuter):
-        return self.mesh.points[permuter]
-
-    def make_new_triangs(self, permuter):
-        returninds = self.make_return_map(permuter)
-        newtriangs = self.from_return_map(returninds)
-        return newtriangs
-
-    def make_return_map(self, permuter):
-        return self.points_range[np.argsort(permuter)]
-
-    def from_return_map(self, returninds):
-        return returninds[self.mesh.triangs]
 
 
 class AlignNodes(MeshAgent):
@@ -193,7 +201,7 @@ class AlignVoids(MeshAgent):
     def aligned(self):
 
         if not self.hasvoids:
-            return self.mesh_twin
+            return self.mesh_twin_with_meta
 
         permuter = self.make_permuter()
         new_mesh = self.from_permuter(permuter)
@@ -213,6 +221,15 @@ class AlignVoids(MeshAgent):
 
     def from_permuter(self, permuter):
         return self.mesh.renumed(permuter)
+
+    @property
+    def mesh_twin_with_meta(self):
+
+        mesh = self.mesh_twin
+
+        return mesh.add_meta(
+            {'nodes-permuter': np.arange(mesh.npoints)}
+        )
 
 
 class AlignMesh(MeshAgent):

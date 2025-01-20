@@ -30,31 +30,36 @@ class FEMFactory:
 
     @property
     def voids_offset(self):
-        if self.has_constraints:
+        if self.hasconstraints:
             return 3 * self.unit.voids_count
         return 0
 
     @property
-    def has_constraints(self):
+    def hasconstraints(self):
         return self.meta['has-constraints']
 
     def feed_data(self, data):
-        """Transmits data to the matrix.
+        """Transmits data to the FEM matrix.
 
         Parameters
         ----------
         data : flat-float-array
-            Data stream compatible with ij-stream of the FEM unit.
+            Combination of local FEM operators (a).
 
         Returns
         -------
         MatrixFEM
             Resulting FEM matrix.
 
+        Notes
+        -----
+
+        (a) Data stream compatible with ij-stream of the FEM unit.
+
         """
 
-        new_data = self.push_data(data)
-        fem_matr = self.make_matrix(new_data)
+        dat_matr = self.push_data(data)
+        fem_matr = self.make_matrix(dat_matr)
 
         return fem_matr
 
@@ -68,9 +73,9 @@ class FEMFactory:
             data[self.perm_reduced], order='C'
         )
 
-    def make_matrix(self, new_data):
+    def make_matrix(self, matrix_data):
 
-        body = self.make_body(new_data)
+        body = self.make_body(matrix_data)
         meta = self.make_meta()
 
         return femmatrix.getmatrix(self.unit, body, meta)
@@ -87,14 +92,13 @@ class FEMFactory:
 
     def make_meta(self):
         return {
-            'has-constraints': self.has_constraints
+            'has-constraints': self.hasconstraints
         }
 
+    @property
     def pattern(self):
-
         twin = self.body.copy()
         twin.data.fill(1)
-
         return twin
 
     @property
@@ -140,13 +144,22 @@ class FactoryMaker(UnitAgent):
         super().__init__(unit)
         self.with_constraints = None
 
-    def get_factory(self, with_constraints):
-        self.with_constraints = with_constraints
+    def get_factory(self, add_constraints):
+
+        self.set_constraints_status(add_constraints)
 
         ijmeta = self.make_ij_sorted_meta()
         matrix = self.from_ij_sorted_meta(ijmeta)
 
         return matrix
+
+    def set_constraints_status(self, input_value):
+        self.with_constraints = self.get_constraints_status(input_value)
+
+    def get_constraints_status(self, input_value):
+        if self.unit.hasjoints:
+            return input_value
+        return False
 
     def make_ij_sorted_meta(self):
         return self.ij_sorter.get_ij_sorted_meta()

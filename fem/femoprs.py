@@ -6,6 +6,7 @@ import numpy as np
 
 FEMOPRS = [
     'massmat',
+    'massdiag',
     'diff_1x',
     'diff_1y',
     'diff_2x',
@@ -30,6 +31,17 @@ def getoprs(mesh) -> dict:
 
 def mesh_metric(mesh) -> dict:
     """Returns the mesh metric properties.
+
+    Parameters
+    ----------
+    mesh : TriMesh
+        Triangular mesh.
+
+    Returns
+    -------
+    dict
+        Metric properties of triangles.
+
     """
     _ = MetricMaker.from_mesh(mesh)
     return _.get_metric()
@@ -149,9 +161,23 @@ class OprsMaker:
 
         return proxy * (areas / 12.)
 
+    def massdiag(self):
+
+        areas = self.areas2d
+
+        proxy = np.tile(
+            self.massdiag_proxy.flat, areas.shape
+        )
+
+        return proxy * areas
+
     @property
     def massmat_proxy(self):
         return np.eye(3) + np.ones((3, 3))
+
+    @property
+    def massdiag_proxy(self):
+        return np.eye(3) / 3.
 
 
 def _mono_matrix(data):

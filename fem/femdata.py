@@ -29,6 +29,9 @@ class FEMFactory:
     """Maker of FEM unit data.
     """
 
+    def __init__(self):
+        self.cache = {}
+
     def get_data(self, mesh, anchors=None) -> dict:
 
         mesh = self.get_mesh_aligned(mesh, anchors)
@@ -40,10 +43,16 @@ class FEMFactory:
 
         anchors = anchors or ()
 
-        mesh = mesh.alignnodes(*anchors)
-        mesh = mesh.alignvoids()
+        mesh0 = mesh
 
-        return mesh
+        mesh1 = mesh0.alignnodes(*anchors)
+        mesh2 = mesh1.alignvoids()
+
+        perm1 = mesh1.meta['nodes-permuter']
+        perm2 = mesh2.meta['nodes-permuter']
+
+        self.cache['nodes-permuter'] = perm1[perm2]
+        return mesh2
 
     def get_data_from_mesh(self, mesh):
 
@@ -60,18 +69,23 @@ class FEMFactory:
         data = self.make_mesh_data(skel)
         ij_v = self.make_ij_v_data(skel)
 
-        mesh = data['mesh']
-
         ijvs = {
             'ij-data': ij_v['ij'],
             'femoprs': ij_v['v']
         }
 
+        perm = {
+            'nodes-mesh-to-unit': self.cache['nodes-permuter']
+        }
+
         meta = {
             'masks': data['masks'],
             'loops': data['loops'],
-            'femat': ijvs
+            'femat': ijvs,
+            'perms': perm
         }
+
+        mesh = data['mesh']
 
         return {
             'mesh': mesh,

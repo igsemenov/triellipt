@@ -58,7 +58,8 @@ class FEMStream(SkelAgent):
 
     def get_matrix_stream(self):
 
-        massmat = MassStream(self).get_stream()
+        massmat = MassMatStream(self).get_stream()
+        massdiag = MassDiagStream(self).get_stream()
 
         diff_1x = FluxStream(self, 'diff_1x').get_stream()
         diff_1y = FluxStream(self, 'diff_1y').get_stream()
@@ -68,6 +69,7 @@ class FEMStream(SkelAgent):
 
         return {
             'massmat': massmat,
+            'massdiag': massdiag,
             'diff_1x': diff_1x,
             'diff_1y': diff_1y,
             'diff_2x': diff_2x,
@@ -166,46 +168,55 @@ class BaseStream(SubAgent):
         return self.agent.oprs['cores']
 
 
-class MassStream(BaseStream):
+class MassMatStream(BaseStream):
     """Stream of the mass-matrix.
     """
+
+    MASS_KEY = 'massmat'
 
     CORE_SCALE_WEST = np.array([0.5, 1.0, 0.0])
     CORE_SCALE_EAST = np.array([0.5, 0.0, 1.0])
 
     def get_body(self):
         return oprstream(
-            self.body['massmat']
+            self.body[self.MASS_KEY]
         )
 
     def get_wests(self):
         return oprstream(
-            self.wests['massmat']
+            self.wests[self.MASS_KEY]
         )
 
     def get_easts(self):
         return oprstream(
-            self.easts['massmat']
+            self.easts[self.MASS_KEY]
         )
 
     def get_cores(self):
 
         node0_west = node_stream(
-            self.cores['massmat'][0] * self.CORE_SCALE_WEST
+            self.cores[self.MASS_KEY][0] * self.CORE_SCALE_WEST
         )
 
         node0_east = node_stream(
-            self.cores['massmat'][0] * self.CORE_SCALE_EAST
+            self.cores[self.MASS_KEY][0] * self.CORE_SCALE_EAST
         )
 
-        node1 = node_stream(self.cores['massmat'][1])
-        node2 = node_stream(self.cores['massmat'][2])
+        node1 = node_stream(self.cores[self.MASS_KEY][1])
+        node2 = node_stream(self.cores[self.MASS_KEY][2])
 
         stream = [
             node0_west, node0_east, node1, node2
         ]
 
         return np.hstack(stream)
+
+
+class MassDiagStream(MassMatStream):
+    """Stream of the lumped mass-matrix.
+    """
+
+    MASS_KEY = 'massdiag'
 
 
 class FluxStream(BaseStream):

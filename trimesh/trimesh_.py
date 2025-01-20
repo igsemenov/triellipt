@@ -21,6 +21,7 @@ class TriData:
     """
 
     def __init__(self, points=None, triangs=None):
+        self.meta = {}
         self.points = points
         self.triangs = triangs
 
@@ -57,6 +58,10 @@ class TriData:
                 [self.points, new_points]
             )
         )
+
+    def add_meta(self, new_meta: dict):
+        self.meta = self.meta | new_meta
+        return self
 
     @classmethod
     def from_mesh_dict(cls, mesh_dict):
@@ -102,6 +107,35 @@ class _TriMesh(TriData):
     """Root of a trimesh.
     """
 
+    def __mul__(self, value):
+        return self.from_data(
+            self.points * value, self.triangs
+        )
+
+    def __truediv__(self, value):
+        return self.from_data(
+            self.points / value, self.triangs
+        )
+
+    def __add__(self, value):
+        return self.from_data(
+            self.points + value, self.triangs
+        )
+
+    def __sub__(self, value):
+        return self.from_data(
+            self.points - value, self.triangs
+        )
+
+    def scaled(self, xcoeff, ycoeff):
+
+        new_xpos = xcoeff * self.points.real
+        new_ypos = ycoeff * self.points.imag
+
+        return self.update_points(
+            new_xpos + new_ypos * 1j
+        )
+
     def hasghosts(self) -> bool:
         """Checks for ghosts.
         """
@@ -111,28 +145,6 @@ class _TriMesh(TriData):
         """Finds ghosts numbers, if any.
         """
         return delghosts_.GetGhosts(self).getghosts()
-
-    def getvoids(self):
-        """Finds empty triangles (voids).
-
-        Returns
-        -------
-        flat-int-array
-            Numbers of empty triangles.
-
-        """
-        return trisplit.GetVoids(self).find_voids()
-
-    def hasvoids(self):
-        return self.getvoids().size != 0
-
-    def renumed(self, permuter):
-        _ = renumer.Renumer.from_mesh(self)
-        return _.renumed(permuter)
-
-    def shuffled(self, permuter):
-        _ = renumer.Shuffler.from_mesh(self)
-        return _.shuffled(permuter)
 
     def twin(self):
         return self.from_data(
@@ -151,28 +163,22 @@ class _TriMesh(TriData):
         _ = renumer.AlignMesh.from_mesh(self)
         return _.aligned()
 
-    def alignnodes(self, *anchors):
-        """Numbers mesh points in the edge-core order.
-
-        Parameters
-        ----------
-        anchors : *int
-            Node numbers used to synchronize the edge loops.
-
-        Returns
-        -------
-        TriMesh | None
-            New mesh or None, if loops cannot be fetched.
-
-        """
-        _ = renumer.AlignNodes.from_mesh(self)
-        return _.aligned(*anchors)
-
     def alignvoids(self):
         """Numbers mesh points so that voids pivots stay at the end. 
         """
         _ = renumer.AlignVoids.from_mesh(self)
         return _.aligned()
+
+    def delmouths(self):
+        """Removes mouths from the mesh.
+
+        Returns
+        -------
+        TriMesh
+            New mesh.
+
+        """
+        return delmouths_.remove_mouths(self)
 
     def save(self, file) -> None:
         """Saves the mesh to `.npz` file.
@@ -251,21 +257,6 @@ class TriMesh(_TriMesh):
     def nodes_range(self):
         return np.unique(self.triangs).astype(int)
 
-    def __mul__(self, value):
-        return self.from_data(
-            self.points * value, self.triangs
-        )
-
-    def __add__(self, value):
-        return self.from_data(
-            self.points + value, self.triangs
-        )
-
-    def __sub__(self, value):
-        return self.from_data(
-            self.points - value, self.triangs
-        )
-
     def submesh(self, *trinums):
         """Extracts a submesh.
 
@@ -303,6 +294,9 @@ class TriMesh(_TriMesh):
 
         """
 
+        if len(trinums) == 0:
+            return self
+
         inds = _norminds(
             trinums, self.ntriangs
         )
@@ -313,8 +307,89 @@ class TriMesh(_TriMesh):
 
         return self.update_triangs(new_triangs)
 
+    def delghosts(self):
+        """Removes ghost points from the mesh.
+
+        Returns
+        -------
+        TriMesh
+            New mesh.
+
+        Notes
+        -----
+
+        Related methods:
+
+        - `.hasghosts()` shows if there are any ghosts
+        - `.getghosts()` returns ghost numbers, if any
+
+        """
+        return delghosts_.DelGhosts(self).cleanmesh()
+
+    def getvoids(self):
+        """Finds empty triangles (voids).
+
+        Returns
+        -------
+        flat-int-array
+            Numbers of empty triangles.
+
+        Notes
+        -----
+
+        Related methods:
+
+        - `.hasvoids()` shows if there are any voids
+        - `.delvoids()` deletes voids from the mesh
+
+        """
+        return trisplit.GetVoids(self).find_voids()
+
+    def hasvoids(self):
+        return self.getvoids().size != 0
+
     def delvoids(self):
         return self.deltriangs(*self.getvoids())
+
+    def alignnodes(self, *anchors):
+        """Numbers mesh points in the edge-core order.
+
+        Parameters
+        ----------
+        anchors : *int
+            Node numbers used to synchronize the edge loops.
+
+        Returns
+        -------
+        TriMesh | None
+            New mesh or None, if loops cannot be fetched.
+
+        """
+        _ = renumer.AlignNodes.from_mesh(self)
+        return _.aligned(*anchors)
+
+    def renumed(self, permuter):
+        """Renumbers the mesh nodes.
+
+        Parameters
+        ----------
+        permuter : flat-int-array
+            Permutation of mesh nodes.
+
+        Returns
+        -------
+        TriMesh
+            Mesh with the nodes renumbered.
+
+        """
+        _ = renumer.Renumer.from_mesh(self)
+        return _.renumed(permuter)
+
+    def shuffled(self, permuter):
+        """Shuffles the mesh triangles.
+        """
+        _ = renumer.Shuffler.from_mesh(self)
+        return _.shuffled(permuter)
 
     def meshedge(self):
         """Extracts the mesh edge.
@@ -348,36 +423,6 @@ class TriMesh(_TriMesh):
 
         """
         return nodesmap_.NodesMap.from_mesh(self)
-
-    def delghosts(self):
-        """Removes ghost points from the mesh.
-
-        Returns
-        -------
-        TriMesh
-            New mesh.
-
-        Notes
-        -----
-
-        Related methods:
-
-        - `.hasghosts()` shows if there are any ghosts
-        - `.getghosts()` returns ghost numbers, if any
-
-        """
-        return delghosts_.DelGhosts(self).cleanmesh()
-
-    def delmouths(self):
-        """Removes mouths from the mesh.
-
-        Returns
-        -------
-        TriMesh
-            New mesh.
-
-        """
-        return delmouths_.clean_mesh(self)
 
     def supertriu(self):
         """Creates a super triangulation.

@@ -290,3 +290,49 @@ class TriSorter:
         """Cantor pairing.
         """
         return arg2 + ((arg1 + arg2) * (arg1 + arg2 + 1)) // 2
+
+
+def norm_table(table):
+    """Returns a table from natural numbering of values.
+    """
+    _ = NormTable(table)
+    return _.get_norm_table()
+
+
+class NormTable:
+    """Makes a new table from natural numbering of table values.
+    """
+
+    def __init__(self, table):
+        self.tabledim = table.shape
+        self.tablemap = maptable(table)
+
+    def get_norm_table(self):
+
+        new_vals = self.make_new_values()
+        newtable = self.push_new_table(new_vals)
+
+        return newtable
+
+    def make_new_values(self):
+
+        vals_natural_range = np.arange(self.tablemap.nitems)
+
+        return np.repeat(
+            vals_natural_range, self.tablemap.vals_ranks
+        )
+
+    def push_new_table(self, vals):
+
+        table = self.get_table_mold()
+
+        rows = self.tablemap.rows
+        cols = self.tablemap.cols
+
+        table[rows, cols] = vals
+        return table
+
+    def get_table_mold(self):
+        return np.zeros(
+            self.tabledim, dtype=int
+        )

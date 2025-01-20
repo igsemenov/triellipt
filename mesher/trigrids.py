@@ -23,7 +23,7 @@ def getgrid(xsize, ysize, key):
     return TRIGRIDS[key](xsize, ysize).get_trimesh()
 
 
-class TriGrid(ABC):
+class TriGridder(ABC):
     """Triangle grid maker.
     """
 
@@ -86,7 +86,7 @@ class TriGrid(ABC):
         return triangs.copy('C')
 
 
-class TriOneSlope(TriGrid):
+class TriOneSlope(TriGridder):
     """Grid via one-slope splitting of cells.
     """
 
@@ -225,7 +225,7 @@ class TriWestSnake(TriSnake):
         return self.TRIS_EAST
 
 
-class TriCrossWise(TriGrid):
+class TriCrossWise(TriGridder):
     """Grid via crosswise splitting of cells.
 
     Triangles

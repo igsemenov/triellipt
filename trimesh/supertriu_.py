@@ -78,30 +78,30 @@ class SuperData:
     def is_compact(self):
         return _is_compact_table(self.supbodies)
 
-    def subtriu(self, *trinums):
+    def subtriu(self, *suptri_inds):
         return self.update_data(
-            self.data[:, trinums]
+            self.data[:, suptri_inds]
         )
 
-    def deltriangs(self, *trinums):
+    def deltriangs(self, *suptri_inds):
 
         new_data = np.delete(
-            self.data, trinums, axis=1
+            self.data, suptri_inds, axis=1
         )
 
         return self.update_data(new_data)
 
     def supvoids(self):
-        """Fetches a super-triangulation made of voids.
+        """Fetches a supertriu made of voids.
         """
         return superoprs.SupVoids.from_suptriu(self).supvoids()
 
-    def atcores(self, *corenums):
-        """Fetches a super-triangulation with the specified cores.
+    def atcores(self, *trinums):
+        """Fetches a supertriu with the specified core triangles.
         """
 
         to_delete = np.isin(
-            self.trinums, corenums
+            self.trinums, trinums
         )
 
         return self.update_data(
@@ -141,6 +141,15 @@ class SuperTriu(SuperData):
     `nodnums1` | 1st CCW vertex. 
     `nodnums2` | 2nd CCW vertex.
     `nodnums3` | 3rd CCW vertex.
+
+    Notes
+    -----
+
+    Non-standard nodes pairing for `supmesh-kermesh` transition:
+
+    - (0, 1) → 1
+    - (1, 2) → 2
+    - (2, 0) → 0
 
     """
 

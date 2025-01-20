@@ -34,7 +34,7 @@ class VectorData:
         return None
 
     @property
-    def vector_name(self):
+    def name(self):
         if self.is_named:
             return self.meta['name']
         return str(id(self))
@@ -53,14 +53,14 @@ class VectorData:
 
         if not self.haspartition:
             raise VectorFEMError(
-                f"vector '{self.vector_name}' has no partition"
+                f"vector '{self.name}' has no partition"
             )
 
         indexer = self.meta['partition']['sections'].get(name)
 
         if indexer is None:
             raise VectorFEMError(
-                f"no section '{name}' in vector '{self.vector_name}'"
+                f"no section '{name}' in vector '{self.name}'"
             )
 
         return indexer
@@ -150,12 +150,17 @@ class VectorFEM(VectorData):
         Parameters
         ----------
         meta : dict
-            Partition meta data (name and sections).
+            Partition meta data (name and sections) (i).
 
         Returns
         -------
         VectorFEM
             Copy of the vector with the partition defined.
+
+        Notes
+        -----
+        
+        (i) Same as for the FEM matrix.
 
         """
 

@@ -187,8 +187,8 @@ class Bezier(Curve):
 
     def _getpath(self, args):
 
-        westchord = self.westchord.getpath(args)
-        eastchord = self.eastchord.getpath(args)
+        westchord = self.westchord.getpath(*args)
+        eastchord = self.eastchord.getpath(*args)
 
         return westchord * (1. - args) + eastchord * args
 
