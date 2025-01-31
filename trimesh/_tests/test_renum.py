@@ -40,20 +40,22 @@ class TestShuffle(unittest.TestCase):
         assert self.edge_aligned.tolist() == [0, 1, 2, 3]
 
     @property
+    def mesh_primary(self):
+        return mesher.trigrid(3, 3, 'west-snake')
+
+    @property
+    def mesh_aligned(self):
+        return self.mesh_primary.shuffled(
+            (1, 2, 5, 6, 0, 3, 4, 7)
+        )
+
+    @property
     def edge_aligned(self):
         return self.mesh_aligned.meshedge().trinums_unique
 
     @property
     def edge_primary(self):
         return self.mesh_primary.meshedge().trinums_unique
-
-    @property
-    def mesh_primary(self):
-        return mesher.trigrid(3, 3, 'west-snake')
-
-    @property
-    def mesh_aligned(self):
-        return self.mesh_primary.alignmesh()
 
 
 if __name__ == '__main__':

@@ -5,61 +5,44 @@ import numpy as np
 
 
 def getstream(skeleton):
-    """Returns the global matrix pattern.
-
-    Returns
-    -------
-    IJStream
-        Matrix pattern as an index stream.
-
+    """Stream maker called by the FEM unit.
     """
     return matrix_stream(skeleton)
 
 
 def matrix_stream(skeleton):
+    """Creates the FEM matrix pattern.
+
+    Parameters
+    ----------
+    skeleton : MeshSkeleton
+        Mesh in skeleton format.
+
+    Returns
+    -------
+    IJStream
+        Matrix pattern as an ij-stream.
+
+    """
     _ = MatrixStream.from_skeleton(skeleton)
     return _.get_stream()
 
 
-def constr_stream(skeleton):
-    _ = ConstrStream.from_skeleton(skeleton)
-    return _.get_stream()
-
-
 class SkelAgent:
-    """Operator on a skeleton.
+    """Operator on a mesh skeleton.
     """
 
     def __init__(self, skel):
         self.skel = skel
+        self.cache = {}
 
     @classmethod
     def from_skeleton(cls, skel):
         return cls(skel)
 
     @property
-    def hasjoints(self):
-        return self.skel.hasjoints
-
-    @property
-    def body(self):
-        return self.skel.body
-
-    @property
-    def wests(self):
-        return self.skel.wests
-
-    @property
-    def easts(self):
-        return self.skel.easts
-
-    @property
-    def cores(self):
-        return self.skel.cores
-
-    @property
-    def voids(self):
-        return self.skel.voids
+    def hasvoids(self):
+        return self.skel.hasvoids
 
 
 class MatrixStream(SkelAgent):
@@ -67,135 +50,130 @@ class MatrixStream(SkelAgent):
     """
 
     def get_stream(self):
-        """Returns the full index stream.
-        """
 
-        body = self.get_stream_body()
+        nodes_stream = self.get_stream_from_nodes()
 
-        if not self.hasjoints:
-            return body
+        if not self.hasvoids:
+            return nodes_stream
 
-        joints = self.get_stream_joints()
+        voids_stream = self.get_stream_from_voids()
 
-        return IJStream.from_data_train(body.data, joints.data)
+        stream = IJStream.from_data_train(
+            nodes_stream.data, voids_stream.data
+        )
 
-    def get_stream_body(self):
-        return self.get_stream_item('body')
+        stream.meta = {
+            **nodes_stream.meta,
+            **voids_stream.meta
+        }
 
-    def get_stream_joints(self):
+        return stream
 
-        wests = self.get_stream_wests()
-        easts = self.get_stream_easts()
-        cores = self.get_stream_cores()
+    def get_stream_from_nodes(self):
+
+        stream = self.stream_from_map(
+            self.nodesmap.nodnums, self.nodesmap
+        )
+
+        stream.meta = {
+            'hasvoids': False,
+            'nodsmap-size': self.nodesmap.size
+        }
+
+        return stream
+
+    def get_stream_from_voids(self):
+
+        self.set_voids_submaps()
+
+        west_west = self.stream_west_west()
+        core_west = self.stream_core_west()
+        core_east = self.stream_core_east()
+        east_east = self.stream_east_east()
+
+        stream = IJStream.from_data_train(
+            west_west.data,
+            core_west.data,
+            core_east.data,
+            east_east.data
+        )
+
+        stream.meta = {
+            'hasvoids': True,
+            'westmap-size': self.westmap.size,
+            'coremap-size': self.coremap.size,
+            'eastmap-size': self.eastmap.size
+        }
+
+        return stream
+
+    def set_voids_submaps(self):
+        self.cache |= self.skel.voids_submaps()
+
+    def stream_west_west(self):
+        return self.stream_from_map(
+            self.westmap.nodnums1, self.westmap
+        )
+
+    def stream_core_west(self):
+        return self.stream_from_map(
+            self.westmap.nodnums1, self.coremap
+        )
+
+    def stream_core_east(self):
+        return self.stream_from_map(
+            self.eastmap.nodnums2, self.coremap
+        )
+
+    def stream_east_east(self):
+        return self.stream_from_map(
+            self.eastmap.nodnums2, self.eastmap
+        )
+
+    @classmethod
+    def stream_from_map(cls, dstnodes, srcmap):
+
+        from_node_self = _stream_node(
+            dstnodes, srcmap.nodnums, srcmap.trinums
+        )
+
+        from_node_ccw1 = _stream_node(
+            dstnodes, srcmap.nodnums1, srcmap.trinums
+        )
+
+        from_node_ccw2 = _stream_node(
+            dstnodes, srcmap.nodnums2, srcmap.trinums
+        )
 
         return IJStream.from_data_train(
-            wests.data, easts.data, cores.data
-        )
-
-    def get_stream_wests(self):
-        return self.get_stream_item('wests')
-
-    def get_stream_easts(self):
-        return self.get_stream_item('easts')
-
-    def get_stream_cores(self):
-        return self.get_stream_item('cores')
-
-    def get_stream_item(self, key):
-
-        offset = getattr(
-            self, f'offset_{key}'
-        )
-
-        generator = getattr(
-            self, f'gen_stream_{key}'
-        )
-
-        data = [
-            stream.data for stream in generator(offset)
-        ]
-
-        return IJStream.from_data_train(*data)
-
-    def gen_stream_body(self, offset):
-        yield node_stream(self.body, self.body, 0, offset)
-        yield node_stream(self.body, self.body, 1, offset)
-        yield node_stream(self.body, self.body, 2, offset)
-
-    def gen_stream_wests(self, offset):
-        yield node_stream(self.wests, self.wests, 1, offset)
-        yield node_stream(self.wests, self.wests, 1, offset)
-        yield node_stream(self.wests, self.wests, 2, offset)
-
-    def gen_stream_easts(self, offset):
-        yield node_stream(self.easts, self.easts, 2, offset)
-        yield node_stream(self.easts, self.easts, 1, offset)
-        yield node_stream(self.easts, self.easts, 2, offset)
-
-    def gen_stream_cores(self, offset):
-        yield node_stream(self.wests, self.cores, 1, offset)
-        yield node_stream(self.easts, self.cores, 2, offset)
-        yield node_stream(self.cores, self.cores, 1, offset)
-        yield node_stream(self.cores, self.cores, 2, offset)
-
-    @property
-    def offset_body(self):
-        return 0
-
-    @property
-    def offset_wests(self):
-        return self.body.size
-
-    @property
-    def offset_easts(self):
-        return self.body.size + self.wests.size
-
-    @property
-    def offset_cores(self):
-        return self.body.size + self.wests.size + self.easts.size
-
-
-class ConstrStream(SkelAgent):
-    """Constraint stream.
-    """
-
-    def get_stream(self):
-
-        if not self.hasjoints:
-            return None
-
-        return node_stream(
-            self.voids, self.voids, 2, self.offset_voids
+            from_node_self, from_node_ccw1, from_node_ccw2
         )
 
     @property
-    def offset_voids(self):
-        return self.body.size + sum(self.joints_sizes)
+    def nodesmap(self):
+        return self.skel.nodesmap
 
     @property
-    def joints_sizes(self):
-        return [
-            self.wests.size, self.easts.size, self.cores.size
-        ]
+    def westmap(self):
+        return self.cache['westmap']
+
+    @property
+    def coremap(self):
+        return self.cache['coremap']
+
+    @property
+    def eastmap(self):
+        return self.cache['eastmap']
 
 
-def node_stream(imesh, jmesh, node_index, trinums_offset):
-    """Index stream from the specified local node.
+def _stream_node(dstnodes, srcnodes, trinums):
 
-    Parameters
-    ----------
-    imesh : TriMesh
-        Mesh to take rows.
-    jmesh : TriMesh
-        Mesh to take cols.
-    nodes_index : int
-        Local index of the node in the rows-space.
-    trinums_offset : int
-        Offset of triangles numbers.
+    rownums = dstnodes
+    colnums = srcnodes
 
-    """
-    _ = NodeStream(imesh, jmesh)
-    return _.get_stream(node_index, trinums_offset)
+    return _pack_rows(
+        rownums, colnums, trinums
+    )
 
 
 class IJStream:
@@ -204,6 +182,7 @@ class IJStream:
 
     def __init__(self, data=None):
         self.data = data
+        self.meta = {}
 
     @classmethod
     def from_data(cls, data):
@@ -216,6 +195,10 @@ class IJStream:
     @property
     def size(self):
         return self.data.shape[1]
+
+    @property
+    def hasvoids(self):
+        return self.meta['hasvoids']
 
     @property
     def rownums(self):
@@ -267,45 +250,9 @@ class IJStream:
         return self.colnums == colnum
 
 
-class NodeStream:
-    """Index stream from a node.
+def _pack_rows(*rows):
+    return np.vstack(rows).copy('C')
 
-    Attributes
-    ----------
-    imesh : TriMesh
-        Mesh to take rows.
-    jmesh : TriMesh
-        Mesh to take cols.
 
-    """
-
-    def __init__(self, imesh, jmesh):
-        self.imesh = imesh
-        self.jmesh = jmesh
-
-    def get_stream(self, node_index, trinums_offset):
-
-        cols = self.get_colnums_stream()
-        rows = self.get_rownums_stream(node_index)
-        tris = self.get_trinums_stream(trinums_offset)
-
-        data = np.vstack(
-            [rows, cols, tris]
-        )
-
-        return IJStream(data)
-
-    def get_colnums_stream(self):
-        return self.jmesh.triangs.flatten()
-
-    def get_rownums_stream(self, node_index):
-        return np.repeat(
-            self.imesh.triangs[:, node_index], 3
-        )
-
-    def get_trinums_stream(self, trinums_offset):
-        return np.repeat(self.trinums_range, 3) + trinums_offset
-
-    @property
-    def trinums_range(self):
-        return np.arange(self.jmesh.size)
+def _pack_cols(*cols):
+    return np.vstack(cols).T.copy('C')

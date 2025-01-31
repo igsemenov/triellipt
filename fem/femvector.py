@@ -9,15 +9,15 @@ class VectorData:
     """
 
     def __init__(self, unit=None, body=None, meta=None):
-
         self.unit = unit
+        self.body = body
         self.meta = meta or {}
-
-        self.body = unit.new_vector_data() if body is None else body
 
     @classmethod
     def from_unit(cls, unit):
-        return cls(unit)
+        return cls(
+            unit, np.zeros(unit.mesh_count)
+        )
 
     @property
     def is_named(self):
@@ -150,7 +150,7 @@ class VectorFEM(VectorData):
         Parameters
         ----------
         meta : dict
-            Partition meta data (name and sections) (i).
+            Partition meta data (name and sections) (a).
 
         Returns
         -------
@@ -159,8 +159,8 @@ class VectorFEM(VectorData):
 
         Notes
         -----
-        
-        (i) Same as for the FEM matrix.
+
+        (a) Same as for the FEM matrix.
 
         """
 
@@ -170,7 +170,7 @@ class VectorFEM(VectorData):
 
         return self.add_meta(new_meta)
 
-    def getsection(self, name):
+    def getsect(self, name):
         """Returns a copy of the vector section.
 
         Parameters
@@ -187,7 +187,7 @@ class VectorFEM(VectorData):
         indexer = self.get_section_indexer(name)
         return self.body[indexer].copy('C')
 
-    def setsection(self, name, data) -> None:
+    def setsect(self, name, data) -> None:
         """Defines the vector section.
 
         Parameters
@@ -201,7 +201,7 @@ class VectorFEM(VectorData):
         indexer = self.get_section_indexer(name)
         self.body[indexer] = data
 
-    def sectionxy(self, name):
+    def sect_xy(self, name):
         """Returns xy-coordinates of the vector section nodes.
 
         Parameters

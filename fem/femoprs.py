@@ -20,16 +20,12 @@ def getoprs(mesh) -> dict:
 
     maker = OprsMaker.from_metric(mesh_metric(mesh))
 
-    proxy = {
+    return {
         k: getattr(maker, k)() for k in FEMOPRS
     }
 
-    return {
-        k: np.hsplit(v, 3) for k, v in proxy.items()
-    }
 
-
-def mesh_metric(mesh) -> dict:
+def mesh_metric(mesh):
     """Returns the mesh metric properties.
 
     Parameters
@@ -39,12 +35,77 @@ def mesh_metric(mesh) -> dict:
 
     Returns
     -------
-    dict
-        Metric properties of triangles.
+    MeshMetric
+        Object with the metric properties of triangles.
 
     """
     _ = MetricMaker.from_mesh(mesh)
     return _.get_metric()
+
+
+class MeshMetric:
+    """Mesh metric properties.
+    """
+
+    def __init__(self, mesh=None, data=None):
+
+        self.mesh = mesh
+        self.data = data
+        self.meta = {}
+
+        self.mask_voids()
+
+    @classmethod
+    def from_mesh(cls, mesh):
+        return MetricMaker.from_mesh(mesh).get_metric()
+
+    def mask_voids(self):
+
+        voidsnums = self.mesh.getvoids()
+
+        if voidsnums.size == 0:
+            return
+
+        self.meta['voids-trinums'] = voidsnums
+
+        bcoeffs = self.data['bcoeffs']
+        ccoeffs = self.data['ccoeffs']
+
+        new_coeffs = {
+            'bcoeffs': _zero_at_rows(bcoeffs, voidsnums),
+            'ccoeffs': _zero_at_rows(ccoeffs, voidsnums)
+        }
+
+        self.data |= new_coeffs
+
+    @property
+    def bcoeffs(self):
+        return self.data.get('bcoeffs')
+
+    @property
+    def ccoeffs(self):
+        return self.data.get('ccoeffs')
+
+    @property
+    def jacobis(self):
+        return self.data.get('jacobis')
+
+    @property
+    def areas1d(self):
+        return np.copy(
+            0.5 * self.jacobis[..., None], order='C'
+        )
+
+    @property
+    def voids_trinums(self):
+        return self.meta.get('voids-trinums')
+
+    @property
+    def hasvoids(self):
+        return self.voids_trinums is not None
+
+    def __getitem__(self, key):
+        return self.data[key]
 
 
 class MeshAgent:
@@ -74,10 +135,14 @@ class MetricMaker(MeshAgent):
         coeffs = self.get_coeffs()
         jacobs = self.get_jacobs(coeffs)
 
-        return {
+        data = {
             **coeffs,
             **jacobs
         }
+
+        return MeshMetric(
+            self.mesh, data
+        )
 
     def get_coeffs(self):
 
@@ -106,26 +171,47 @@ class MetricMaker(MeshAgent):
         }
 
 
-class OprsMaker:
-    """Maker of FEM operators.
+class MetricAgent:
+    """Operator on a mesh metric.
     """
 
     def __init__(self, metric):
         self.metric = metric
+        self.meta = self.fetch_meta()
 
     @classmethod
     def from_metric(cls, metric):
         return cls(metric)
 
-    @property
-    def areas2d(self):
-        return 0.5 * self.jacobis2d.T
+    def fetch_meta(self):
+        return {
+            'voids-trinums': self.fetch_voids_trinums()
+        }
+
+    def fetch_voids_trinums(self):
+        return self.metric.mesh.getvoids()
 
     @property
-    def jacobis2d(self):
-        return np.atleast_2d(
-            self.metric['jacobis']
+    def hasvoids(self):
+        return self.voids_trinums.size != 0
+
+    @property
+    def voids_trinums(self):
+        return self.meta['voids-trinums']
+
+    def mask_trinums_not_voids(self):
+
+        mask = np.full(
+            self.metric.mesh.ntriangs, True
         )
+
+        mask[self.voids_trinums] = False
+        return mask
+
+
+class OprsMaker(MetricAgent):
+    """Maker of FEM operators.
+    """
 
     def diff_1x(self):
         return self.diff_1d('bcoeffs')
@@ -139,21 +225,25 @@ class OprsMaker:
     def diff_2y(self):
         return self.diff_2d('ccoeffs')
 
-    def diff_1d(self, key):
-        coeffs = self.metric[key]
-        return _mono_matrix(coeffs) / 6.
+    def diff_1d(self, coeffs_key):
 
-    def diff_2d(self, key):
-
-        coeffs = self.metric[key]
-
-        return 0.25 * (
-            _diad_matrix(coeffs) / self.areas2d
+        diff_1d = _mono_matrix(
+            self.metric[coeffs_key]
         )
+
+        return diff_1d / 6.
+
+    def diff_2d(self, coeffs_key):
+
+        diff_2d = _diad_matrix(
+            self.metric[coeffs_key]
+        )
+
+        return 0.25 * (diff_2d * self.areas1d_inv)
 
     def massmat(self):
 
-        areas = self.areas2d
+        areas = self.areas1d
 
         proxy = np.tile(
             self.massmat_proxy.flat, areas.shape
@@ -163,7 +253,7 @@ class OprsMaker:
 
     def massdiag(self):
 
-        areas = self.areas2d
+        areas = self.areas1d
 
         proxy = np.tile(
             self.massdiag_proxy.flat, areas.shape
@@ -179,10 +269,38 @@ class OprsMaker:
     def massdiag_proxy(self):
         return np.eye(3) / 3.
 
+    @property
+    def areas1d(self):
+        return self.metric.areas1d
 
-def _mono_matrix(data):
-    return np.repeat(data, 3, axis=1)
+    @property
+    def areas1d_inv(self):
+
+        mask_not_voids = self.mask_trinums_not_voids()
+
+        area_inv = np.zeros(
+            self.metric.mesh.ntriangs
+        )
+
+        area_inv = np.reciprocal(
+            self.areas1d.flat, where=mask_not_voids
+        )
+
+        return area_inv[..., None]
 
 
-def _diad_matrix(data):
-    return np.tile(data, (1, 3)) * np.repeat(data, 3, axis=1)
+def _mono_matrix(data1d):
+    return np.repeat(data1d, 3, axis=1)
+
+
+def _diad_matrix(data1d):
+    return np.repeat(data1d, 3, axis=1) * np.tile(data1d, (1, 3))
+
+
+def _zero_at_rows(data2d, rowsnums):
+
+    data2d[rowsnums, :] = 0.0
+
+    return np.copy(
+        data2d, order='C'
+    )

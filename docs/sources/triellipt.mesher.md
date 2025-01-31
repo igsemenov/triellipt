@@ -55,7 +55,7 @@ Creates a triangle grid.
 
 ## trilattice()
 
-<pre class="py-sign">triellipt.mesher.<b>trilattice</b>(xsize, ysize)</pre>
+<pre class="py-sign">triellipt.mesher.<b>trilattice</b>(xsize, ysize, close=<span>False</span>)</pre>
 
 Creates a lattice of equilateral triangles.
 
@@ -73,10 +73,16 @@ Creates a lattice of equilateral triangles.
   Number of nodes in y-direction.
 </dd></dl>
 
+<p><span class="vardef"><code>close</code> : <em>bool = False</em></span></p>
+
+<dl><dd>
+  Closes the lattice sides, if <i>True</i>.
+</dd></dl>
+
 <b>Returns</b>
 
 <p><span class="vardef"><em>TriMesh</em></span></p>
 
 <dl><dd>
-  Triangle mesh with metadata on the lattice shape.
+  Resulting triangle mesh.
 </dd></dl>

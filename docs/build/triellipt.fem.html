@@ -63,9 +63,9 @@
                                 <li><a href="#from_func">from_func()</a></li>
                                 <li><a href="#dirichsplit-1">dirichsplit()</a></li>
                                 <li><a href="#partitioned-1">partitioned()</a></li>
-                                <li><a href="#getsection">getsection()</a></li>
-                                <li><a href="#setsection">setsection()</a></li>
-                                <li><a href="#sectionxy">sectionxy()</a></li>
+                                <li><a href="#getsect">getsect()</a></li>
+                                <li><a href="#setsect">setsect()</a></li>
+                                <li><a href="#sect_xy">sect_xy()</a></li>
                             </ul>
                         </li>
                         <li><a href="#mesh_metric">mesh_metric()</a></li>
@@ -123,7 +123,7 @@
 
 <p><b>Properties</b></p>
 
-<p>FEM local operators:</p>
+<p>FEM operators as data-streams:</p>
 
 <table>
     <tr>
@@ -160,7 +160,7 @@
     </tr>
 </table>
 
-<p>FEM global matrices:</p>
+<p>FEM operators as FEM matrices:</p>
 
 <table>
     <tr>
@@ -168,16 +168,24 @@
         <th>Description</th>
     </tr>
     <tr>
+        <td><code>laplace_fem</code></td>
+        <td>Laplace operator</td>
+    </tr>
+    <tr>
         <td><code>massmat_fem</code></td>
-        <td>Mass-matrix</td>
+        <td>Mass-matrix (no constraints)</td>
+    </tr>
+    <tr>
+        <td><code>massmat_amr</code></td>
+        <td>Mass-matrix (with constraints)</td>
     </tr>
     <tr>
         <td><code>massdiag_fem</code></td>
-        <td>Mass-matrix lumped</td>
+        <td>Mass-matrix lumped (no constraints)</td>
     </tr>
     <tr>
-        <td><code>laplace_fem</code></td>
-        <td>Laplace operator</td>
+        <td><code>massdiag_amr</code></td>
+        <td>Mass-matrix lumped (with constraints)</td>
     </tr>
 </table>
 
@@ -228,7 +236,7 @@
 <p><span class="vardef"><em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Coefficient matching the sizes of local FEM operators.
+  Coefficient matching the size of local FEM operators.
 </dd></dl>
 
 <div class="toc-anchor"></div><h3>getinterp()</h3>
@@ -242,13 +250,13 @@
 <p><span class="vardef"><code>xnodes</code> : <em>flat-float-array</em></span></p>
 
 <dl><dd>
-  X-coordinates of the interpolation nodes.
+  x-coordinates of the interpolation nodes.
 </dd></dl>
 
 <p><span class="vardef"><code>ynodes</code> : <em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Y-coordinates of the interpolation nodes.
+  y-coordinates of the interpolation nodes.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -264,6 +272,26 @@
 <pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMFactory</b>(unit=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
 
 <p>Factory of FEM matrices.</p>
+
+<p><b>Attributes</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Parent mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>body</code> : <em>sparse-matrix</em></span></p>
+
+<dl><dd>
+  FEM-matrix pattern.
+</dd></dl>
+
+<p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
+
+<dl><dd>
+  Factory metadata.
+</dd></dl>
 
 <div class="toc-anchor"></div><h3>feed_data()</h3>
 
@@ -336,7 +364,7 @@
 <p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
 
 <dl><dd>
-  Partition meta data (name and sections) (i).
+  Partition meta data (name and sections) (a).
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -349,14 +377,14 @@
 
 <p><b>Notes</b></p>
 
-<p>(i) Partition map:</p>
+<p>(a) Partition meta:</p>
 
-<p>
-<ul class="md-list">
-    <li>Keys are the names of the sections.</li>
-    <li>Values are flat arrays with nodes numbers.</li>
-</ul>
-</p>
+<pre class="text">{
+    &quot;name&quot;: &quot;partition-name&quot;,
+    &quot;sections&quot;: {
+        &quot;section-name&quot;: flat-array-of-indices
+    }
+}</pre>
 
 <div class="toc-anchor"></div><h3>getblock()</h3>
 
@@ -483,7 +511,7 @@
 <p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
 
 <dl><dd>
-  Partition meta data (name and sections) (i).
+  Partition meta data (name and sections) (a).
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -496,11 +524,11 @@
 
 <p><b>Notes</b></p>
 
-<p>(i) Same as for the FEM matrix.</p>
+<p>(a) Same as for the FEM matrix.</p>
 
-<div class="toc-anchor"></div><h3>getsection()</h3>
+<div class="toc-anchor"></div><h3>getsect()</h3>
 
-<pre class="py-sign">VectorFEM.<b>getsection</b>(<em>self</em>, name)</pre>
+<pre class="py-sign">VectorFEM.<b>getsect</b>(<em>self</em>, name)</pre>
 
 <p>Returns a copy of the vector section.</p>
 
@@ -520,9 +548,9 @@
   Copy of the vector section.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>setsection()</h3>
+<div class="toc-anchor"></div><h3>setsect()</h3>
 
-<pre class="py-sign">VectorFEM.<b>setsection</b>(<em>self</em>, name, data) → <em>None</em></pre>
+<pre class="py-sign">VectorFEM.<b>setsect</b>(<em>self</em>, name, data) → <em>None</em></pre>
 
 <p>Defines the vector section.</p>
 
@@ -540,9 +568,9 @@
   Data that defines the vector section.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>sectionxy()</h3>
+<div class="toc-anchor"></div><h3>sect_xy()</h3>
 
-<pre class="py-sign">VectorFEM.<b>sectionxy</b>(<em>self</em>, name)</pre>
+<pre class="py-sign">VectorFEM.<b>sect_xy</b>(<em>self</em>, name)</pre>
 
 <p>Returns xy-coordinates of the vector section nodes.</p>
 
@@ -564,7 +592,7 @@
 
 <div class="toc-anchor"></div><h2>mesh_metric()</h2>
 
-<pre class="py-sign">triellipt.fem.<b>mesh_metric</b>(mesh) → <em>dict</em></pre>
+<pre class="py-sign">triellipt.fem.<b>mesh_metric</b>(mesh)</pre>
 
 <p>Returns the mesh metric properties.</p>
 
@@ -578,10 +606,10 @@
 
 <p><b>Returns</b></p>
 
-<p><span class="vardef"><em>dict</em></span></p>
+<p><span class="vardef"><em>MeshMetric</em></span></p>
 
 <dl><dd>
-  Metric properties of triangles.
+  Object with the metric properties of triangles.
 </dd></dl>
 
 <hr>

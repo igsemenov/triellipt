@@ -151,20 +151,8 @@ class _TriMesh(TriData):
             self.points, self.triangs
         )
 
-    def alignmesh(self):
-        """Places edge triangles at the top of triangles table.
-
-        Returns
-        -------
-        TriMesh
-            New mesh.
-
-        """
-        _ = renumer.AlignMesh.from_mesh(self)
-        return _.aligned()
-
     def alignvoids(self):
-        """Numbers mesh points so that voids pivots stay at the end. 
+        """Renumbers points so that the voids pivots stay at the end. 
         """
         _ = renumer.AlignVoids.from_mesh(self)
         return _.aligned()
@@ -387,6 +375,17 @@ class TriMesh(_TriMesh):
 
     def shuffled(self, permuter):
         """Shuffles the mesh triangles.
+
+        Parameters
+        ----------
+        permuter : flat-int-array
+            Permutation of mesh triangles.
+
+        Returns
+        -------
+        TriMesh
+            Mesh with the triangles permuted.
+
         """
         _ = renumer.Shuffler.from_mesh(self)
         return _.shuffled(permuter)

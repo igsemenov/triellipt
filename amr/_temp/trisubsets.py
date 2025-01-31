@@ -5,8 +5,8 @@ import numpy as np
 from scipy import sparse as sp
 
 
-def find_subset_trinums(mesh, count, anchor):
-    _ = SubsetFetcher.from_mesh(mesh).with_anchor(*anchor)
+def find_subset(mesh, count, anchor):
+    _ = SubsetFetcher.from_mesh(mesh).with_anchor(anchor)
     return _.find_trinums(count)
 
 

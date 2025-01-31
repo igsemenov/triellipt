@@ -7,269 +7,315 @@ from triellipt.fem import femoprs
 
 
 def getstream(skeleton):
-    """Returns a stream of FEM operators.
-    """
-    _ = FEMStream.from_skeleton(skeleton).with_operators()
-    return _.get_fem_stream()
+    _ = StreamOprs.from_skel(skeleton)
+    return _.get_streams()
 
 
-class SkelAgent:
+class SkelAgent(ABC):
     """Operator on a skeleton.
     """
 
     def __init__(self, skel):
         self.skel = skel
-        self.oprs = None
+        self.meta = self.fetch_meta()
+        self.cache = {}
 
     @classmethod
-    def from_skeleton(cls, skel):
+    def from_skel(cls, skel):
         return cls(skel)
 
-    def with_operators(self):
-        self.oprs = self.get_operators()
-        return self
-
-    def get_operators(self):
-
-        body = {
-            'body': femoprs.getoprs(self.skel.body)
-        }
-
-        if not self.skel.hasjoints:
-            return body
-
-        joints = {
-            'wests': femoprs.getoprs(self.skel.wests),
-            'easts': femoprs.getoprs(self.skel.easts),
-            'cores': femoprs.getoprs(self.skel.cores)
-        }
-
-        return {
-            **body, **joints
-        }
-
-
-class FEMStream(SkelAgent):
-    """Maker of FEM streams.
-    """
-
-    def get_fem_stream(self):
-        return self.get_matrix_stream()
-
-    def get_matrix_stream(self):
-
-        massmat = MassMatStream(self).get_stream()
-        massdiag = MassDiagStream(self).get_stream()
-
-        diff_1x = FluxStream(self, 'diff_1x').get_stream()
-        diff_1y = FluxStream(self, 'diff_1y').get_stream()
-
-        diff_2x = FluxStream(self, 'diff_2x').get_stream()
-        diff_2y = FluxStream(self, 'diff_2y').get_stream()
-
-        return {
-            'massmat': massmat,
-            'massdiag': massdiag,
-            'diff_1x': diff_1x,
-            'diff_1y': diff_1y,
-            'diff_2x': diff_2x,
-            'diff_2y': diff_2y
-        }
-
-    def get_constr_stream(self):
-
-        if not self.skel.hasjoints:
-            return None
-
-        proxy = np.ones_like(
-            self.skel.voids.triangs
-        )
-
-        return node_stream(
-            proxy * [1., 1., -2.]
-        )
-
-
-class SubAgent(ABC):
-    """Operator on a skeleton agent.
-    """
-
-    def __init__(self, agent):
-        self.agent = agent
+    def fetch_meta(self):
+        return {}
 
     @property
-    def hasjoints(self):
-        return self.agent.skel.hasjoints
+    def hasvoids(self):
+        return self.skel.hasvoids
 
 
-class BaseStream(SubAgent):
-    """Base operator streaming.
+class StreamOprs(SkelAgent):
+    """Collects streams of FEM opeators.
     """
+
+    def fetch_meta(self):
+        return {
+            'fem-oprs': self.fetch_fem_oprs()
+        }
+
+    def fetch_fem_oprs(self):
+        return femoprs.getoprs(self.skel.mesh)
+
+    def get_streams(self):
+
+        streams = {
+            'massmat': self.get_stream_massmat(),
+            'massdiag': self.get_stream_massdiag(),
+            'diff_1x': self.get_stream_diff_1x(),
+            'diff_1y': self.get_stream_diff_1y(),
+            'diff_2x': self.get_stream_diff_2x(),
+            'diff_2y': self.get_stream_diff_2y()
+        }
+
+        streams = {
+            k: v.get_stream() for k, v, in streams.items()
+        }
+
+        return streams
+
+    def get_stream_massmat(self):
+        return self.stream_mass.with_opr(self.massmat)
+
+    def get_stream_massdiag(self):
+        return self.stream_mass.with_opr(self.massdiag)
+
+    def get_stream_diff_1x(self):
+        return self.stream_flux.with_opr(self.diff_1x)
+
+    def get_stream_diff_1y(self):
+        return self.stream_flux.with_opr(self.diff_1y)
+
+    def get_stream_diff_2x(self):
+        return self.stream_flux.with_opr(self.diff_2x)
+
+    def get_stream_diff_2y(self):
+        return self.stream_flux.with_opr(self.diff_2y)
+
+    @property
+    def stream_mass(self):
+        return StreamMass.from_skel(self.skel)
+
+    @property
+    def stream_flux(self):
+        return StreamFlux.from_skel(self.skel)
+
+    @property
+    def massmat(self):
+        return self.meta['fem-oprs']['massmat']
+
+    @property
+    def massdiag(self):
+        return self.meta['fem-oprs']['massdiag']
+
+    @property
+    def diff_1x(self):
+        return self.meta['fem-oprs']['diff_1x']
+
+    @property
+    def diff_1y(self):
+        return self.meta['fem-oprs']['diff_1y']
+
+    @property
+    def diff_2x(self):
+        return self.meta['fem-oprs']['diff_2x']
+
+    @property
+    def diff_2y(self):
+        return self.meta['fem-oprs']['diff_2y']
+
+
+class StreamOpr(SkelAgent):
+    """Base operator streamer.
+    """
+
+    def __init__(self, skel):
+        super().__init__(skel)
+        self.opr = None
+
+    def with_opr(self, opr):
+        self.opr = opr
+        return self
 
     def get_stream(self):
 
-        body = self.get_body()
+        nodes_stream = self.get_stream_from_nodes()
 
-        if not self.hasjoints:
-            return body
+        if not self.hasvoids:
+            return nodes_stream
 
-        joints = self.get_joints()
+        voids_stream = self.get_stream_from_voids()
 
-        return np.hstack(
-            [body, joints]
+        return VStream.from_data_train(
+            nodes_stream.data, voids_stream.data
         )
 
-    @abstractmethod
-    def get_body(self):
-        """Operator streaming from a body.
-        """
+    def get_stream_from_nodes(self):
+        return self.stream_from_map(self.nodesmap)
 
-    def get_joints(self):
-        """Operator streaming from joints.
-        """
+    def stream_from_map(self, srcmap):
 
-        wests = self.get_wests()
-        easts = self.get_easts()
-        cores = self.get_cores()
-
-        return np.hstack(
-            [wests, easts, cores]
-        )
-
-    @abstractmethod
-    def get_wests(self):
-        """Operator streaming from wests.
-        """
-
-    @abstractmethod
-    def get_easts(self):
-        """Operator streaming from easts.
-        """
-
-    @abstractmethod
-    def get_cores(self):
-        """Operator streaming from cores.
-        """
-
-    @property
-    def body(self):
-        return self.agent.oprs['body']
-
-    @property
-    def wests(self):
-        return self.agent.oprs['wests']
-
-    @property
-    def easts(self):
-        return self.agent.oprs['easts']
-
-    @property
-    def cores(self):
-        return self.agent.oprs['cores']
-
-
-class MassMatStream(BaseStream):
-    """Stream of the mass-matrix.
-    """
-
-    MASS_KEY = 'massmat'
-
-    CORE_SCALE_WEST = np.array([0.5, 1.0, 0.0])
-    CORE_SCALE_EAST = np.array([0.5, 0.0, 1.0])
-
-    def get_body(self):
-        return oprstream(
-            self.body[self.MASS_KEY]
-        )
-
-    def get_wests(self):
-        return oprstream(
-            self.wests[self.MASS_KEY]
-        )
-
-    def get_easts(self):
-        return oprstream(
-            self.easts[self.MASS_KEY]
-        )
-
-    def get_cores(self):
-
-        node0_west = node_stream(
-            self.cores[self.MASS_KEY][0] * self.CORE_SCALE_WEST
-        )
-
-        node0_east = node_stream(
-            self.cores[self.MASS_KEY][0] * self.CORE_SCALE_EAST
-        )
-
-        node1 = node_stream(self.cores[self.MASS_KEY][1])
-        node2 = node_stream(self.cores[self.MASS_KEY][2])
-
-        stream = [
-            node0_west, node0_east, node1, node2
+        from_node_self = self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums
         ]
 
-        return np.hstack(stream)
-
-
-class MassDiagStream(MassMatStream):
-    """Stream of the lumped mass-matrix.
-    """
-
-    MASS_KEY = 'massdiag'
-
-
-class FluxStream(BaseStream):
-    """Flux-operators streaming.
-    """
-
-    def __init__(self, agent, oprkey):
-        super().__init__(agent)
-        self.oprkey = oprkey
-
-    def get_body(self):
-        return oprstream(
-            self.body[self.oprkey]
-        )
-
-    def get_wests(self):
-        return oprstream(
-            self.wests[self.oprkey]
-        )
-
-    def get_easts(self):
-        return oprstream(
-            self.easts[self.oprkey]
-        )
-
-    def get_cores(self):
-
-        opr = self.cores[self.oprkey]
-
-        flux0_west = -1. * opr[2]
-        flux0_east = -1. * opr[1]
-
-        node0_west = node_stream(flux0_west)
-        node0_east = node_stream(flux0_east)
-
-        node1 = node_stream(opr[1])
-        node2 = node_stream(opr[2])
-
-        stream = [
-            node0_west, node0_east, node1, node2
+        from_node_ccw1 = self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums1
         ]
 
-        return np.hstack(stream)
+        from_node_ccw2 = self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums2
+        ]
+
+        return VStream.from_data_train(
+            from_node_self, from_node_ccw1, from_node_ccw2
+        )
+
+    def get_stream_from_voids(self):
+
+        self.set_voids_submaps()
+
+        west_west = self.stream_west_west()
+        core_west = self.stream_core_west()
+        core_east = self.stream_core_east()
+        east_east = self.stream_east_east()
+
+        stream = VStream.from_data_train(
+            west_west.data,
+            core_west.data,
+            core_east.data,
+            east_east.data
+        )
+
+        return stream
+
+    def set_voids_submaps(self):
+        self.cache |= self.skel.voids_submaps()
+
+    def stream_west_west(self):
+        return self.stream_from_map(self.westmap)
+
+    def stream_east_east(self):
+        return self.stream_from_map(self.eastmap)
+
+    @abstractmethod
+    def stream_core_west(self):
+        """Stream from the core-west splitting.
+        """
+
+    @abstractmethod
+    def stream_core_east(self):
+        """Stream from the core-east splitting.
+        """
+
+    @property
+    def nodesmap(self):
+        return self.skel.nodesmap
+
+    @property
+    def westmap(self):
+        return self.cache['westmap']
+
+    @property
+    def coremap(self):
+        return self.cache['coremap']
+
+    @property
+    def eastmap(self):
+        return self.cache['eastmap']
 
 
-def oprstream(operator):
+class StreamMass(StreamOpr):
+    """Mass operator streamer.
+    """
 
-    nodes = [
-        node_stream(nodemat) for nodemat in operator
-    ]
+    def stream_core_west(self):
 
-    return np.hstack(nodes)
+        srcmap = self.coremap
+
+        from_node_self = self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums
+        ]
+
+        from_node_ccw1 = self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums1
+        ]
+
+        from_node_ccw2 = np.zeros_like(from_node_self)
+
+        return VStream.from_data_train(
+            0.5 * from_node_self, from_node_ccw1, from_node_ccw2
+        )
+
+    def stream_core_east(self):
+
+        srcmap = self.coremap
+
+        from_node_self = self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums
+        ]
+
+        from_node_ccw2 = self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums2
+        ]
+
+        from_node_ccw1 = np.zeros_like(from_node_self)
+
+        return VStream.from_data_train(
+            0.5 * from_node_self, from_node_ccw1, from_node_ccw2
+        )
 
 
-def node_stream(node_matrix):
-    return node_matrix.flatten()
+class StreamFlux(StreamOpr):
+    """Flux operator streamer.
+    """
+
+    def stream_core_west(self):
+
+        srcmap = self.coremap
+
+        from_node_self = -1. * self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums2 + srcmap.locnums
+        ]
+
+        from_node_ccw1 = -1. * self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums2 + srcmap.locnums1
+        ]
+
+        from_node_ccw2 = -1. * self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums2 + srcmap.locnums2
+        ]
+
+        return VStream.from_data_train(
+            from_node_self, from_node_ccw1, from_node_ccw2
+        )
+
+    def stream_core_east(self):
+
+        srcmap = self.coremap
+
+        from_node_self = -1. * self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums1 + srcmap.locnums
+        ]
+
+        from_node_ccw1 = -1. * self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums1 + srcmap.locnums1
+        ]
+
+        from_node_ccw2 = -1. * self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums1 + srcmap.locnums2
+        ]
+
+        return VStream.from_data_train(
+            from_node_self, from_node_ccw1, from_node_ccw2
+        )
+
+
+class VStream:
+    """Stream of matrix values.
+    """
+
+    def __init__(self, data):
+        self.data = data
+
+    @property
+    def size(self):
+        return self.data.size
+
+    @classmethod
+    def from_data(cls, data):
+        return cls(data)
+
+    @classmethod
+    def from_data_train(cls, *data):
+        return cls(np.hstack(data))
+
+    def __mul__(self, value):
+        return self.from_data(value * self.data)

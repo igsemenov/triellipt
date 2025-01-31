@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Validates the basic Poisson solver.
 """
+import time
 import numpy as np
 from scipy import sparse as sp
 from matplotlib import pyplot as plt
@@ -13,7 +14,7 @@ META = {
     },
     'fem': {
         'mass-diag': False,
-        'with-plot': True
+        'with-plot': False
     },
     'amr': {
         'depth': 2,
@@ -100,7 +101,7 @@ class FEMFrame:
         return grid
 
     def get_massmat(self):
-        if self.meta['fem']['mass-diag']:
+        if self.meta['fem']['mass-diag'] is True:
             return self.unit.massdiag_fem
         return self.unit.massmat_fem
 
@@ -110,7 +111,7 @@ class FEMFrame:
 
 def solve(meta):
 
-    frame = FEMFrame.from_meta(META).with_fem_unit()
+    frame = FEMFrame.from_meta(meta).with_fem_unit()
 
     massmat = frame.get_massmat()
     laplace = frame.get_laplace().dirichsplit()
@@ -124,37 +125,43 @@ def solve(meta):
     sol = sol.dirichsplit()
     rho = rho.dirichsplit()
 
-    sol.setsection(
-        'edge', sol_exact(*sol.sectionxy('edge'))
+    sol.setsect(
+        'edge', sol_exact(*sol.sect_xy('edge'))
     )
 
     rhs = massmat @ rho
 
-    rhs.setsection(
-        'core', rhs.getsection('core') - mat21 @ sol.getsection('edge')
+    rhs.setsect(
+        'core', rhs.getsect('core') - mat21 @ sol.getsect('edge')
     )
+
+    tic = time.time()
 
     out = sp.linalg.spsolve(
-        mat22, rhs.getsection('core')
+        mat22, rhs.getsect('core')
     )
 
-    sol.setsection('core', out)
+    toc = time.time()
+    cpu = toc - tic
 
-    res = out - sol_exact(*sol.sectionxy('core'))
+    sol.setsect('core', out)
+
+    res = out - sol_exact(*sol.sect_xy('core'))
     err = np.amax(abs(res))
 
     return (
-        sol, err, frame.unit.mesh, frame.unit
+        sol, err, cpu, frame.unit
     )
 
 
 if __name__ == '__main__':
 
-    sol, err, mesh, unit = solve(META)
+    sol_, err_, cpu_, unit_ = solve(META)
 
     if META['fem']['with-plot']:
-        plt.tricontourf(*mesh.triu, sol.body)
-        plt.triplot(*mesh.triu, '-k', lw=0.2)
+        plt.tricontourf(*unit_.mesh.triu, sol_.body)
+        plt.triplot(*unit_.mesh.triu, '-k', lw=0.2)
         plt.axis('equal')
 
-    print(f'L1-error: {err}')
+    print(f'cpu-time: {cpu_}')
+    print(f'L1-error: {err_}')

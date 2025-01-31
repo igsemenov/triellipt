@@ -6,14 +6,26 @@ from triellipt.utils import pairs, tables
 from triellipt.trimesh import trimesh_
 
 
-def get_lattice(xsize, ysize):
+def get_lattice(xsize, ysize, close):
+
     _ = get_latticer(xsize, ysize)
-    return _.get_lattice()
+    mesh = _.get_lattice()
+
+    if close is False:
+        return mesh
+    return close_lattice(mesh)
 
 
 def get_latticer(xsize, ysize):
     _ = TriLatticer()
     return _.with_counts(xsize, ysize)
+
+
+def close_lattice(mesh):
+    for _ in range(2):
+        mesh = _close_lattice_left(mesh)
+        mesh = _reflect_lattice(mesh)
+    return mesh
 
 
 class _TriLatticer:
@@ -118,19 +130,15 @@ class TriLatticer(_TriLatticer):
         mesh = self.sort_mesh(mesh)
 
         meta = {
-            'trilattice': {
-                'xsize': self.icount,
-                'ysize': self.jcount
-            }
+            'lattice-size': (self.icount, self.jcount)
         }
 
         return mesh.add_meta(meta)
 
     def make_mesh(self):
 
-        # Order matters: first triangles, then points.
+        # First triangles, then points.
         # Points renumbering depends on triangles.
-        # Information transfer is via the cache.
         triangs = self.make_triangs()
         points = self.make_points()
 
@@ -279,6 +287,125 @@ class TriLatticer(_TriLatticer):
         ]
 
         return _pack_cols(*verts)
+
+
+def _close_lattice_left(mesh):
+    _ = LatticeCloser.from_mesh(mesh)
+    return _.get_lattice_closed()
+
+
+def _reflect_lattice(mesh):
+
+    twin = mesh * -1
+    twin = twin.renumed(
+        np.argsort(twin.points)
+    )
+
+    twin = twin.add_meta(mesh.meta)
+    return twin
+
+
+class LatticeCloser:
+    """Closes a primary lattice from the left.
+    """
+
+    def __init__(self, mesh):
+        self.mesh = mesh
+        self.cache = {}
+
+    @classmethod
+    def from_mesh(cls, mesh):
+        return cls(mesh)
+
+    @property
+    def mesh_copy(self):
+        return self.mesh.twin()
+
+    @property
+    def ysize(self):
+        return self.mesh.meta['lattice-size'][1]
+
+    @property
+    def nodes0(self):
+        return self.cache['side-nodes']['nodes-0']
+
+    @property
+    def nodes1(self):
+        return self.cache['side-nodes']['nodes-1']
+
+    @property
+    def nodes2(self):
+        return self.cache['new-points']['nums']
+
+    @property
+    def nums_offset(self):
+        return self.mesh.npoints
+
+    def get_lattice_closed(self):
+
+        self.make_new_points()
+        self.make_new_triangs()
+
+        mesh = self.mesh_copy
+
+        mesh = mesh.add_points(
+            self.cache['new-points']['data']
+        )
+
+        mesh = mesh.add_triangs(
+            self.cache['new-triangs']
+        )
+
+        mesh = mesh.renumed(
+            np.argsort(mesh.points)
+        )
+
+        mesh = mesh.twin()
+        mesh = mesh.add_meta(self.mesh.meta)
+
+        return mesh
+
+    def make_new_triangs(self):
+
+        sz2 = self.nodes2.size
+        sz0 = self.nodes0.size - 1
+
+        triangs1 = _pack_cols(
+            self.nodes0[:sz2], self.nodes1[:sz2], self.nodes2[:sz2]
+        )
+
+        triangs2 = _pack_cols(
+            self.nodes2[:sz0], self.nodes1[:sz0], self.nodes0[1::]
+        )
+
+        self.cache['new-triangs'] = np.vstack([triangs1, triangs2])
+
+    def make_new_points(self):
+
+        self.fetch_side_nodes()
+
+        data = self.mesh.points[self.nodes1] - 1.0
+        nums = np.arange(data.size) + self.nums_offset
+
+        self.cache['new-points'] = {
+            'data': data,
+            'nums': nums
+        }
+
+    def fetch_side_nodes(self):
+
+        nodes0 = np.arange(
+            (self.ysize // 2) + (self.ysize % 2)
+        )
+
+        nodes1 = np.delete(
+            np.arange(self.ysize), nodes0
+        )
+
+        self.cache['side-nodes'] = {
+            'nodes-0': nodes0,
+            'nodes-1': nodes1
+        }
 
 
 def _pack_cols(*cols):

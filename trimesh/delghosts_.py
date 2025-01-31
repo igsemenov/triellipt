@@ -10,6 +10,7 @@ class MeshAgent:
 
     def __init__(self, mesh=None):
         self.mesh = mesh
+        self.cache = {}
 
     @classmethod
     def from_mesh(cls, mesh):
@@ -31,8 +32,8 @@ class DelGhosts(MeshAgent):
             new_points, new_triangs
         )
 
-    def new_mesh(self, new_points, new_triangs):
-        return self.mesh.from_data(new_points, new_triangs)
+    def find_ghost_nodes(self):
+        return self.ghosts_finder.getdata()
 
     def new_mesh_data(self, ghosts_data):
 
@@ -41,6 +42,8 @@ class DelGhosts(MeshAgent):
 
         yield self.get_new_points(old_nodes_actual)
         yield self.get_new_triangs(new_triangs_flat)
+
+        self.cache['old-nodes-numbers'] = old_nodes_actual
 
     def get_new_points(self, old_nodes_actual):
         """New points as a flat-complex-array.
@@ -54,8 +57,20 @@ class DelGhosts(MeshAgent):
             new_triangs_flat, (self.mesh.ntriangs, 3)
         )
 
-    def find_ghost_nodes(self):
-        return self.ghosts_finder.getdata()
+    def new_mesh(self, new_points, new_triangs):
+
+        mesh = self.mesh.from_data(new_points, new_triangs)
+
+        mesh = mesh.add_meta(
+            self.new_mesh_meta()
+        )
+
+        return mesh
+
+    def new_mesh_meta(self):
+        return {
+            'old-nodes-numbers': self.cache['old-nodes-numbers']
+        }
 
     @property
     def ghosts_finder(self):

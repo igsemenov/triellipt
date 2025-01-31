@@ -53,9 +53,9 @@ Module                   | Description
                     <li><a href="triellipt.fem.md#from_func">from_func()</a></li>
                     <li><a href="triellipt.fem.md#dirichsplit-1">dirichsplit()</a></li>
                     <li><a href="triellipt.fem.md#partitioned-1">partitioned()</a></li>
-                    <li><a href="triellipt.fem.md#getsection">getsection()</a></li>
-                    <li><a href="triellipt.fem.md#setsection">setsection()</a></li>
-                    <li><a href="triellipt.fem.md#sectionxy">sectionxy()</a></li>
+                    <li><a href="triellipt.fem.md#getsect">getsect()</a></li>
+                    <li><a href="triellipt.fem.md#setsect">setsect()</a></li>
+                    <li><a href="triellipt.fem.md#sect_xy">sect_xy()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.fem.md#mesh_metric">mesh_metric()</a></li>
@@ -70,9 +70,20 @@ Module                   | Description
 <ul class="ref-list" id="mod-refs">
     <li><a href="triellipt.amr.md#triellipt.amr">triellipt.amr</a>
         <ul>
-            <li><a href="triellipt.amr.md#refine_mesh">refine_mesh()</a></li>
-            <li><a href="triellipt.amr.md#mesh_subset">mesh_subset()</a></li>
-            <li><a href="triellipt.amr.md#mass_collector">mass_collector()</a></li>
+            <li><a href="triellipt.amr.md#getunit">getunit()</a></li>
+            <li><a href="triellipt.amr.md#amrunit">AMRUnit</a>
+                <ul>
+                    <li><a href="triellipt.amr.md#tofem">tofem()</a></li>
+                    <li><a href="triellipt.amr.md#refine">refine()</a></li>
+                    <li><a href="triellipt.amr.md#coarsen">coarsen()</a></li>
+                    <li><a href="triellipt.amr.md#find_node">find_node()</a></li>
+                    <li><a href="triellipt.amr.md#find_subset">find_subset()</a></li>
+                    <li><a href="triellipt.amr.md#find_masked">find_masked()</a></li>
+                    <li><a href="triellipt.amr.md#front_coarse">front_coarse()</a></li>
+                    <li><a href="triellipt.amr.md#front_fine">front_fine()</a></li>
+                    <li><a href="triellipt.amr.md#constrain">constrain()</a></li>
+                </ul>
+            </li>
         </ul>
     </li>
 </ul>
@@ -179,6 +190,7 @@ Module                   | Description
             </li>
             <li><a href="triellipt.trimesh.md#nodesmap-1">NodesMap</a>
                 <ul>
+                    <li><a href="triellipt.trimesh.md#atrank">atrank()</a></li>
                     <li><a href="triellipt.trimesh.md#atnode">atnode()</a></li>
                 </ul>
             </li>

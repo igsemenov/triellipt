@@ -28,6 +28,12 @@ class MatrixData:
         return self.body.shape
 
     @property
+    def name(self):
+        if self.is_named:
+            return self.meta['name']
+        return str(id(self))
+
+    @property
     def is_named(self):
         return 'name' in self.meta
 
@@ -36,18 +42,12 @@ class MatrixData:
         return 'partition' in self.meta
 
     @property
-    def hasconstraints(self):
-        return self.meta['has-constraints']
+    def with_constraints(self):
+        return self.meta['with-constraints']
 
     @property
     def partition_name(self):
         return self.meta['partition']['name']
-
-    @property
-    def name(self):
-        if self.is_named:
-            return self.meta['name']
-        return str(id(self))
 
     def update_meta(self, new_meta):
         return self.__class__(
@@ -132,7 +132,7 @@ class MatrixFEM(MatrixData):
         Parameters
         ----------
         meta : dict
-            Partition meta data (name and sections) (i).
+            Partition meta data (name and sections) (a).
 
         Returns
         -------
@@ -142,10 +142,16 @@ class MatrixFEM(MatrixData):
         Notes
         -----
 
-        (i) Partition map:
+        (a) Partition meta:
 
-        - Keys are the names of the sections.
-        - Values are flat arrays with nodes numbers.
+        ```text
+        {
+            "name": "partition-name",
+            "sections": {
+                "section-name": flat-array-of-indices
+            }
+        }
+        ```
 
         """
 

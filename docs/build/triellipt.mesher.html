@@ -104,7 +104,7 @@
 
 <div class="toc-anchor"></div><h2>trilattice()</h2>
 
-<pre class="py-sign">triellipt.mesher.<b>trilattice</b>(xsize, ysize)</pre>
+<pre class="py-sign">triellipt.mesher.<b>trilattice</b>(xsize, ysize, close=<span>False</span>)</pre>
 
 <p>Creates a lattice of equilateral triangles.</p>
 
@@ -122,12 +122,18 @@
   Number of nodes in y-direction.
 </dd></dl>
 
+<p><span class="vardef"><code>close</code> : <em>bool = False</em></span></p>
+
+<dl><dd>
+  Closes the lattice sides, if <i>True</i>.
+</dd></dl>
+
 <p><b>Returns</b></p>
 
 <p><span class="vardef"><em>TriMesh</em></span></p>
 
 <dl><dd>
-  Triangle mesh with metadata on the lattice shape.
+  Resulting triangle mesh.
 </dd></dl>
 
 <hr>

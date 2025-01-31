@@ -34,9 +34,20 @@
             <ul>
                 <li><a href="#triellipt.amr">triellipt.amr</a>
                     <ul>
-                        <li><a href="#refine_mesh">refine_mesh()</a></li>
-                        <li><a href="#mesh_subset">mesh_subset()</a></li>
-                        <li><a href="#mass_collector">mass_collector()</a></li>
+                        <li><a href="#getunit">getunit()</a></li>
+                        <li><a href="#amrunit">AMRUnit</a>
+                            <ul>
+                                <li><a href="#tofem">tofem()</a></li>
+                                <li><a href="#refine">refine()</a></li>
+                                <li><a href="#coarsen">coarsen()</a></li>
+                                <li><a href="#find_node">find_node()</a></li>
+                                <li><a href="#find_subset">find_subset()</a></li>
+                                <li><a href="#find_masked">find_masked()</a></li>
+                                <li><a href="#front_coarse">front_coarse()</a></li>
+                                <li><a href="#front_fine">front_fine()</a></li>
+                                <li><a href="#constrain">constrain()</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -55,48 +66,11 @@
 
 <p>Mesh refinement tools.</p>
 
-<div class="toc-anchor"></div><h2>refine_mesh()</h2>
+<div class="toc-anchor"></div><h2>getunit()</h2>
 
-<pre class="py-sign">triellipt.amr.<b>refine_mesh</b>(mesh, trinums=<span>None</span>)</pre>
+<pre class="py-sign">triellipt.amr.<b>getunit</b>(mesh)</pre>
 
-<p>Performs static mesh refinement.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
-
-<dl><dd>
-  Triangle mesh to refine.
-</dd></dl>
-
-<p><span class="vardef"><code>trinums</code> : <em>Iterable[int] = None</em></span></p>
-
-<dl><dd>
-  Numbers of triangles to refine, if <i>None</i> takes all triangles.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>TriMesh</em></span></p>
-
-<dl><dd>
-  Refined mesh (a).
-</dd></dl>
-
-<p><b>Notes</b></p>
-
-<p>
-<ul class="md-list">
-    <li>(a) The data refiner is included in the mesh metadata.</li>
-    <li>(b) The neighborhood of the voids is not refined.</li>
-</ul>
-</p>
-
-<div class="toc-anchor"></div><h2>mesh_subset()</h2>
-
-<pre class="py-sign">triellipt.amr.<b>mesh_subset</b>(mesh, count, anchor)</pre>
-
-<p>Finds a convex subset of a mesh.</p>
+<p>Creates an AMR unit.</p>
 
 <p><b>Parameters</b></p>
 
@@ -105,6 +79,152 @@
 <dl><dd>
   Input triangle mesh.
 </dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>AMRUnit</em></span></p>
+
+<dl><dd>
+  AMR unit with the mesh.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>AMRUnit</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.amr.<b>AMRUnit</b>(mesh)</pre>
+
+<p>Mesh refinement unit.</p>
+
+<p><b>Attributes</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Current triangle mesh.
+</dd></dl>
+
+<p><b>Properties</b></p>
+
+<p>Metadata on refinement:</p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>source_mesh</code></td>
+        <td>Previous-level mesh.</td>
+    </tr>
+    <tr>
+        <td><code>data_refiner</code></td>
+        <td>Callable refiner object.</td>
+    </tr>
+</table>
+
+<div class="toc-anchor"></div><h3>tofem()</h3>
+
+<pre class="py-sign">AMRUnit.<b>tofem</b>(<em>self</em>, anchors=<span>None</span>)</pre>
+
+<p>Converts the AMR unit to a FEM one.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>anchors</code> : <em>tuple = None</em></span></p>
+
+<dl><dd>
+  Nodes numbers to synchronize the mesh boundary.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>FEMUnit</em></span></p>
+
+<dl><dd>
+  The resulting FEM unit.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>refine()</h3>
+
+<pre class="py-sign">AMRUnit.<b>refine</b>(<em>self</em>, trinums=<span>None</span>)</pre>
+
+<p>Performs a static mesh refinement.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>trinums</code> : <em>Iterable = None</em></span></p>
+
+<dl><dd>
+  Numbers of triangles to refine, if <i>None</i> takes all triangles.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>AMRUnit</em></span></p>
+
+<dl><dd>
+  Unit with the refined mesh.
+</dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>
+<ul class="md-list">
+    <li>The <code>data-refiner</code> is included in the mesh metadata.</li>
+    <li>The voids ears are not refined to keep the mesh 1-irregular.</li>
+</ul>
+</p>
+
+<div class="toc-anchor"></div><h3>coarsen()</h3>
+
+<pre class="py-sign">AMRUnit.<b>coarsen</b>(<em>self</em>, trinums_cores)</pre>
+
+<p>Performs a static mesh coarsening.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>trinums_cores</code> : <em>Iterable</em></span></p>
+
+<dl><dd>
+  Numbers of the super-triangles-cores to coarsen.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>AMRUnit</em></span></p>
+
+<dl><dd>
+  Unit with the coarsened mesh.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>find_node()</h3>
+
+<pre class="py-sign">AMRUnit.<b>find_node</b>(<em>self</em>, anchor)</pre>
+
+<p>Finds the neighborhood of an anchor point.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>anchor</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Coordinates of an anchor point.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-int-array</em></span></p>
+
+<dl><dd>
+  Numbers of triangles near the anchor point.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>find_subset()</h3>
+
+<pre class="py-sign">AMRUnit.<b>find_subset</b>(<em>self</em>, count, anchor, remove_heads=<span>False</span>)</pre>
+
+<p>Finds a convex subset of a mesh.</p>
+
+<p><b>Parameters</b></p>
 
 <p><span class="vardef"><code>count</code> : <em>int</em></span></p>
 
@@ -115,7 +235,13 @@
 <p><span class="vardef"><code>anchor</code> : <em>(float, float)</em></span></p>
 
 <dl><dd>
-  Anchor point to find a starting triangle.
+  Anchor point for a starting triangle.
+</dd></dl>
+
+<p><span class="vardef"><code>remove_heads</code> : <em>bool = False</em></span></p>
+
+<dl><dd>
+  Removes single-paired triangles, if <i>True</i>.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -126,57 +252,61 @@
   Numbers of triangles in a subset.
 </dd></dl>
 
-<div class="toc-anchor"></div><h2>mass_collector()</h2>
+<div class="toc-anchor"></div><h3>find_masked()</h3>
 
-<pre class="py-sign">triellipt.amr.<b>mass_collector</b>(mesh1, mesh2, mode)</pre>
+<pre class="py-sign">AMRUnit.<b>find_masked</b>(<em>self</em>, mask)</pre>
 
-<p>Creates a mass collector for a master-slave pair of meshes.</p>
-
-<p>
-<ul class="md-list">
-    <li>Only for meshes with no hanging nodes.</li>
-    <li>No scaling by the area in a structured mode.</li>
-</ul>
-</p>
+<p>Finds triangles by a mask-function.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>mesh1</code> : <em>TriMesh</em></span></p>
+<p><span class="vardef"><code>mask</code> : <em>function</em></span></p>
 
 <dl><dd>
-  Master (parent) mesh.
-</dd></dl>
-
-<p><span class="vardef"><code>mesh2</code> : <em>TriMesh</em></span></p>
-
-<dl><dd>
-  Mesh obtained by the refinement of the parent mesh.
-</dd></dl>
-
-<p><span class="vardef"><code>mode</code> : <em>str</em></span></p>
-
-<dl><dd>
-  Defines the type of a collector (i).
+  Boolean mask <code>(x, y) </code> on the triangles centroids.
 </dd></dl>
 
 <p><b>Returns</b></p>
 
-<p><span class="vardef"><em>MassCollector</em></span></p>
+<p><span class="vardef"><em>flat-int-array</em></span></p>
 
 <dl><dd>
-  Mass collector object.
+  Numbers of the found triangles.
 </dd></dl>
 
-<p><b>Notes</b></p>
+<div class="toc-anchor"></div><h3>front_coarse()</h3>
 
-<p>(i) Collector types:</p>
+<pre class="py-sign">AMRUnit.<b>front_coarse</b>(<em>self</em>)</pre>
 
-<p>
-<ul class="md-list">
-    <li><mark>&quot;scaled&quot;</mark> — for general unstructured meshes</li>
-    <li><mark>&quot;structed&quot;</mark> — for meshes with equal triangles</li>
-</ul>
-</p>
+<p>Finds a front of coarse triangles.</p>
+
+<div class="toc-anchor"></div><h3>front_fine()</h3>
+
+<pre class="py-sign">AMRUnit.<b>front_fine</b>(<em>self</em>)</pre>
+
+<p>Finds a front of fine triangles.</p>
+
+<div class="toc-anchor"></div><h3>constrain()</h3>
+
+<pre class="py-sign">AMRUnit.<b>constrain</b>(<em>self</em>, data)</pre>
+
+<p>Constrains data on a mesh.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Nodal data to be constrained.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Constained nodal data.
+</dd></dl>
 
 <hr>
         </div>

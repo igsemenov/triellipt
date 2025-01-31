@@ -125,9 +125,9 @@
                     <li><a href="triellipt.fem.html#from_func">from_func()</a></li>
                     <li><a href="triellipt.fem.html#dirichsplit-1">dirichsplit()</a></li>
                     <li><a href="triellipt.fem.html#partitioned-1">partitioned()</a></li>
-                    <li><a href="triellipt.fem.html#getsection">getsection()</a></li>
-                    <li><a href="triellipt.fem.html#setsection">setsection()</a></li>
-                    <li><a href="triellipt.fem.html#sectionxy">sectionxy()</a></li>
+                    <li><a href="triellipt.fem.html#getsect">getsect()</a></li>
+                    <li><a href="triellipt.fem.html#setsect">setsect()</a></li>
+                    <li><a href="triellipt.fem.html#sect_xy">sect_xy()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.fem.html#mesh_metric">mesh_metric()</a></li>
@@ -142,9 +142,20 @@
 <ul class="ref-list" id="mod-refs">
     <li><a href="triellipt.amr.html#triellipt.amr">triellipt.amr</a>
         <ul>
-            <li><a href="triellipt.amr.html#refine_mesh">refine_mesh()</a></li>
-            <li><a href="triellipt.amr.html#mesh_subset">mesh_subset()</a></li>
-            <li><a href="triellipt.amr.html#mass_collector">mass_collector()</a></li>
+            <li><a href="triellipt.amr.html#getunit">getunit()</a></li>
+            <li><a href="triellipt.amr.html#amrunit">AMRUnit</a>
+                <ul>
+                    <li><a href="triellipt.amr.html#tofem">tofem()</a></li>
+                    <li><a href="triellipt.amr.html#refine">refine()</a></li>
+                    <li><a href="triellipt.amr.html#coarsen">coarsen()</a></li>
+                    <li><a href="triellipt.amr.html#find_node">find_node()</a></li>
+                    <li><a href="triellipt.amr.html#find_subset">find_subset()</a></li>
+                    <li><a href="triellipt.amr.html#find_masked">find_masked()</a></li>
+                    <li><a href="triellipt.amr.html#front_coarse">front_coarse()</a></li>
+                    <li><a href="triellipt.amr.html#front_fine">front_fine()</a></li>
+                    <li><a href="triellipt.amr.html#constrain">constrain()</a></li>
+                </ul>
+            </li>
         </ul>
     </li>
 </ul>
@@ -251,6 +262,7 @@
             </li>
             <li><a href="triellipt.trimesh.html#nodesmap-1">NodesMap</a>
                 <ul>
+                    <li><a href="triellipt.trimesh.html#atrank">atrank()</a></li>
                     <li><a href="triellipt.trimesh.html#atnode">atnode()</a></li>
                 </ul>
             </li>

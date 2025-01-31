@@ -46,7 +46,7 @@ def get_interp_maker(unit):
     """Interpolator maker for a FEM unit.
     """
 
-    if not unit.hasjoints:
+    if not unit.hasvoids:
         return TriInterpMaker.from_mesh(unit.mesh)
 
     mesh_proxy = unit.mesh.delvoids()

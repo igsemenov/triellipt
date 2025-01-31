@@ -3,12 +3,22 @@
 """
 import numpy as np
 from scipy import sparse as sp
-from triellipt.fem import femmatrix
 from triellipt.utils import pairs
+from triellipt.fem import femmatrix
 
 
 class FEMFactory:
     """Factory of FEM matrices.
+
+    Attributes
+    ----------
+    mesh : TriMesh
+        Parent mesh.
+    body : sparse-matrix
+        FEM-matrix pattern.
+    meta : dict
+        Factory metadata.
+
     """
 
     def __init__(self, unit=None, body=None, meta=None):
@@ -17,26 +27,16 @@ class FEMFactory:
         self.meta = meta
 
     @classmethod
-    def from_unit(cls, unit, with_constraints=True):
-        return FactoryMaker(unit).get_factory(with_constraints)
+    def from_unit(cls, unit, add_constraints=True):
+        return FactoryMaker(unit).get_factory(add_constraints)
 
     @property
     def shape(self):
         return self.body.shape
 
     @property
-    def frame_offset(self):
-        return self.body.nnz - self.voids_offset
-
-    @property
-    def voids_offset(self):
-        if self.hasconstraints:
-            return 3 * self.unit.voids_count
-        return 0
-
-    @property
-    def hasconstraints(self):
-        return self.meta['has-constraints']
+    def with_constraints(self):
+        return self.meta['with-constraints']
 
     def feed_data(self, data):
         """Transmits data to the FEM matrix.
@@ -58,66 +58,64 @@ class FEMFactory:
 
         """
 
-        dat_matr = self.push_data(data)
-        fem_matr = self.make_matrix(dat_matr)
+        data = self.push_data(data)
+        matr = self.make_matrix(data)
 
-        return fem_matr
+        return matr
 
     def push_data(self, data):
 
+        data_perm = self.meta['data-perm']
+        bins_reduce = self.meta['bins-reduce']
+        perm_reduced = self.meta['perm-reduced']
+
         data = np.add.reduceat(
-            data[self.data_perm], self.bins_reduce
+            data[data_perm], bins_reduce
         )
 
         return np.copy(
-            data[self.perm_reduced], order='C'
+            data[perm_reduced], order='C'
         )
 
-    def make_matrix(self, matrix_data):
+    def make_matrix(self, data):
 
-        body = self.make_body(matrix_data)
-        meta = self.make_meta()
+        body = self.make_matrix_body(data)
+
+        meta = {
+            'with-constraints': self.with_constraints
+        }
 
         return femmatrix.getmatrix(self.unit, body, meta)
 
-    def make_body(self, new_data):
+    def make_matrix_body(self, data):
 
         new_body = self.body.copy()
 
         np.copyto(
-            new_body.data[:self.frame_offset], new_data
+            new_body.data[:self.frame_offset], data
         )
 
         return new_body
 
-    def make_meta(self):
-        return {
-            'has-constraints': self.hasconstraints
-        }
+    @property
+    def frame_offset(self):
+        """Defines the length of actual data in the FEM matrix data.
+        """
+        return self.body.nnz - self.voids_offset
+
+    @property
+    def voids_offset(self):
+        """Defines the length of constraints in the FEM matrix data.
+        """
+        if self.with_constraints:
+            return 3 * self.unit.voids_count
+        return 0
 
     @property
     def pattern(self):
         twin = self.body.copy()
         twin.data.fill(1)
         return twin
-
-    @property
-    def data_perm(self):
-        """Input data permutation.
-        """
-        return self.meta['data-perm']
-
-    @property
-    def bins_reduce(self):
-        """Bins to reduce input data.
-        """
-        return self.meta['bins-reduce']
-
-    @property
-    def perm_reduced(self):
-        """Permutation of the reduced data.
-        """
-        return self.meta['perm-reduced']
 
 
 class UnitAgent:
@@ -126,25 +124,42 @@ class UnitAgent:
 
     def __init__(self, unit):
         self.unit = unit
+        self.meta = self.fetch_meta()
+        self.cache = self.push_cache()
+
+    def fetch_meta(self):
+        return {}
+
+    def push_cache(self):
+        return {}
 
     @classmethod
     def from_unit(cls, unit):
         return cls(unit)
-
-    @property
-    def hasjoints(self):
-        return self.unit.hasjoints
 
 
 class FactoryMaker(UnitAgent):
     """Maker of the FEM matrix factory.
     """
 
-    def __init__(self, unit):
-        super().__init__(unit)
-        self.with_constraints = None
+    def set_constraints_status(self, input_status):
+        _ = self.get_constraints_status(input_status)
+        self.cache['with-constraints'] = _
+
+    def get_constraints_status(self, input_status):
+        if not self.unit.hasvoids:
+            return False
+        return bool(
+            input_status
+        )
+
+    @property
+    def with_constraints(self):
+        return self.cache['with-constraints']
 
     def get_factory(self, add_constraints):
+        """Creates the FEM matrix factory.
+        """
 
         self.set_constraints_status(add_constraints)
 
@@ -153,24 +168,21 @@ class FactoryMaker(UnitAgent):
 
         return matrix
 
-    def set_constraints_status(self, input_value):
-        self.with_constraints = self.get_constraints_status(input_value)
-
-    def get_constraints_status(self, input_value):
-        if self.unit.hasjoints:
-            return input_value
-        return False
-
     def make_ij_sorted_meta(self):
-        return self.ij_sorter.get_ij_sorted_meta()
+
+        ij_sorter = IJSorter(
+            *self.unit.ij_stream.ij_tuple
+        )
+
+        return ij_sorter.get_ij_sorted_meta()
 
     def from_ij_sorted_meta(self, ij_meta):
 
         body_data = self.make_body_data(ij_meta)
-        meta_data = self.make_meta_data(ij_meta, body_data)
+        meta_data = self.make_meta_data(ij_meta)
 
         return FEMFactory(
-            self.unit, body_data['body'], meta_data
+            self.unit, body_data, meta_data
         )
 
     def make_body_data(self, ij_meta):
@@ -178,22 +190,7 @@ class FactoryMaker(UnitAgent):
         mold = self.make_matrix_mold(ij_meta)
         body = self.make_matrix_body(mold)
 
-        perm_reduced = mold.data.copy('C')
-
-        return {
-            'body': body, 'perm-reduced': perm_reduced
-        }
-
-    def make_meta_data(self, ij_meta, body_data):
-
-        with_constraints = self.with_constraints
-
-        return {
-            'data-perm': ij_meta['data-perm'],
-            'bins-reduce': ij_meta['bins-reduce'],
-            'perm-reduced': body_data['perm-reduced'],
-            'has-constraints': with_constraints
-        }
+        return body
 
     def make_matrix_mold(self, ij_meta):
 
@@ -208,6 +205,8 @@ class FactoryMaker(UnitAgent):
         )
 
         mold_csr = mold_coo.tocsr()
+
+        self.cache['perm-reduced'] = mold_csr.data.copy('C')
         return mold_csr
 
     def make_matrix_body(self, mold):
@@ -225,19 +224,28 @@ class FactoryMaker(UnitAgent):
         return body
 
     def hang_constraint(self, body):
-        if self.hasjoints:
+        if self.unit.hasvoids:
             return body + self.make_constraint()
         return body
 
     def make_constraint(self):
         _ = ConstrMaker.from_unit(self.unit)
-        return _.get_constr()
+        return _.get_matrix()
 
-    @property
-    def ij_sorter(self):
-        return IJSorter(
-            *self.unit.ij_stream.ij_tuple
-        )
+    def make_meta_data(self, ij_meta):
+
+        data_perm = ij_meta['data-perm']
+        bins_reduce = ij_meta['bins-reduce']
+
+        perm_reduced = self.cache['perm-reduced']
+        with_constraints = self.cache['with-constraints']
+
+        return {
+            'data-perm': data_perm,
+            'bins-reduce': bins_reduce,
+            'perm-reduced': perm_reduced,
+            'with-constraints': with_constraints
+        }
 
     @property
     def matrix_shape(self):
@@ -246,16 +254,33 @@ class FactoryMaker(UnitAgent):
         )
 
 
-class ConstrMaker(UnitAgent):
-    """Makes a constraint matrix.
+class Constrainer(UnitAgent):
+    """Maker of constraints related matrices.
     """
 
-    def get_constr(self):
+    def fetch_meta(self):
+        return {
+            'voids-triangs': self.fetch_voids_triangs()
+        }
+
+    def fetch_voids_triangs(self):
+        return self.unit.mesh.triangs[
+            self.unit.mesh.meta['voids'], :
+        ]
+
+    def get_matrix(self):
 
         vij = self.make_v_ij()
         mat = self.from_v_ij(vij)
 
         return mat
+
+    def make_ij_stream(self):
+
+        i_stream = self.make_i_stream()
+        j_stream = self.make_j_stream()
+
+        return (i_stream, j_stream)
 
     def make_v_ij(self):
 
@@ -274,40 +299,111 @@ class ConstrMaker(UnitAgent):
 
         return mat_coo.tocsr()
 
-    def make_ij_stream(self):
+    def make_i_stream(self):
+        return ...
 
-        voids_triangs = self.voids_triangs()
-
-        i_stream = self.make_i_stream(voids_triangs)
-        j_stream = self.make_j_stream(voids_triangs)
-
-        return (i_stream, j_stream)
-
-    def make_i_stream(self, voids_triangs):
-        return np.repeat(
-            voids_triangs[:, 2], 3
-        )
-
-    def make_j_stream(self, voids_triangs):
-        return voids_triangs.flatten()
+    def make_j_stream(self):
+        return ...
 
     def make_v_stream(self):
-        return np.tile(
-            self.row_constraint, self.unit.voids_count
-        )
-
-    def voids_triangs(self):
-        return self.unit.mesh_voids.triangs
+        return ...
 
     @property
-    def row_constraint(self):
-        return np.array([1., 1., -2.])
+    def voids_triangs(self):
+        return self.meta['voids-triangs']
 
     @property
     def matrix_shape(self):
         return (
             self.unit.mesh_count, self.unit.mesh_count
         )
+
+
+class ConstrMaker(Constrainer):
+    """Makes a constraint matrix.
+    """
+
+    def make_i_stream(self):
+        return np.repeat(
+            self.voids_triangs[:, 2], 3
+        )
+
+    def make_j_stream(self):
+        return self.voids_triangs.flatten()
+
+    def make_v_stream(self):
+        return np.tile(
+            self.row_constraint, self.unit.voids_count
+        )
+
+    @property
+    def row_constraint(self):
+        return np.array([1., 1., -2.])
+
+
+class ProjerMaker(Constrainer):
+    """Makes a projector to the constrained space.
+    """
+
+    def push_cache(self):
+        return {
+            'nodes-free': self.make_nodes_free(),
+            'nodes-constr': self.make_nodes_constr()
+        }
+
+    def make_nodes_constr(self):
+        return self.voids_triangs[:, 2]
+
+    def make_nodes_free(self):
+        return np.delete(
+            np.arange(self.unit.mesh_count), self.voids_triangs[:, 2]
+        )
+
+    @property
+    def nodes_free(self):
+        return self.cache['nodes-free']
+
+    @property
+    def nodes_constr(self):
+        return self.cache['nodes-constr']
+
+    def make_i_stream(self):
+
+        i_free = self.nodes_free
+
+        i_constr = np.repeat(
+            self.nodes_constr, 2
+        )
+
+        return np.hstack(
+            [i_free, i_constr]
+        )
+
+    def make_j_stream(self):
+
+        j_free = self.nodes_free
+        j_constr = self.voids_triangs[:, [0, 1]].flatten()
+
+        return np.hstack(
+            [j_free, j_constr]
+        )
+
+    def make_v_stream(self):
+
+        v_free = np.ones_like(self.nodes_free)
+
+        v_constr = np.tile(
+            [0.5, 0.5], self.unit.voids_count
+        )
+
+        return np.hstack(
+            [v_free, v_constr]
+        )
+
+
+def get_constr_proj(unit):
+    _ = ProjerMaker.from_unit(unit)
+    return _.get_matrix()
 
 
 class IJSorter:
@@ -325,16 +421,9 @@ class IJSorter:
 
         return meta
 
-    def make_ij_pairs_meta(self):
-
-        ij_pairs = self.make_ij_pairs()
-        ij_metas = self.from_ij_pairs(ij_pairs)
-
-        return ij_metas
-
     def from_ij_pairs_meta(self, meta):
 
-        data_perm = meta['data-perm']
+        data_perm = meta['pairs-sort']
         bins_reduce = meta['bins-reduce']
         packs_fronts = meta['packs-fronts']
 
@@ -351,6 +440,13 @@ class IJSorter:
             'bins-reduce': bins_reduce
         }
 
+    def make_ij_pairs_meta(self):
+
+        ij_pairs = self.make_ij_pairs()
+        ij_metas = self.from_ij_pairs(ij_pairs)
+
+        return ij_metas
+
     def make_ij_pairs(self):
         return pairs.szupaired(
             self.i_stream, self.j_stream
@@ -360,22 +456,29 @@ class IJSorter:
         """Returns ij-sorting metadata.
         """
 
-        data_perm = _argsort(ij_pairs)
-
-        _, bins = np.unique(
-            ij_pairs[data_perm], return_index=True
-        )
-
-        bins_split = bins[1::].astype(int)
-        bins_reduce = np.r_[0, bins_split]
-        packs_fronts = np.r_[0, bins_split]
+        ij_sorted, sorter = _sort_data(ij_pairs)
 
         return {
-            'data-perm': data_perm,
-            'bins-reduce': bins_reduce,
-            'packs-fronts': packs_fronts
+            'pairs-sort': sorter, **_data_split(ij_sorted)
         }
 
 
-def _argsort(data):
-    return np.argsort(data).astype(int)
+def _sort_data(data):
+    sorter = np.argsort(data).astype(int)
+    return data[sorter], sorter
+
+
+def _data_split(data):
+
+    _, inds = np.unique(
+        data, return_index=True
+    )
+
+    bins_split = inds[1::].astype(int)
+    bins_reduce = np.hstack([0, bins_split])
+    packs_fronts = np.hstack([0, bins_split])
+
+    return {
+        'bins-reduce': bins_reduce,
+        'packs-fronts': packs_fronts
+    }

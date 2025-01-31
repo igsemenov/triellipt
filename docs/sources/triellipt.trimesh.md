@@ -173,6 +173,22 @@ Renumbers the mesh nodes.
 
 Shuffles the mesh triangles.
 
+<b>Parameters</b>
+
+<p><span class="vardef"><code>permuter</code> : <em>flat-int-array</em></span></p>
+
+<dl><dd>
+  Permutation of mesh triangles.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TriMesh</em></span></p>
+
+<dl><dd>
+  Mesh with the triangles permuted.
+</dd></dl>
+
 ### meshedge()
 
 <pre class="py-sign">TriMesh.<b>meshedge</b>(<em>self</em>)</pre>
@@ -446,6 +462,28 @@ Name       | Description
 -----------|----------------------
 `nodnums1` | Next CCW node.
 `nodnums2` | Next-next CCW node.
+
+### atrank()
+
+<pre class="py-sign">NodesMap.<b>atrank</b>(<em>self</em>, rank)</pre>
+
+Extracts data for nodes with the specified rank.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>rank</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Rank of the nodes to extract.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>tuple</em></span></p>
+
+<dl><dd>
+  Triplet <code>(nodnums, trinums, locnums)</code> for the extracted nodes.
+</dd></dl>
 
 ### atnode()
 

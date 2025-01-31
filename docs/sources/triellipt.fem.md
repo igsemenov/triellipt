@@ -45,7 +45,7 @@ FEM computing unit.
 
 <b>Properties</b>
 
-FEM local operators:
+FEM operators as data-streams:
 
 Name        | Description
 ------------|---------------------
@@ -57,13 +57,15 @@ Name        | Description
 `diff_2y`   | 2nd-y derivative
 `diff_2x`   | 2nd-x derivative
 
-FEM global matrices:
+FEM operators as FEM matrices:
 
 Name           | Description
--------------- |---------------------
-`massmat_fem`  | Mass-matrix
-`massdiag_fem` | Mass-matrix lumped
+-------------- |----------------------------------------
 `laplace_fem`  | Laplace operator
+`massmat_fem`  | Mass-matrix (no constraints)
+`massmat_amr`  | Mass-matrix (with constraints)
+`massdiag_fem` | Mass-matrix lumped (no constraints)
+`massdiag_amr` | Mass-matrix lumped (with constraints)
 
 ### fem_factory()
 
@@ -112,7 +114,7 @@ Generates a coefficient for local FEM operators.
 <p><span class="vardef"><em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Coefficient matching the sizes of local FEM operators.
+  Coefficient matching the size of local FEM operators.
 </dd></dl>
 
 ### getinterp()
@@ -126,13 +128,13 @@ Creates an interpolator on a mesh.
 <p><span class="vardef"><code>xnodes</code> : <em>flat-float-array</em></span></p>
 
 <dl><dd>
-  X-coordinates of the interpolation nodes.
+  x-coordinates of the interpolation nodes.
 </dd></dl>
 
 <p><span class="vardef"><code>ynodes</code> : <em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Y-coordinates of the interpolation nodes.
+  y-coordinates of the interpolation nodes.
 </dd></dl>
 
 <b>Returns</b>
@@ -148,6 +150,26 @@ Creates an interpolator on a mesh.
 <pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMFactory</b>(unit=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
 
 Factory of FEM matrices.
+
+<b>Attributes</b>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Parent mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>body</code> : <em>sparse-matrix</em></span></p>
+
+<dl><dd>
+  FEM-matrix pattern.
+</dd></dl>
+
+<p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
+
+<dl><dd>
+  Factory metadata.
+</dd></dl>
 
 ### feed_data()
 
@@ -220,7 +242,7 @@ Creates a partitioned matrix.
 <p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
 
 <dl><dd>
-  Partition meta data (name and sections) (i).
+  Partition meta data (name and sections) (a).
 </dd></dl>
 
 <b>Returns</b>
@@ -233,10 +255,16 @@ Creates a partitioned matrix.
 
 <b>Notes</b>
 
-(i) Partition map:
+(a) Partition meta:
 
-- Keys are the names of the sections.
-- Values are flat arrays with nodes numbers.
+```text
+{
+    "name": "partition-name",
+    "sections": {
+        "section-name": flat-array-of-indices
+    }
+}
+```
 
 ### getblock()
 
@@ -363,7 +391,7 @@ Creates a partitioned vector.
 <p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
 
 <dl><dd>
-  Partition meta data (name and sections) (i).
+  Partition meta data (name and sections) (a).
 </dd></dl>
 
 <b>Returns</b>
@@ -376,11 +404,11 @@ Creates a partitioned vector.
 
 <b>Notes</b>
 
-(i) Same as for the FEM matrix.
+(a) Same as for the FEM matrix.
 
-### getsection()
+### getsect()
 
-<pre class="py-sign">VectorFEM.<b>getsection</b>(<em>self</em>, name)</pre>
+<pre class="py-sign">VectorFEM.<b>getsect</b>(<em>self</em>, name)</pre>
 
 Returns a copy of the vector section.
 
@@ -400,9 +428,9 @@ Returns a copy of the vector section.
   Copy of the vector section.
 </dd></dl>
 
-### setsection()
+### setsect()
 
-<pre class="py-sign">VectorFEM.<b>setsection</b>(<em>self</em>, name, data) → <em>None</em></pre>
+<pre class="py-sign">VectorFEM.<b>setsect</b>(<em>self</em>, name, data) → <em>None</em></pre>
 
 Defines the vector section.
 
@@ -420,9 +448,9 @@ Defines the vector section.
   Data that defines the vector section.
 </dd></dl>
 
-### sectionxy()
+### sect_xy()
 
-<pre class="py-sign">VectorFEM.<b>sectionxy</b>(<em>self</em>, name)</pre>
+<pre class="py-sign">VectorFEM.<b>sect_xy</b>(<em>self</em>, name)</pre>
 
 Returns xy-coordinates of the vector section nodes.
 
@@ -444,7 +472,7 @@ Returns xy-coordinates of the vector section nodes.
 
 ## mesh_metric()
 
-<pre class="py-sign">triellipt.fem.<b>mesh_metric</b>(mesh) → <em>dict</em></pre>
+<pre class="py-sign">triellipt.fem.<b>mesh_metric</b>(mesh)</pre>
 
 Returns the mesh metric properties.
 
@@ -458,8 +486,8 @@ Returns the mesh metric properties.
 
 <b>Returns</b>
 
-<p><span class="vardef"><em>dict</em></span></p>
+<p><span class="vardef"><em>MeshMetric</em></span></p>
 
 <dl><dd>
-  Metric properties of triangles.
+  Object with the metric properties of triangles.
 </dd></dl>

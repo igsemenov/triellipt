@@ -69,6 +69,7 @@
                         </li>
                         <li><a href="#nodesmap-1">NodesMap</a>
                             <ul>
+                                <li><a href="#atrank">atrank()</a></li>
                                 <li><a href="#atnode">atnode()</a></li>
                             </ul>
                         </li>
@@ -282,6 +283,22 @@
 <pre class="py-sign">TriMesh.<b>shuffled</b>(<em>self</em>, permuter)</pre>
 
 <p>Shuffles the mesh triangles.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>permuter</code> : <em>flat-int-array</em></span></p>
+
+<dl><dd>
+  Permutation of mesh triangles.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>TriMesh</em></span></p>
+
+<dl><dd>
+  Mesh with the triangles permuted.
+</dd></dl>
 
 <div class="toc-anchor"></div><h3>meshedge()</h3>
 
@@ -656,6 +673,28 @@
         <td>Next-next CCW node.</td>
     </tr>
 </table>
+
+<div class="toc-anchor"></div><h3>atrank()</h3>
+
+<pre class="py-sign">NodesMap.<b>atrank</b>(<em>self</em>, rank)</pre>
+
+<p>Extracts data for nodes with the specified rank.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>rank</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Rank of the nodes to extract.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>tuple</em></span></p>
+
+<dl><dd>
+  Triplet <code>(nodnums, trinums, locnums)</code> for the extracted nodes.
+</dd></dl>
 
 <div class="toc-anchor"></div><h3>atnode()</h3>
 

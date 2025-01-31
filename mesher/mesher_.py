@@ -39,7 +39,7 @@ def trigrid(xsize, ysize, slopes):
     )
 
 
-def trilattice(xsize, ysize):
+def trilattice(xsize, ysize, close=False):
     """Creates a lattice of equilateral triangles.
 
     Parameters
@@ -48,11 +48,13 @@ def trilattice(xsize, ysize):
         Number of nodes in x-direction.
     ysize : int
         Number of nodes in y-direction.
+    close : bool = False
+        Closes the lattice sides, if True.
 
     Returns
     -------
     TriMesh
-        Triangle mesh with metadata on the lattice shape.
+        Resulting triangle mesh.
 
     """
-    return trilattices.get_lattice(xsize, ysize)
+    return trilattices.get_lattice(xsize, ysize, close)
