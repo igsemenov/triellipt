@@ -420,18 +420,18 @@ Polygonal path with colored nodes.
 `numbers`  | Nodes numbers.
 `points`   | Nodes positions.
 
-### atcolor()
+### atcolors()
 
-<pre class="py-sign">PathMap.<b>atcolor</b>(<em>self</em>, color)</pre>
+<pre class="py-sign">PathMap.<b>atcolors</b>(<em>self</em>, *colors)</pre>
 
-Fetches a subpath with the specified color.
+Fetches a subpath with the specified colors.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>color</code> : <em>int</em></span></p>
+<p><span class="vardef"><code>colors</code> : <em>*int</em></span></p>
 
 <dl><dd>
-  Color of the subpath.
+  Colors in the subpath.
 </dd></dl>
 
 <b>Returns</b>
@@ -439,7 +439,7 @@ Fetches a subpath with the specified color.
 <p><span class="vardef"><em>PathMap</em></span></p>
 
 <dl><dd>
-  The resulting single-color path.
+  The resulting subpath.
 </dd></dl>
 
 ### repaint()

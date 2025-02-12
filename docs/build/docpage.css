@@ -512,3 +512,15 @@ pre.py-sign b {
 pre.py-sign span {
   color: var(--ibm-blue);
 }
+
+/* 
+Extra styles for triellipt documentation.
+*/
+
+#logo-title {
+    opacity: 0.9;
+    font-size: 22px;
+    font-weight: bold;
+    padding-left: 10px;
+    color: var(--black-color);
+}

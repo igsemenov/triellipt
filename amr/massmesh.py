@@ -137,7 +137,7 @@ class SubSupTriAgent:
 class MakerTriangsAlpha(SubSupTriAgent):
     """Makes the alpha-triangs from the input supertriu.
 
-    - Makes inner voids with the primary numbering.
+    - Makes inner voids with the original numbers.
 
     """
 
@@ -195,12 +195,12 @@ class MakerTriangsAlpha(SubSupTriAgent):
 class MakerTriangsBeta(SubSupTriAgent):
     """Makes the beta-triangs from the alpha-triangs.
 
-    - Makes inner voids with the shifted numbering.
-    - Makes inner cores with the shifted numbering.
-    - Makes inner sides with the shifted numbering.
+    - Makes inner voids with the shifted numbers.
+    - Makes inner cores with the shifted numbers.
+    - Makes inner sides with the shifted numbers.
 
-    - Makes extra meta-data on voids:
-        - Finds root voids to delete.
+    - Makes extra data on voids:
+        - Finds original voids to delete.
         - Makes outer voids to insert.
 
     """

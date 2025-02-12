@@ -47,12 +47,10 @@ Mesh refinement unit.
 
 <b>Properties</b>
 
-Metadata on refinement:
-
-Name           | Description
----------------|-------------------------------
-`source_mesh`  | Previous-level mesh.
-`data_refiner` | Callable refiner object.
+Name        | Description
+------------|----------------------------------
+`refiner`   | Data-refiner after refinement.
+`collector` | Data-collector after coarsening.
 
 ### tofem()
 
@@ -124,6 +122,10 @@ Performs a static mesh coarsening.
 <dl><dd>
   Unit with the coarsened mesh.
 </dd></dl>
+
+<b>Notes</b>
+
+- The `data-collector` is included in the mesh metadata.
 
 ### find_node()
 

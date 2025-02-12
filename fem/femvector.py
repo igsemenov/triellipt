@@ -28,12 +28,6 @@ class VectorData:
         return 'partition' in self.meta
 
     @property
-    def partition_name(self):
-        if self.haspartition:
-            return self.meta['partition']['name']
-        return None
-
-    @property
     def name(self):
         if self.is_named:
             return self.meta['name']
@@ -49,18 +43,18 @@ class VectorData:
             self.unit, new_body, self.meta_copy
         )
 
-    def get_section_indexer(self, name):
+    def get_section_indexer(self, key):
 
         if not self.haspartition:
             raise VectorFEMError(
                 f"vector '{self.name}' has no partition"
             )
 
-        indexer = self.meta['partition']['sections'].get(name)
+        indexer = self.meta['partition'].get(key)
 
         if indexer is None:
             raise VectorFEMError(
-                f"no section '{name}' in vector '{self.name}'"
+                f"no section '{key}' in vector '{self.name}'"
             )
 
         return indexer
@@ -77,6 +71,12 @@ class VectorData:
 class VectorFEM(VectorData):
     """FEM vector.
     """
+
+    def __getitem__(self, key):
+        return self.getsect(key)
+
+    def __setitem__(self, key, data):
+        self.setsect(key, data)
 
     def with_name(self, name):
         """Prescribes the vector name.
@@ -150,7 +150,7 @@ class VectorFEM(VectorData):
         Parameters
         ----------
         meta : dict
-            Partition meta data (name and sections) (a).
+            Partition meta data (a).
 
         Returns
         -------
@@ -164,19 +164,24 @@ class VectorFEM(VectorData):
 
         """
 
+        if not isinstance(meta, dict):
+            raise ValueError(
+                f"expected meta as dict, got '{type(meta)}'"
+            )
+
         new_meta = {
             'partition': meta
         }
 
         return self.add_meta(new_meta)
 
-    def getsect(self, name):
+    def getsect(self, key):
         """Returns a copy of the vector section.
 
         Parameters
         ----------
-        name : str
-            Name of the vector section.
+        key : str-or-int
+            ID of the vector section.
 
         Returns
         -------
@@ -184,30 +189,34 @@ class VectorFEM(VectorData):
             Copy of the vector section.
 
         """
-        indexer = self.get_section_indexer(name)
-        return self.body[indexer].copy('C')
 
-    def setsect(self, name, data) -> None:
+        indexer = self.get_section_indexer(key)
+
+        return np.copy(
+            self.body[indexer], order='C'
+        )
+
+    def setsect(self, key, data):
         """Defines the vector section.
 
         Parameters
         ----------
-        name : str
-            Name of the vector section.
+        key : str-or-int
+            ID of the vector section.
         data : scalar | flat-float-array
             Data that defines the vector section.
 
         """
-        indexer = self.get_section_indexer(name)
+        indexer = self.get_section_indexer(key)
         self.body[indexer] = data
 
-    def sect_xy(self, name):
-        """Returns xy-coordinates of the vector section nodes.
+    def sectxy(self, key):
+        """Returns xy-coordinates of the vector section.
 
         Parameters
         ----------
-        name : str
-            Name of the vector section.
+        key : str-or-int
+            ID of the vector section.
 
         Returns
         -------
@@ -216,7 +225,7 @@ class VectorFEM(VectorData):
 
         """
 
-        indexer = self.get_section_indexer(name)
+        indexer = self.get_section_indexer(key)
 
         return _unpack_complex(
             self.unit.mesh.points[indexer]
@@ -241,11 +250,8 @@ def meta_edge_core(unit):
     core_range = mesh_range[edge_count:]
 
     return {
-        'name': 'edge-core',
-        'sections': {
-            'edge': edge_range,
-            'core': core_range
-        }
+        'edge': edge_range,
+        'core': core_range
     }
 
 

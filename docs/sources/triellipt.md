@@ -29,8 +29,8 @@ Module                   | Description
                 <ul>
                     <li><a href="triellipt.fem.md#fem_factory">fem_factory()</a></li>
                     <li><a href="triellipt.fem.md#new_vector">new_vector()</a></li>
-                    <li><a href="triellipt.fem.md#makecoeff">makecoeff()</a></li>
                     <li><a href="triellipt.fem.md#getinterp">getinterp()</a></li>
+                    <li><a href="triellipt.fem.md#partition">partition()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.fem.md#femfactory">FEMFactory</a>
@@ -55,7 +55,7 @@ Module                   | Description
                     <li><a href="triellipt.fem.md#partitioned-1">partitioned()</a></li>
                     <li><a href="triellipt.fem.md#getsect">getsect()</a></li>
                     <li><a href="triellipt.fem.md#setsect">setsect()</a></li>
-                    <li><a href="triellipt.fem.md#sect_xy">sect_xy()</a></li>
+                    <li><a href="triellipt.fem.md#sectxy">sectxy()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.fem.md#mesh_metric">mesh_metric()</a></li>
@@ -118,7 +118,7 @@ Module                   | Description
             </li>
             <li><a href="triellipt.geom.md#pathmap">PathMap</a>
                 <ul>
-                    <li><a href="triellipt.geom.md#atcolor">atcolor()</a></li>
+                    <li><a href="triellipt.geom.md#atcolors">atcolors()</a></li>
                     <li><a href="triellipt.geom.md#repaint">repaint()</a></li>
                     <li><a href="triellipt.geom.md#rshift">rshift()</a></li>
                     <li><a href="triellipt.geom.md#lshift">lshift()</a></li>

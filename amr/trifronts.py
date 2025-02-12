@@ -145,6 +145,25 @@ class TriFront:
 
         return self.update_data(self.data[:, mask])
 
+    def filter_by_normal(self, angle, scale):
+        """Filters the front by a normal vector.
+
+        Parameters
+        ----------
+        angle : (float, float)
+            Range of angles (min-max).
+        scale : (float, float)
+            Range of scales (min-max).
+
+        """
+
+        front = self
+
+        front = front.filter_by_angle(*angle)
+        front = front.filter_by_scale(*scale)
+
+        return front
+
 
 class TriFrontFine(TriFront):
     """Front of fine triangles.

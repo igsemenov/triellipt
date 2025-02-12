@@ -25,6 +25,13 @@ def getoprs(mesh) -> dict:
     }
 
 
+def getgrad(mesh):
+    """Makes a gradient operator.
+    """
+    maker = GradMaker.from_metric(mesh_metric(mesh))
+    return maker.get_grad()
+
+
 def mesh_metric(mesh):
     """Returns the mesh metric properties.
 
@@ -208,6 +215,25 @@ class MetricAgent:
         mask[self.voids_trinums] = False
         return mask
 
+    @property
+    def areas1d(self):
+        return self.metric.areas1d
+
+    @property
+    def areas1d_inv(self):
+
+        mask_not_voids = self.mask_trinums_not_voids()
+
+        area_inv = np.zeros(
+            self.metric.mesh.ntriangs
+        )
+
+        area_inv = np.reciprocal(
+            self.areas1d.flat, where=mask_not_voids
+        )
+
+        return area_inv[..., None]
+
 
 class OprsMaker(MetricAgent):
     """Maker of FEM operators.
@@ -239,7 +265,9 @@ class OprsMaker(MetricAgent):
             self.metric[coeffs_key]
         )
 
-        return 0.25 * (diff_2d * self.areas1d_inv)
+        return 0.25 * (
+            diff_2d * self.areas1d_inv
+        )
 
     def massmat(self):
 
@@ -269,24 +297,83 @@ class OprsMaker(MetricAgent):
     def massdiag_proxy(self):
         return np.eye(3) / 3.
 
-    @property
-    def areas1d(self):
-        return self.metric.areas1d
 
-    @property
-    def areas1d_inv(self):
+class GradMaker(MetricAgent):
+    """Makes a gradient operator.
+    """
 
-        mask_not_voids = self.mask_trinums_not_voids()
+    def get_grad(self):
 
-        area_inv = np.zeros(
-            self.metric.mesh.ntriangs
+        data = self.make_data()
+        grad = self.make_grad(data)
+
+        return grad
+
+    def make_grad(self, data):
+        return TriGrad(
+            self.metric.mesh, data
         )
 
-        area_inv = np.reciprocal(
-            self.areas1d.flat, where=mask_not_voids
+    def make_data(self):
+        return {
+            'bcoeffs-scaled': self.make_bcoeffs_scaled(),
+            'ccoeffs-scaled': self.make_ccoeffs_scaled()
+        }
+
+    def make_bcoeffs_scaled(self):
+        return 0.5 * (
+            self.metric.bcoeffs * self.areas1d_inv
         )
 
-        return area_inv[..., None]
+    def make_ccoeffs_scaled(self):
+        return 0.5 * (
+            self.metric.ccoeffs * self.areas1d_inv
+        )
+
+
+class TriGrad:
+    """Gradient operator.
+    """
+
+    def __init__(self, mesh, data):
+        self.mesh = mesh
+        self.data = data
+
+    @property
+    def bcoeffs(self):
+        return self.data['bcoeffs-scaled']
+
+    @property
+    def ccoeffs(self):
+        return self.data['ccoeffs-scaled']
+
+    def __call__(self, data):
+
+        diff_1x = self.diff_1x(data)
+        diff_1y = self.diff_1y(data)
+
+        return np.vstack(
+            [diff_1x, diff_1y]
+        )
+
+    def diff_1x(self, data):
+        """Computes the x-derivative across triangles.
+        """
+        return np.sum(
+            self.bcoeffs * data[self.mesh.triangs], axis=1
+        )
+
+    def diff_1y(self, data):
+        """Computes the y-derivative across triangles.
+        """
+        return np.sum(
+            self.ccoeffs * data[self.mesh.triangs], axis=1
+        )
+
+    def atfunc(self, func):
+        return self(
+            func(*self.mesh.points2d)
+        )
 
 
 def _mono_matrix(data1d):

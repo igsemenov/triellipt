@@ -31,6 +31,8 @@ class AMRData:
 
     def __init__(self, mesh):
         self.mesh = mesh
+        self.meta = {}
+        self.data = {}
 
     @classmethod
     def from_mesh(cls, mesh):
@@ -39,6 +41,10 @@ class AMRData:
     @property
     def mesh_twin(self):
         return self.mesh.twin()
+
+    @property
+    def data_items(self):
+        return self.data.items()
 
     @property
     def is_refined(self):
@@ -61,12 +67,8 @@ class AMRData:
         return None
 
     @property
-    def source_mesh(self):
-        if self.is_refined:
-            return self.refiner.mesh
-        if self.is_coarsened:
-            return self.collector.mesh
-        return None
+    def transmat(self):
+        return self.meta['data-transmit']
 
 
 class AMRUnit(AMRData):
@@ -76,16 +78,16 @@ class AMRUnit(AMRData):
     ----------
     mesh : TriMesh
         Current triangle mesh.
+    data : dict
+        Data defined on the unit.
 
     Properties
     ----------
 
-    Metadata on refinement:
-
-    Name           | Description
-    ---------------|-------------------------------
-    `source_mesh`  | Previous-level mesh.
-    `data_refiner` | Callable refiner object.
+    Name        | Description
+    ------------|----------------------------------
+    `refiner`   | Data-refiner after refinement.
+    `collector` | Data-collector after coarsening.
 
     """
 
@@ -134,9 +136,20 @@ class AMRUnit(AMRData):
         if len(trinums) == 0:
             return self
 
-        return self.from_mesh(
+        new_unit = self.from_mesh(
             trirefine.refine_mesh(self.mesh, trinums)
         )
+
+        if not self.data:
+            return new_unit
+
+        refiner = new_unit.refiner
+
+        new_unit.data = {
+            k: refiner(v) for k, v in self.data_items
+        }
+
+        return new_unit
 
     def coarsen(self, trinums_cores):
         """Performs a static mesh coarsening.
@@ -151,10 +164,27 @@ class AMRUnit(AMRData):
         AMRUnit
             Unit with the coarsened mesh.
 
+        Notes
+        -----
+
+        - The `data-collector` is included in the mesh metadata.
+
         """
-        return self.from_mesh(
+
+        new_unit = self.from_mesh(
             tricoarsen.coarsen_mesh(self.mesh, trinums_cores)
         )
+
+        if not self.data:
+            return new_unit
+
+        collector = new_unit.collector
+
+        new_unit.data = {
+            k: collector(v) for k, v in self.data_items
+        }
+
+        return new_unit
 
     def find_node(self, anchor):
         """Finds the neighborhood of an anchor point.
@@ -241,6 +271,61 @@ class AMRUnit(AMRData):
         """
         return trirefine.constr_data(self.mesh, data)
 
+    def atfunc(self, func):
+        return self.constrain(
+            func(*self.mesh.points2d)
+        )
+
+    @property
+    def masser(self):
+        return self.get_masser(self.mesh)
+
     @classmethod
     def constr_data(cls, mesh, data):
         return trirefine.constr_data(mesh, data)
+
+    @classmethod
+    def get_masser(cls, mesh):
+        return Masser.from_mesh(mesh)
+
+
+class Masser:
+    """Total mass evaluator.
+    """
+
+    def __init__(self, unit, meta):
+        self.unit = unit
+        self.meta = meta
+
+    @classmethod
+    def from_mesh(cls, mesh):
+
+        unit = femunit.getunit(mesh)
+
+        meta = {
+            'mass-mat': unit.massmat_fem.body,
+            'massdiag': unit.massdiag_fem.body
+        }
+
+        return cls(unit, meta)
+
+    def __call__(self, data):
+        return self.mass_diag(data)
+
+    @property
+    def mass_mat(self):
+        return self.meta['mass-mat']
+
+    @property
+    def massdiag(self):
+        return self.meta['massdiag']
+
+    def mass_full(self, data):
+        return np.sum(
+            self.mass_mat @ self.unit.perm(data)
+        )
+
+    def mass_diag(self, data):
+        return np.sum(
+            self.massdiag @ self.unit.perm(data)
+        )

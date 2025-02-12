@@ -214,26 +214,27 @@ class PathMap:
     def getcopy(self):
         return self.__class__(np.copy(self.nodes))
 
-    def atcolor(self, color):
-        """Fetches a subpath with the specified color.
+    def atcolors(self, *colors):
+        """Fetches a subpath with the specified colors.
 
         Parameters
         ----------
-        color : int
-            Color of the subpath.
+        colors : *int
+            Colors in the subpath.
 
         Returns
         -------
         PathMap
-            The resulting single-color path.
+            The resulting subpath.
 
         """
 
-        nodes = self.nodes[
-            self.colors == color
-        ]
+        mask = np.isin(
+            self.colors, colors
+        )
 
-        return self.__class__(nodes)
+        new_nodes = self.nodes[mask]
+        return self.__class__(new_nodes)
 
     def repaint(self, color, newcolor):
         """Changes the specified color to the new one.
@@ -284,7 +285,7 @@ class PathMap:
 
     def gensubpaths(self):
         for color in set(self.colors):
-            yield self.atcolor(color)
+            yield self.atcolors(color)
 
     def find_contact(self, color1, color2):
         return self.cyccolors.find_contact(color1, color2)

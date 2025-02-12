@@ -45,10 +45,6 @@ class MatrixData:
     def with_constraints(self):
         return self.meta['with-constraints']
 
-    @property
-    def partition_name(self):
-        return self.meta['partition']['name']
-
     def update_meta(self, new_meta):
         return self.__class__(
             self.unit, self.body_copy, new_meta
@@ -61,18 +57,18 @@ class MatrixData:
 
         return row_indexer, col_indexer
 
-    def get_section_indexer(self, name):
+    def get_section_indexer(self, key):
 
         if not self.haspartition:
             raise MatrixFEMError(
                 f"matrix '{self.name}' has not partition"
             )
 
-        indexer = self.meta['partition']['sections'].get(name)
+        indexer = self.meta['partition'].get(key)
 
         if indexer is None:
             raise MatrixFEMError(
-                f"no section '{name}' in matrix '{self.name}'"
+                f"no section '{key}' in matrix '{self.name}'"
             )
 
         return indexer
@@ -95,6 +91,9 @@ class MatrixData:
 class MatrixFEM(MatrixData):
     """Global FEM matrix.
     """
+
+    def __call__(self, row_key, col_key):
+        return self.getblock(row_key, col_key)
 
     def __matmul__(self, vect):
         """Multiplication by a FEM vector only.
@@ -132,7 +131,7 @@ class MatrixFEM(MatrixData):
         Parameters
         ----------
         meta : dict
-            Partition meta data (name and sections) (a).
+            Partition meta-data (a).
 
         Returns
         -------
@@ -144,16 +143,15 @@ class MatrixFEM(MatrixData):
 
         (a) Partition meta:
 
-        ```text
-        {
-            "name": "partition-name",
-            "sections": {
-                "section-name": flat-array-of-indices
-            }
-        }
-        ```
+        - Keys are section IDs.
+        - Values are section indices.
 
         """
+
+        if not isinstance(meta, dict):
+            raise ValueError(
+                f"expected meta as dict, got '{type(meta)}'"
+            )
 
         new_meta = {
             'partition': meta
@@ -164,15 +162,15 @@ class MatrixFEM(MatrixData):
     def add_meta(self, meta):
         return self.update_meta(self.meta | meta)
 
-    def getblock(self, rowname, colname):
+    def getblock(self, row_key, col_key):
         """Extracts a block from a partitioned matrix.
 
         Parameters
         ----------
-        rowname : str
-            Name of the vertical section.
-        colname : str
-            Name of the horizontal section.
+        row_key : str-or-int
+            ID of the vertical section.
+        col_key : str-or-int
+            ID of the horizontal section.
 
         Returns
         -------
@@ -181,7 +179,7 @@ class MatrixFEM(MatrixData):
 
         """
 
-        rows, cols = self.get_block_indexer(rowname, colname)
+        rows, cols = self.get_block_indexer(row_key, col_key)
         blockascsc = self.get_block_as_csc(rows, cols)
 
         return blockascsc
@@ -214,9 +212,6 @@ def meta_edge_core(unit):
     core_range = mesh_range[edge_count:]
 
     return {
-        'name': 'edge-core',
-        'sections': {
-            'edge': edge_range,
-            'core': core_range
-        }
+        'edge': edge_range,
+        'core': core_range
     }

@@ -26,7 +26,7 @@ Creates a FEM computing unit.
 <p><span class="vardef"><code>anchors</code> : <em>tuple = None</em></span></p>
 
 <dl><dd>
-  Nodes numbers to synchronize the mesh boundary. 
+  Nodes numbers to synchronize the mesh boundary.
 </dd></dl>
 
 <b>Returns</b>
@@ -51,7 +51,6 @@ Name        | Description
 ------------|---------------------
 `massmat`   | Mass-matrix
 `massdiag`  | Mass-matrix lumped
-`laplace`   | Laplace operator
 `diff_1y`   | 1st-y derivative
 `diff_1x`   | 1st-x derivative
 `diff_2y`   | 2nd-y derivative
@@ -66,6 +65,14 @@ Name           | Description
 `massmat_amr`  | Mass-matrix (with constraints)
 `massdiag_fem` | Mass-matrix lumped (no constraints)
 `massdiag_amr` | Mass-matrix lumped (with constraints)
+
+Others:
+
+Name      | Description
+----------|----------------------------------
+`grad`    | Gradient operator.
+`perm`    | Mesh-to-unit nodes permutation.
+`loops`   | List of the mesh loops.
 
 ### fem_factory()
 
@@ -95,28 +102,6 @@ Creates a factory of FEM matrices.
 
 Returns a new FEM vector.
 
-### makecoeff()
-
-<pre class="py-sign">FEMUnit.<b>makecoeff</b>(<em>self</em>, mesh_data)</pre>
-
-Generates a coefficient for local FEM operators.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>mesh_data</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Coefficient defined over the mesh triangles.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Coefficient matching the size of local FEM operators.
-</dd></dl>
-
 ### getinterp()
 
 <pre class="py-sign">FEMUnit.<b>getinterp</b>(<em>self</em>, xnodes, ynodes)</pre>
@@ -144,6 +129,48 @@ Creates an interpolator on a mesh.
 <dl><dd>
   Interpolator object.
 </dd></dl>
+
+### partition()
+
+<pre class="py-sign">FEMUnit.<b>partition</b>(<em>self</em>, loopnum, splitang, parttspec=<span>None</span>)</pre>
+
+Creates the FEM unit partition.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>loopnum</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Number of the mesh loop to partition.
+</dd></dl>
+
+<p><span class="vardef"><code>splitang</code> : <em>float</em></span></p>
+
+<dl><dd>
+  Threshold angle for the loop splitting.
+</dd></dl>
+
+<p><span class="vardef"><code>parttspec</code> : <em>list = None</em></span></p>
+
+<dl><dd>
+  List of <code>(edge1, edge2, operation)</code> triplets (a).
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>Partition</em></span></p>
+
+<dl><dd>
+  Partition object.
+</dd></dl>
+
+<b>Notes</b>
+
+(a) Color-operations on the edges:
+
+- "l" — left-repainting
+- "r" — right-repainting
+- "s" — switching-of-colors
 
 ## FEMFactory
 
@@ -242,7 +269,7 @@ Creates a partitioned matrix.
 <p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
 
 <dl><dd>
-  Partition meta data (name and sections) (a).
+  Partition meta-data (a).
 </dd></dl>
 
 <b>Returns</b>
@@ -257,33 +284,27 @@ Creates a partitioned matrix.
 
 (a) Partition meta:
 
-```text
-{
-    "name": "partition-name",
-    "sections": {
-        "section-name": flat-array-of-indices
-    }
-}
-```
+- Keys are section IDs.
+- Values are section indices.
 
 ### getblock()
 
-<pre class="py-sign">MatrixFEM.<b>getblock</b>(<em>self</em>, rowname, colname)</pre>
+<pre class="py-sign">MatrixFEM.<b>getblock</b>(<em>self</em>, row_key, col_key)</pre>
 
 Extracts a block from a partitioned matrix.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>rowname</code> : <em>str</em></span></p>
+<p><span class="vardef"><code>row_key</code> : <em>str-or-int</em></span></p>
 
 <dl><dd>
-  Name of the vertical section.
+  ID of the vertical section.
 </dd></dl>
 
-<p><span class="vardef"><code>colname</code> : <em>str</em></span></p>
+<p><span class="vardef"><code>col_key</code> : <em>str-or-int</em></span></p>
 
 <dl><dd>
-  Name of the horizontal section.
+  ID of the horizontal section.
 </dd></dl>
 
 <b>Returns</b>
@@ -391,7 +412,7 @@ Creates a partitioned vector.
 <p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
 
 <dl><dd>
-  Partition meta data (name and sections) (a).
+  Partition meta data (a).
 </dd></dl>
 
 <b>Returns</b>
@@ -408,16 +429,16 @@ Creates a partitioned vector.
 
 ### getsect()
 
-<pre class="py-sign">VectorFEM.<b>getsect</b>(<em>self</em>, name)</pre>
+<pre class="py-sign">VectorFEM.<b>getsect</b>(<em>self</em>, key)</pre>
 
 Returns a copy of the vector section.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>name</code> : <em>str</em></span></p>
+<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
 
 <dl><dd>
-  Name of the vector section.
+  ID of the vector section.
 </dd></dl>
 
 <b>Returns</b>
@@ -430,16 +451,16 @@ Returns a copy of the vector section.
 
 ### setsect()
 
-<pre class="py-sign">VectorFEM.<b>setsect</b>(<em>self</em>, name, data) → <em>None</em></pre>
+<pre class="py-sign">VectorFEM.<b>setsect</b>(<em>self</em>, key, data)</pre>
 
 Defines the vector section.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>name</code> : <em>str</em></span></p>
+<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
 
 <dl><dd>
-  Name of the vector section.
+  ID of the vector section.
 </dd></dl>
 
 <p><span class="vardef"><code>data</code> : <em>scalar | flat-float-array</em></span></p>
@@ -448,18 +469,18 @@ Defines the vector section.
   Data that defines the vector section.
 </dd></dl>
 
-### sect_xy()
+### sectxy()
 
-<pre class="py-sign">VectorFEM.<b>sect_xy</b>(<em>self</em>, name)</pre>
+<pre class="py-sign">VectorFEM.<b>sectxy</b>(<em>self</em>, key)</pre>
 
-Returns xy-coordinates of the vector section nodes.
+Returns xy-coordinates of the vector section.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>name</code> : <em>str</em></span></p>
+<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
 
 <dl><dd>
-  Name of the vector section.
+  ID of the vector section.
 </dd></dl>
 
 <b>Returns</b>

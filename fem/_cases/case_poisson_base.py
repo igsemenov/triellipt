@@ -5,7 +5,7 @@ import time
 import numpy as np
 from scipy import sparse as sp
 from matplotlib import pyplot as plt
-from triellipt import mesher, fem
+import triellipt as tri
 
 META = {
     'grid': {
@@ -72,7 +72,7 @@ class FEMFrame:
         return self.meta['amr']['count']
 
     def make_unit(self, mesh):
-        return fem.getunit(mesh)
+        return tri.fem.getunit(mesh)
 
     def make_mesh(self):
 
@@ -88,7 +88,7 @@ class FEMFrame:
 
         meta = self.meta['grid']
 
-        grid = mesher.trigrid(
+        grid = tri.mesher.trigrid(
             meta['size'], meta['size'], meta['mode']
         )
 
@@ -126,7 +126,7 @@ def solve(meta):
     rho = rho.dirichsplit()
 
     sol.setsect(
-        'edge', sol_exact(*sol.sect_xy('edge'))
+        'edge', sol_exact(*sol.sectxy('edge'))
     )
 
     rhs = massmat @ rho
@@ -146,7 +146,7 @@ def solve(meta):
 
     sol.setsect('core', out)
 
-    res = out - sol_exact(*sol.sect_xy('core'))
+    res = out - sol_exact(*sol.sectxy('core'))
     err = np.amax(abs(res))
 
     return (

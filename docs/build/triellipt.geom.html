@@ -57,7 +57,7 @@
                         </li>
                         <li><a href="#pathmap">PathMap</a>
                             <ul>
-                                <li><a href="#atcolor">atcolor()</a></li>
+                                <li><a href="#atcolors">atcolors()</a></li>
                                 <li><a href="#repaint">repaint()</a></li>
                                 <li><a href="#rshift">rshift()</a></li>
                                 <li><a href="#lshift">lshift()</a></li>
@@ -522,18 +522,18 @@
     </tr>
 </table>
 
-<div class="toc-anchor"></div><h3>atcolor()</h3>
+<div class="toc-anchor"></div><h3>atcolors()</h3>
 
-<pre class="py-sign">PathMap.<b>atcolor</b>(<em>self</em>, color)</pre>
+<pre class="py-sign">PathMap.<b>atcolors</b>(<em>self</em>, *colors)</pre>
 
-<p>Fetches a subpath with the specified color.</p>
+<p>Fetches a subpath with the specified colors.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>color</code> : <em>int</em></span></p>
+<p><span class="vardef"><code>colors</code> : <em>*int</em></span></p>
 
 <dl><dd>
-  Color of the subpath.
+  Colors in the subpath.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -541,7 +541,7 @@
 <p><span class="vardef"><em>PathMap</em></span></p>
 
 <dl><dd>
-  The resulting single-color path.
+  The resulting subpath.
 </dd></dl>
 
 <div class="toc-anchor"></div><h3>repaint()</h3>

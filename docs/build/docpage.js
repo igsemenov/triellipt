@@ -211,7 +211,11 @@ function gotoHomePage() {
  * Assignment of the page settings.
  */
 
-docPage.pagelogo = null;
+docPage.pagelogo = `<svg width="40" height="40">
+    <polygon points="5 5 5 35 35 35" stroke="#C0C0C0" stroke-width="0.5" fill="#4CAF50" />    
+    <polygon points="5 5 35 5 35 35" stroke="#C0C0C0" stroke-width="0.5" fill="#DE1A24" />
+    <polygon points="5 20 20 20 20 35" stroke="#C0C0C0" stroke-width="0.5" fill="#FFBB00" />
+</svg><p id="logo-title">triellipt</p>`;
 docPage.contents = `<p>
 <ul>
     <li><a class="global-toc__top-item" href="triellipt.html">Modules</a>

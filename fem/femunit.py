@@ -3,7 +3,14 @@
 """
 import numpy as np
 from triellipt.fem import (
-    skeleton, ijstream, vstream, femfactory, femvector, trinterp
+    skeleton,
+    ijstream,
+    vstream,
+    femfactory,
+    femvector,
+    femoprs,
+    fempartt,
+    trinterp
 )
 
 
@@ -15,7 +22,7 @@ def getunit(mesh, anchors=None):
     mesh : TriMesh
         Input triangle mesh.
     anchors : tuple = None
-        Nodes numbers to synchronize the mesh boundary. 
+        Nodes numbers to synchronize the mesh boundary.
 
     Returns
     -------
@@ -33,6 +40,7 @@ class FEMData:
     def __init__(self, mesh=None, meta=None):
         self.mesh = mesh
         self.meta = meta
+        self.cache = {}
 
     @classmethod
     def from_mesh(cls, mesh, anchors=None):
@@ -78,6 +86,17 @@ class FEMData:
         return self.mesh_count - self.edge_count
 
     @property
+    def loops(self):
+        """Loops of the unit mesh.
+        """
+        return self.mesh.meta['loops']
+
+
+class FEMRoot(FEMData):
+    """Root of the FEM unit.
+    """
+
+    @property
     def massmat(self):
         return self.femoprs['massmat'].data
 
@@ -102,10 +121,6 @@ class FEMData:
         return self.femoprs['diff_2y'].data
 
     @property
-    def laplace(self):
-        return self.diff_2x + self.diff_2y
-
-    @property
     def femoprs(self):
         return self.meta['femmatrix']['v-stream']
 
@@ -120,19 +135,24 @@ class FEMData:
         )
 
     @property
-    def loops(self):
-        """Loops of the unit mesh.
+    def grad(self):
+        """Gradient operator.
         """
-        return self.mesh.meta['loops']
+
+        if 'grad' in self.cache:
+            return self.cache['grad']
+
+        self.cache['grad'] = femoprs.getgrad(self.mesh)
+        return self.grad
 
     @property
-    def permuter(self):
+    def perm(self):
         """Nodes permutation in the mesh-to-unit transition.
         """
         return self.meta['data-perm']
 
 
-class FEMUnit(FEMData):
+class FEMUnit(FEMRoot):
     """FEM computing unit.
 
     Properties
@@ -144,7 +164,6 @@ class FEMUnit(FEMData):
     ------------|---------------------
     `massmat`   | Mass-matrix
     `massdiag`  | Mass-matrix lumped
-    `laplace`   | Laplace operator
     `diff_1y`   | 1st-y derivative
     `diff_1x`   | 1st-x derivative
     `diff_2y`   | 2nd-y derivative
@@ -159,6 +178,14 @@ class FEMUnit(FEMData):
     `massmat_amr`  | Mass-matrix (with constraints)
     `massdiag_fem` | Mass-matrix lumped (no constraints)
     `massdiag_amr` | Mass-matrix lumped (with constraints)
+
+    Others:
+
+    Name      | Description
+    ----------|----------------------------------
+    `grad`    | Gradient operator.
+    `perm`    | Mesh-to-unit nodes permutation.
+    `loops`   | List of the mesh loops.
 
     """
 
@@ -183,24 +210,6 @@ class FEMUnit(FEMData):
         """
         return femvector.VectorFEM.from_unit(self)
 
-    def makecoeff(self, mesh_data):
-        """Generates a coefficient for local FEM operators.
-
-        Parameters
-        ----------
-        mesh_data : flat-float-array
-            Coefficient defined over the mesh triangles.
-
-        Returns
-        -------
-        flat-float-array
-            Coefficient matching the size of local FEM operators.
-
-        """
-        return mesh_data[
-            self.ij_stream.trinums
-        ]
-
     def getinterp(self, xnodes, ynodes):
         """Creates an interpolator on a mesh.
 
@@ -219,29 +228,84 @@ class FEMUnit(FEMData):
         """
         return trinterp.getinterp(self, xnodes, ynodes)
 
+    def partition(self, loopnum, splitang, parttspec=None):
+        """Creates the FEM unit partition.
+
+        Parameters
+        ----------
+        loopnum : int
+            Number of the mesh loop to partition.
+        splitang : float
+            Threshold angle for the loop splitting.
+        parttspec : list = None
+            List of `(edge1, edge2, operation)` triplets (a).
+
+        Returns
+        -------
+        Partition
+            Partition object.
+
+        Notes
+        -----
+
+        (a) Color-operations on the edges:
+
+        - "l" — left-repainting
+        - "r" — right-repainting
+        - "s" — switching-of-colors
+
+        """
+        return fempartt.getpartt(
+            self, loopnum, splitang, parttspec
+        )
+
     @property
     def laplace_fem(self):
-        return self.fem_factory(1).feed_data(self.laplace)
+        return self.fct1.feed_data(
+            self.diff_2x + self.diff_2y
+        )
 
     @property
     def massmat_fem(self):
-        return self.fem_factory(0).feed_data(self.massmat)
+        return self.fct0.feed_data(self.massmat)
 
     @property
     def massdiag_fem(self):
-        return self.fem_factory(0).feed_data(self.massdiag).with_no_zeros()
+        return self.fct0.feed_data(self.massdiag).with_no_zeros()
 
     @property
     def massmat_amr(self):
-        return self.fem_factory(1).feed_data(self.massmat)
+        return self.fct1.feed_data(self.massmat)
 
     @property
     def massdiag_amr(self):
-        return self.fem_factory(1).feed_data(self.massdiag).with_no_zeros()
+        return self.fct1.feed_data(self.massdiag).with_no_zeros()
 
     @property
     def constrproj(self):
         return femfactory.get_constr_proj(self)
+
+    @property
+    def fct0(self):
+        """Factory with no constraints.
+        """
+
+        if 'fct0' in self.cache:
+            return self.cache['fct0']
+
+        self.cache['fct0'] = self.fem_factory(0)
+        return self.fct0
+
+    @property
+    def fct1(self):
+        """Factory with constraints.
+        """
+
+        if 'fct1' in self.cache:
+            return self.cache['fct1']
+
+        self.cache['fct1'] = self.fem_factory(1)
+        return self.fct1
 
 
 class FEMUnitMaker:
@@ -331,7 +395,8 @@ class FEMUnitMaker:
         perm = perm1[perm2]
 
         meta = {
-            'perm': perm, 'perm-inv':  np.argsort(perm)
+            'perm': perm,
+            'perm-inv':  np.argsort(perm)
         }
 
         return DataPermuter(mesh0, meta)
@@ -345,7 +410,7 @@ class DataPermuter:
     mesh : TriMesh
         Source triangle mesh.
     meta : dict
-        Permutation meta-data.
+        Permutation metadata.
 
     """
 

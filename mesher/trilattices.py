@@ -22,10 +22,8 @@ def get_latticer(xsize, ysize):
 
 
 def close_lattice(mesh):
-    for _ in range(2):
-        mesh = _close_lattice_left(mesh)
-        mesh = _reflect_lattice(mesh)
-    return mesh
+    _ = LatticeCloser.from_mesh(mesh)
+    return _.get_lattice_closed()
 
 
 class _TriLatticer:
@@ -96,11 +94,7 @@ class _TriLatticer:
     @property
     def data_sorter(self):
         def argsort_complex(data):
-            if self.icount >= self.jcount:
-                return np.argsort(data)
-            return np.argsort(
-                np.conj(data * 1j)
-            )
+            return np.argsort(data)
         return argsort_complex
 
     @property
@@ -289,24 +283,8 @@ class TriLatticer(_TriLatticer):
         return _pack_cols(*verts)
 
 
-def _close_lattice_left(mesh):
-    _ = LatticeCloser.from_mesh(mesh)
-    return _.get_lattice_closed()
-
-
-def _reflect_lattice(mesh):
-
-    twin = mesh * -1
-    twin = twin.renumed(
-        np.argsort(twin.points)
-    )
-
-    twin = twin.add_meta(mesh.meta)
-    return twin
-
-
-class LatticeCloser:
-    """Closes a primary lattice from the left.
+class _LatticeCloser:
+    """Root of the lattice closer.
     """
 
     def __init__(self, mesh):
@@ -322,6 +300,10 @@ class LatticeCloser:
         return self.mesh.twin()
 
     @property
+    def xsize(self):
+        return self.mesh.meta['lattice-size'][0]
+
+    @property
     def ysize(self):
         return self.mesh.meta['lattice-size'][1]
 
@@ -334,12 +316,39 @@ class LatticeCloser:
         return self.cache['side-nodes']['nodes-1']
 
     @property
-    def nodes2(self):
-        return self.cache['new-points']['nums']
+    def nodes3(self):
+        return self.cache['side-nodes']['nodes-3']
 
     @property
-    def nums_offset(self):
-        return self.mesh.npoints
+    def nodes4(self):
+        return self.cache['side-nodes']['nodes-4']
+
+    @property
+    def nodes2(self):
+        return self.cache['new-points']['west']['nums']
+
+    @property
+    def nodes5(self):
+        return self.cache['new-points']['east']['nums']
+
+    EAST_534_SLICES = {
+        (1, 0): (np.s_[:], np.s_[:], np.s_[:]),
+        (1, 1): (np.s_[:], np.s_[:], np.s_[:-1]),
+        (0, 1): (np.s_[1:], np.s_[1:], np.s_[:]),
+        (0, 0): (np.s_[1:], np.s_[1:], np.s_[:-1])
+    }
+
+    EAST_354_SLICES = {
+        (1, 0): (np.s_[:-1], np.s_[:-1], np.s_[1:]),
+        (1, 1): (np.s_[:], np.s_[:], np.s_[1::]),
+        (0, 1): (np.s_[:-1], np.s_[:-1], np.s_[:]),
+        (0, 0): (np.s_[:], np.s_[:], np.s_[:])
+    }
+
+
+class LatticeCloser(_LatticeCloser):
+    """Closes a primary lattice from the left.
+    """
 
     def get_lattice_closed(self):
 
@@ -349,7 +358,11 @@ class LatticeCloser:
         mesh = self.mesh_copy
 
         mesh = mesh.add_points(
-            self.cache['new-points']['data']
+            self.cache['new-points']['west']['data']
+        )
+
+        mesh = mesh.add_points(
+            self.cache['new-points']['east']['data']
         )
 
         mesh = mesh.add_triangs(
@@ -367,8 +380,15 @@ class LatticeCloser:
 
     def make_new_triangs(self):
 
-        sz2 = self.nodes2.size
+        west = self.make_new_triangs_west()
+        east = self.make_new_triangs_east()
+
+        self.cache['new-triangs'] = np.vstack([west, east])
+
+    def make_new_triangs_west(self):
+
         sz0 = self.nodes0.size - 1
+        sz2 = self.nodes2.size
 
         triangs1 = _pack_cols(
             self.nodes0[:sz2], self.nodes1[:sz2], self.nodes2[:sz2]
@@ -378,33 +398,89 @@ class LatticeCloser:
             self.nodes2[:sz0], self.nodes1[:sz0], self.nodes0[1::]
         )
 
-        self.cache['new-triangs'] = np.vstack([triangs1, triangs2])
+        return np.vstack([triangs1, triangs2])
+
+    def make_new_triangs_east(self):
+
+        key = (
+            self.xsize % 2, self.ysize % 2
+        )
+
+        triangs1 = self.triangs_east_534(key)
+        triangs2 = self.triangs_east_354(key)
+
+        return np.vstack(
+            [triangs1, triangs2]
+        )
+
+    def triangs_east_534(self, key):
+
+        in3, in5, in4 = self.EAST_534_SLICES[key]
+
+        return _pack_cols(
+            self.nodes5[in5], self.nodes3[in3], self.nodes4[in4]
+        )
+
+    def triangs_east_354(self, key):
+
+        in3, in5, in4 = self.EAST_354_SLICES[key]
+
+        return _pack_cols(
+            self.nodes3[in3], self.nodes5[in5], self.nodes4[in4]
+        )
 
     def make_new_points(self):
 
         self.fetch_side_nodes()
 
-        data = self.mesh.points[self.nodes1] - 1.0
-        nums = np.arange(data.size) + self.nums_offset
-
         self.cache['new-points'] = {
+            'west': self.make_new_points_west(),
+            'east': self.make_new_points_east()
+        }
+
+    def make_new_points_west(self):
+
+        data = self.mesh.points[self.nodes1] - 1.0
+        bias = self.mesh.npoints
+
+        return {
             'data': data,
-            'nums': nums
+            'nums': np.arange(data.size) + bias
+        }
+
+    def make_new_points_east(self):
+
+        data = self.mesh.points[self.nodes3] + 1.0
+        bias = self.mesh.npoints + self.nodes1.size
+
+        return {
+            'data': data,
+            'nums': np.arange(data.size) + bias
         }
 
     def fetch_side_nodes(self):
 
-        nodes0 = np.arange(
-            (self.ysize // 2) + (self.ysize % 2)
+        nodes0, = np.where(
+            self.mesh.points.real == 0.0
         )
 
-        nodes1 = np.delete(
-            np.arange(self.ysize), nodes0
+        nodes1, = np.where(
+            self.mesh.points.real == 1.0
+        )
+
+        nodes3, = np.where(
+            self.mesh.points.real == self.xsize - 2
+        )
+
+        nodes4, = np.where(
+            self.mesh.points.real == self.xsize - 1
         )
 
         self.cache['side-nodes'] = {
             'nodes-0': nodes0,
-            'nodes-1': nodes1
+            'nodes-1': nodes1,
+            'nodes-3': nodes3,
+            'nodes-4': nodes4
         }
 
 

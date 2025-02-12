@@ -104,20 +104,18 @@
 
 <p><b>Properties</b></p>
 
-<p>Metadata on refinement:</p>
-
 <table>
     <tr>
         <th>Name</th>
         <th>Description</th>
     </tr>
     <tr>
-        <td><code>source_mesh</code></td>
-        <td>Previous-level mesh.</td>
+        <td><code>refiner</code></td>
+        <td>Data-refiner after refinement.</td>
     </tr>
     <tr>
-        <td><code>data_refiner</code></td>
-        <td>Callable refiner object.</td>
+        <td><code>collector</code></td>
+        <td>Data-collector after coarsening.</td>
     </tr>
 </table>
 
@@ -195,6 +193,14 @@
 <dl><dd>
   Unit with the coarsened mesh.
 </dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>
+<ul class="md-list">
+    <li>The <code>data-collector</code> is included in the mesh metadata.</li>
+</ul>
+</p>
 
 <div class="toc-anchor"></div><h3>find_node()</h3>
 
