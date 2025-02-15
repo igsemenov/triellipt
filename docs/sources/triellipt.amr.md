@@ -45,6 +45,12 @@ Mesh refinement unit.
   Current triangle mesh.
 </dd></dl>
 
+<p><span class="vardef"><code>data</code> : <em>dict</em></span></p>
+
+<dl><dd>
+  Data defined on the unit.
+</dd></dl>
+
 <b>Properties</b>
 
 Name        | Description

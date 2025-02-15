@@ -5,11 +5,11 @@ import numpy as np
 from triellipt.fem import (
     skeleton,
     ijstream,
-    vstream,
+    vstreams,
     femfactory,
-    femvector,
     femoprs,
     fempartt,
+    massinv_,
     trinterp
 )
 
@@ -44,7 +44,14 @@ class FEMData:
 
     @classmethod
     def from_mesh(cls, mesh, anchors=None):
-        return FEMUnitMaker().get_unit(mesh, anchors)
+
+        unit_data = FEMUnitMaker().get_unit_data(mesh, anchors)
+
+        unit = cls(
+            unit_data["mesh"], unit_data["meta"]
+        )
+
+        return unit.with_base_partition()
 
     @property
     def hasvoids(self):
@@ -91,6 +98,16 @@ class FEMData:
         """
         return self.mesh.meta['loops']
 
+    def with_base_partition(self):
+        """Adds the default partition to the unit.
+        """
+
+        self.cache['partitions'] = {
+            'base': fempartt.make_partt_base(self)
+        }
+
+        return self
+
 
 class FEMRoot(FEMData):
     """Root of the FEM unit.
@@ -121,18 +138,26 @@ class FEMRoot(FEMData):
         return self.femoprs['diff_2y'].data
 
     @property
+    def radius(self):
+        return self.mesh.centrs_complex.imag[self.ij_t]
+
+    @property
     def femoprs(self):
-        return self.meta['femmatrix']['v-stream']
+        return self.meta['v-streams']
 
     @property
     def ij_stream(self):
-        return self.meta['femmatrix']['ij-stream']
+        return self.meta['ij-stream']
 
     @property
     def ij_tuple(self):
         return (
             self.ij_stream.rownums, self.ij_stream.colnums
         )
+
+    @property
+    def ij_t(self):
+        return self.ij_stream.trinums
 
     @property
     def grad(self):
@@ -149,7 +174,55 @@ class FEMRoot(FEMData):
     def perm(self):
         """Nodes permutation in the mesh-to-unit transition.
         """
-        return self.meta['data-perm']
+        return self.meta['mesh2unit']
+
+    @property
+    def base(self):
+        return self.partts['base']
+
+    @property
+    def partts(self):
+        return self.cache['partitions']
+
+    def fem_factory(self, constr=True):
+        """Creates a factory of FEM matrices.
+
+        Parameters
+        ----------
+        constr : bool = True
+            If True, forces constraints to be included in the matrix.
+
+        Returns
+        -------
+        FEMFactory
+            Callable factory of FEM matrices.
+
+        """
+        return femfactory.FEMFactory.from_unit(self, constr)
+
+    @property
+    def factory_free(self):
+        """Factory with no constraints.
+        """
+
+        if 'factory-free' in self.cache:
+            return self.cache['factory-free']
+
+        _ = self.fem_factory(constr=False)
+        self.cache['factory-free'] = _
+        return self.factory_free
+
+    @property
+    def factory_full(self):
+        """Factory with constraints.
+        """
+
+        if 'factory-full' in self.cache:
+            return self.cache['factory-full']
+
+        _ = self.fem_factory(constr=True)
+        self.cache['factory-full'] = _
+        return self.factory_full
 
 
 class FEMUnit(FEMRoot):
@@ -161,7 +234,7 @@ class FEMUnit(FEMRoot):
     FEM operators as data-streams:
 
     Name        | Description
-    ------------|---------------------
+    ------------|----------------------
     `massmat`   | Mass-matrix
     `massdiag`  | Mass-matrix lumped
     `diff_1y`   | 1st-y derivative
@@ -169,46 +242,67 @@ class FEMUnit(FEMRoot):
     `diff_2y`   | 2nd-y derivative
     `diff_2x`   | 2nd-x derivative
 
-    FEM operators as FEM matrices:
-
-    Name           | Description
-    -------------- |----------------------------------------
-    `laplace_fem`  | Laplace operator
-    `massmat_fem`  | Mass-matrix (no constraints)
-    `massmat_amr`  | Mass-matrix (with constraints)
-    `massdiag_fem` | Mass-matrix lumped (no constraints)
-    `massdiag_amr` | Mass-matrix lumped (with constraints)
-
-    Others:
+    General properties:
 
     Name      | Description
-    ----------|----------------------------------
+    ----------|-----------------------------
     `grad`    | Gradient operator.
-    `perm`    | Mesh-to-unit nodes permutation.
+    `perm`    | Mesh-to-unit permutation.
+    `base`    | Base edge-core partition.
+    `partts`  | Map of unit partitions.
     `loops`   | List of the mesh loops.
 
     """
 
-    def fem_factory(self, add_constraints=True):
-        """Creates a factory of FEM matrices.
+    def get_partt(self, name):
+        """Fetches the unit partition.
 
         Parameters
         ----------
-        add_constraints : bool = True
-            If True, forces constraints to be included in the matrix.
+        name : str
+            Partition name.
 
         Returns
         -------
-        FEMFactory
-            Resulting factory of FEM matrices.
+        FEMPartt
+            Desired unit partition.
 
         """
-        return femfactory.FEMFactory.from_unit(self, add_constraints)
+        if name in self.partts:
+            return self.partts[name]
+        raise ValueError(
+            f"unit has no '{name}' partition"
+        )
 
-    def new_vector(self):
-        """Returns a new FEM vector.
+    def set_partt(self, partt) -> None:
+        """Assigns the partition to the unit.
+
+        Parameters
+        ----------
+        partt : FEMPartt
+            Input unit partition.
+
         """
-        return femvector.VectorFEM.from_unit(self)
+
+        if partt.unit is not self:
+            raise ValueError(
+                f"partition '{partt.name}' is from another unit"
+            )
+
+        self.cache['partitions'][partt.name] = partt
+
+    def add_partt(self, spec) -> None:
+        """Adds new partition to the unit.
+
+        Parameters
+        ----------
+        spec : dict
+            Partition specification.
+
+        """
+        self.set_partt(
+            fempartt.getpartt(self, spec)
+        )
 
     def getinterp(self, xnodes, ynodes):
         """Creates an interpolator on a mesh.
@@ -223,89 +317,81 @@ class FEMUnit(FEMRoot):
         Returns
         -------
         TriInterp
-            Interpolator object.
+            Callable interpolator.
 
         """
         return trinterp.getinterp(self, xnodes, ynodes)
 
-    def partition(self, loopnum, splitang, parttspec=None):
-        """Creates the FEM unit partition.
+    def massopr(self, lumped, constr, radial=False):
+        """Creates the mass operator.
 
         Parameters
         ----------
-        loopnum : int
-            Number of the mesh loop to partition.
-        splitang : float
-            Threshold angle for the loop splitting.
-        parttspec : list = None
-            List of `(edge1, edge2, operation)` triplets (a).
+        lumped : bool
+            Creates a lumped mass, if True.
+        constr : bool
+            Adds constraints, if True.
+        radial : bool = False
+            Adds the radial weight, if True.
 
         Returns
         -------
-        Partition
-            Partition object.
-
-        Notes
-        -----
-
-        (a) Color-operations on the edges:
-
-        - "l" — left-repainting
-        - "r" — right-repainting
-        - "s" — switching-of-colors
+        MatrixFEM
+            Mass operator as a matrix.
 
         """
-        return fempartt.getpartt(
-            self, loopnum, splitang, parttspec
+        if lumped is True:
+            return self.massopr_lumped(constr, radial)
+        return self.massopr_full(constr, radial)
+
+    def massopr_full(self, constr, radial):
+
+        matrix = self.base.new_matrix(
+            self.massfem_full(radial), constr=constr
         )
 
-    @property
-    def laplace_fem(self):
-        return self.fct1.feed_data(
-            self.diff_2x + self.diff_2y
+        matrix.meta['is-radial'] = radial
+        return matrix
+
+    def massopr_lumped(self, constr, radial):
+
+        matrix = self.base.new_matrix(
+            self.massfem_lumped(radial), constr=constr
         )
 
-    @property
-    def massmat_fem(self):
-        return self.fct0.feed_data(self.massmat)
+        matrix = matrix.with_no_zeros()
+        matrix.meta['is-radial'] = radial
 
-    @property
-    def massdiag_fem(self):
-        return self.fct0.feed_data(self.massdiag).with_no_zeros()
+        return matrix
 
-    @property
-    def massmat_amr(self):
-        return self.fct1.feed_data(self.massmat)
+    def massfem_full(self, radial):
+        if radial is False:
+            return self.massmat
+        return self.radius * self.massmat
 
-    @property
-    def massdiag_amr(self):
-        return self.fct1.feed_data(self.massdiag).with_no_zeros()
+    def massfem_lumped(self, radial):
+        if radial is False:
+            return self.massdiag
+        return self.radius * self.massdiag
 
-    @property
+    def massinv(self, radial=False):
+        """Creates the mass operator inverse (lumped and constrained only).
+
+        Parameters
+        ----------
+        radial : bool = False
+            Adds the radial weight, if True.
+
+        Returns
+        -------
+        MassDiagInv
+            Callable inverse operator.
+
+        """
+        return massinv_.getmassinv(self, radial)
+
     def constrproj(self):
         return femfactory.get_constr_proj(self)
-
-    @property
-    def fct0(self):
-        """Factory with no constraints.
-        """
-
-        if 'fct0' in self.cache:
-            return self.cache['fct0']
-
-        self.cache['fct0'] = self.fem_factory(0)
-        return self.fct0
-
-    @property
-    def fct1(self):
-        """Factory with constraints.
-        """
-
-        if 'fct1' in self.cache:
-            return self.cache['fct1']
-
-        self.cache['fct1'] = self.fem_factory(1)
-        return self.fct1
 
 
 class FEMUnitMaker:
@@ -315,11 +401,11 @@ class FEMUnitMaker:
     def __init__(self):
         self.cache = {}
 
-    def get_unit(self, mesh, anchors=None):
+    def get_unit_data(self, mesh, anchors=None):
 
         _ = self.make_mesh_aligned(mesh, anchors)
         _ = self.make_skeleton()
-        _ = self.make_unit()
+        _ = self.make_data()
 
         return _
 
@@ -348,18 +434,22 @@ class FEMUnitMaker:
         self.cache['skel'] = skel
         return skel
 
-    def make_unit(self):
+    def make_data(self):
 
         mesh = self.make_unit_mesh()
         ij_v = self.make_ij_v_data()
         perm = self.make_data_perm()
 
         meta = {
-            'femmatrix': ij_v,
-            'data-perm': perm
+            'ij-stream': ij_v['ij-stream'],
+            'v-streams': ij_v['v-streams'],
+            'mesh2unit': perm
         }
 
-        return FEMUnit(mesh, meta)
+        return {
+            "mesh": mesh,
+            "meta": meta
+        }
 
     def make_unit_mesh(self):
 
@@ -380,7 +470,7 @@ class FEMUnitMaker:
 
         return {
             'ij-stream': ijstream.getstream(skel),
-            'v-stream': vstream.getstream(skel)
+            'v-streams': vstreams.getstreams(skel)
         }
 
     def make_data_perm(self):
@@ -396,7 +486,7 @@ class FEMUnitMaker:
 
         meta = {
             'perm': perm,
-            'perm-inv':  np.argsort(perm)
+            'perm-inv': np.argsort(perm)
         }
 
         return DataPermuter(mesh0, meta)

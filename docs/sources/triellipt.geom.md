@@ -501,15 +501,15 @@ Provides rotation angles of edges.
   Rotation angles of edges at each node.
 </dd></dl>
 
-### split()
+### dissect()
 
-<pre class="py-sign">CycPath.<b>split</b>(<em>self</em>, threshold_angle)</pre>
+<pre class="py-sign">CycPath.<b>dissect</b>(<em>self</em>, angle)</pre>
 
 Splits the cycle based on rotation angle.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>threshold_angle</code> : <em>float</em></span></p>
+<p><span class="vardef"><code>angle</code> : <em>float</em></span></p>
 
 <dl><dd>
   Threshold angle for a node to become a corner.
@@ -520,5 +520,27 @@ Splits the cycle based on rotation angle.
 <p><span class="vardef"><em>PathMap</em></span></p>
 
 <dl><dd>
-  Resulting partition of a cycle.
+  Partition of a cycle.
+</dd></dl>
+
+### split()
+
+<pre class="py-sign">CycPath.<b>split</b>(<em>self</em>, bins)</pre>
+
+Splits the cycle based on bins.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>bins</code> : <em>flat-int-array-like</em></span></p>
+
+<dl><dd>
+  Seed values of splitting bins.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>PathMap</em></span></p>
+
+<dl><dd>
+  Partition of a cycle.
 </dd></dl>

@@ -37,35 +37,31 @@
                         <li><a href="#getunit">getunit()</a></li>
                         <li><a href="#femunit">FEMUnit</a>
                             <ul>
-                                <li><a href="#fem_factory">fem_factory()</a></li>
-                                <li><a href="#new_vector">new_vector()</a></li>
+                                <li><a href="#get_partt">get_partt()</a></li>
+                                <li><a href="#set_partt">set_partt()</a></li>
+                                <li><a href="#add_partt">add_partt()</a></li>
                                 <li><a href="#getinterp">getinterp()</a></li>
-                                <li><a href="#partition">partition()</a></li>
+                                <li><a href="#massopr">massopr()</a></li>
+                                <li><a href="#massinv">massinv()</a></li>
                             </ul>
                         </li>
-                        <li><a href="#femfactory">FEMFactory</a>
+                        <li><a href="#fempartt">FEMPartt</a>
                             <ul>
-                                <li><a href="#feed_data">feed_data()</a></li>
+                                <li><a href="#new_vector">new_vector()</a></li>
+                                <li><a href="#new_matrix">new_matrix()</a></li>
                             </ul>
                         </li>
                         <li><a href="#matrixfem">MatrixFEM</a>
                             <ul>
-                                <li><a href="#with_name">with_name()</a></li>
-                                <li><a href="#dirichsplit">dirichsplit()</a></li>
-                                <li><a href="#partitioned">partitioned()</a></li>
                                 <li><a href="#getblock">getblock()</a></li>
                             </ul>
                         </li>
                         <li><a href="#vectorfem">VectorFEM</a>
                             <ul>
-                                <li><a href="#with_name-1">with_name()</a></li>
                                 <li><a href="#with_body">with_body()</a></li>
                                 <li><a href="#from_func">from_func()</a></li>
-                                <li><a href="#dirichsplit-1">dirichsplit()</a></li>
-                                <li><a href="#partitioned-1">partitioned()</a></li>
-                                <li><a href="#getsect">getsect()</a></li>
-                                <li><a href="#setsect">setsect()</a></li>
-                                <li><a href="#sectxy">sectxy()</a></li>
+                                <li><a href="#getsection">getsection()</a></li>
+                                <li><a href="#setsection">setsection()</a></li>
                             </ul>
                         </li>
                         <li><a href="#mesh_metric">mesh_metric()</a></li>
@@ -156,36 +152,7 @@
     </tr>
 </table>
 
-<p>FEM operators as FEM matrices:</p>
-
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td><code>laplace_fem</code></td>
-        <td>Laplace operator</td>
-    </tr>
-    <tr>
-        <td><code>massmat_fem</code></td>
-        <td>Mass-matrix (no constraints)</td>
-    </tr>
-    <tr>
-        <td><code>massmat_amr</code></td>
-        <td>Mass-matrix (with constraints)</td>
-    </tr>
-    <tr>
-        <td><code>massdiag_fem</code></td>
-        <td>Mass-matrix lumped (no constraints)</td>
-    </tr>
-    <tr>
-        <td><code>massdiag_amr</code></td>
-        <td>Mass-matrix lumped (with constraints)</td>
-    </tr>
-</table>
-
-<p>Others:</p>
+<p>General properties:</p>
 
 <table>
     <tr>
@@ -198,7 +165,15 @@
     </tr>
     <tr>
         <td><code>perm</code></td>
-        <td>Mesh-to-unit nodes permutation.</td>
+        <td>Mesh-to-unit permutation.</td>
+    </tr>
+    <tr>
+        <td><code>base</code></td>
+        <td>Base edge-core partition.</td>
+    </tr>
+    <tr>
+        <td><code>partts</code></td>
+        <td>Map of unit partitions.</td>
     </tr>
     <tr>
         <td><code>loops</code></td>
@@ -206,33 +181,55 @@
     </tr>
 </table>
 
-<div class="toc-anchor"></div><h3>fem_factory()</h3>
+<div class="toc-anchor"></div><h3>get_partt()</h3>
 
-<pre class="py-sign">FEMUnit.<b>fem_factory</b>(<em>self</em>, add_constraints=<span>True</span>)</pre>
+<pre class="py-sign">FEMUnit.<b>get_partt</b>(<em>self</em>, name)</pre>
 
-<p>Creates a factory of FEM matrices.</p>
+<p>Fetches the unit partition.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>add_constraints</code> : <em>bool = True</em></span></p>
+<p><span class="vardef"><code>name</code> : <em>str</em></span></p>
 
 <dl><dd>
-  If <i>True</i>, forces constraints to be included in the matrix.
+  Partition name.
 </dd></dl>
 
 <p><b>Returns</b></p>
 
-<p><span class="vardef"><em>FEMFactory</em></span></p>
+<p><span class="vardef"><em>FEMPartt</em></span></p>
 
 <dl><dd>
-  Resulting factory of FEM matrices.
+  Desired unit partition.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>new_vector()</h3>
+<div class="toc-anchor"></div><h3>set_partt()</h3>
 
-<pre class="py-sign">FEMUnit.<b>new_vector</b>(<em>self</em>)</pre>
+<pre class="py-sign">FEMUnit.<b>set_partt</b>(<em>self</em>, partt) → <em>None</em></pre>
 
-<p>Returns a new FEM vector.</p>
+<p>Assigns the partition to the unit.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>partt</code> : <em>FEMPartt</em></span></p>
+
+<dl><dd>
+  Input unit partition.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>add_partt()</h3>
+
+<pre class="py-sign">FEMUnit.<b>add_partt</b>(<em>self</em>, spec) → <em>None</em></pre>
+
+<p>Adds new partition to the unit.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>spec</code> : <em>dict</em></span></p>
+
+<dl><dd>
+  Partition specification.
+</dd></dl>
 
 <div class="toc-anchor"></div><h3>getinterp()</h3>
 
@@ -259,93 +256,105 @@
 <p><span class="vardef"><em>TriInterp</em></span></p>
 
 <dl><dd>
-  Interpolator object.
+  Callable interpolator.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>partition()</h3>
+<div class="toc-anchor"></div><h3>massopr()</h3>
 
-<pre class="py-sign">FEMUnit.<b>partition</b>(<em>self</em>, loopnum, splitang, parttspec=<span>None</span>)</pre>
+<pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, lumped, constr, radial=<span>False</span>)</pre>
 
-<p>Creates the FEM unit partition.</p>
+<p>Creates the mass operator.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>loopnum</code> : <em>int</em></span></p>
+<p><span class="vardef"><code>lumped</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Number of the mesh loop to partition.
+  Creates a lumped mass, if <i>True</i>.
 </dd></dl>
 
-<p><span class="vardef"><code>splitang</code> : <em>float</em></span></p>
+<p><span class="vardef"><code>constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Threshold angle for the loop splitting.
+  Adds constraints, if <i>True</i>.
 </dd></dl>
 
-<p><span class="vardef"><code>parttspec</code> : <em>list = None</em></span></p>
+<p><span class="vardef"><code>radial</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
-  List of <code>(edge1, edge2, operation)</code> triplets (a).
+  Adds the radial weight, if <i>True</i>.
 </dd></dl>
 
 <p><b>Returns</b></p>
 
-<p><span class="vardef"><em>Partition</em></span></p>
+<p><span class="vardef"><em>MatrixFEM</em></span></p>
 
 <dl><dd>
-  Partition object.
+  Mass operator as a matrix.
 </dd></dl>
 
-<p><b>Notes</b></p>
+<div class="toc-anchor"></div><h3>massinv()</h3>
 
-<p>(a) Color-operations on the edges:</p>
+<pre class="py-sign">FEMUnit.<b>massinv</b>(<em>self</em>, radial=<span>False</span>)</pre>
 
-<p>
-<ul class="md-list">
-    <li><mark>&quot;l&quot;</mark> — left-repainting</li>
-    <li><mark>&quot;r&quot;</mark> — right-repainting</li>
-    <li><mark>&quot;s&quot;</mark> — switching-of-colors</li>
-</ul>
-</p>
+<p>Creates the mass operator inverse (lumped and constrained only).</p>
 
-<div class="toc-anchor"></div><h2>FEMFactory</h2>
+<p><b>Parameters</b></p>
 
-<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMFactory</b>(unit=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
-
-<p>Factory of FEM matrices.</p>
-
-<p><b>Attributes</b></p>
-
-<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+<p><span class="vardef"><code>radial</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
-  Parent mesh.
+  Adds the radial weight, if <i>True</i>.
 </dd></dl>
 
-<p><span class="vardef"><code>body</code> : <em>sparse-matrix</em></span></p>
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>MassDiagInv</em></span></p>
 
 <dl><dd>
-  FEM-matrix pattern.
+  Callable inverse operator.
 </dd></dl>
 
-<p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
+<div class="toc-anchor"></div><h2>FEMPartt</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMPartt</b>(unit=<span>None</span>, edge=<span>None</span>, meta=<span>None</span>)</pre>
+
+<p>FEM unit partition.</p>
+
+<div class="toc-anchor"></div><h3>new_vector()</h3>
+
+<pre class="py-sign">FEMPartt.<b>new_vector</b>(<em>self</em>, data=<span>None</span>)</pre>
+
+<p>Creates a new FEM vector.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>data</code> : <em>scalar | flat-array</em></span></p>
 
 <dl><dd>
-  Factory metadata.
+  Vector initialization data (optional).
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>feed_data()</h3>
+<p><b>Returns</b></p>
 
-<pre class="py-sign">FEMFactory.<b>feed_data</b>(<em>self</em>, data)</pre>
+<div class="toc-anchor"></div><h3>new_matrix()</h3>
 
-<p>Transmits data to the FEM matrix.</p>
+<pre class="py-sign">FEMPartt.<b>new_matrix</b>(<em>self</em>, data, constr)</pre>
+
+<p>Creates a new FEM matrix.</p>
 
 <p><b>Parameters</b></p>
 
 <p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Combination of local FEM operators (a).
+  Combination of local FEM operators.
+</dd></dl>
+
+<p><span class="vardef"><code>constr</code> : <em>bool</em></span></p>
+
+<dl><dd>
+  Constraints are included, if <i>True</i>.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -356,92 +365,27 @@
   Resulting FEM matrix.
 </dd></dl>
 
-<p><b>Notes</b></p>
-
-<p>(a) Data stream compatible with ij-stream of the FEM unit.</p>
-
 <div class="toc-anchor"></div><h2>MatrixFEM</h2>
 
-<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>MatrixFEM</b>(unit=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>MatrixFEM</b>(partt=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
 
 <p>Global FEM matrix.</p>
 
-<div class="toc-anchor"></div><h3>with_name()</h3>
-
-<pre class="py-sign">MatrixFEM.<b>with_name</b>(<em>self</em>, name)</pre>
-
-<p>Prescribes the matrix name.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>name</code> : <em>str</em></span></p>
-
-<dl><dd>
-  Name of the matrix.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>MatrixFEM</em></span></p>
-
-<dl><dd>
-  Copy of the matrix with the new name.
-</dd></dl>
-
-<div class="toc-anchor"></div><h3>dirichsplit()</h3>
-
-<pre class="py-sign">MatrixFEM.<b>dirichsplit</b>(<em>self</em>)</pre>
-
-<p>Creates a Dirichlet (core-edge) partition.</p>
-
-<div class="toc-anchor"></div><h3>partitioned()</h3>
-
-<pre class="py-sign">MatrixFEM.<b>partitioned</b>(<em>self</em>, meta)</pre>
-
-<p>Creates a partitioned matrix.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
-
-<dl><dd>
-  Partition meta-data (a).
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>MatrixFEM</em></span></p>
-
-<dl><dd>
-  Copy of the matrix with the partition defined.
-</dd></dl>
-
-<p><b>Notes</b></p>
-
-<p>(a) Partition meta:</p>
-
-<p>
-<ul class="md-list">
-    <li>Keys are section IDs.</li>
-    <li>Values are section indices.</li>
-</ul>
-</p>
-
 <div class="toc-anchor"></div><h3>getblock()</h3>
 
-<pre class="py-sign">MatrixFEM.<b>getblock</b>(<em>self</em>, row_key, col_key)</pre>
+<pre class="py-sign">MatrixFEM.<b>getblock</b>(<em>self</em>, row_id, col_id)</pre>
 
-<p>Extracts a block from a partitioned matrix.</p>
+<p>Extracts a block of a matrix.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>row_key</code> : <em>str-or-int</em></span></p>
+<p><span class="vardef"><code>row_id</code> : <em>int</em></span></p>
 
 <dl><dd>
   ID of the vertical section.
 </dd></dl>
 
-<p><span class="vardef"><code>col_key</code> : <em>str-or-int</em></span></p>
+<p><span class="vardef"><code>col_id</code> : <em>int</em></span></p>
 
 <dl><dd>
   ID of the horizontal section.
@@ -452,36 +396,14 @@
 <p><span class="vardef"><em>csc-matrix</em></span></p>
 
 <dl><dd>
-  Block of a partitioned matrix.
+  Matrix bock in CSC format.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>VectorFEM</h2>
 
-<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>VectorFEM</b>(unit=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>VectorFEM</b>(partt=<span>None</span>, body=<span>None</span>)</pre>
 
 <p>FEM vector.</p>
-
-<div class="toc-anchor"></div><h3>with_name()</h3>
-
-<pre class="py-sign">VectorFEM.<b>with_name</b>(<em>self</em>, name)</pre>
-
-<p>Prescribes the vector name.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>name</code> : <em>str</em></span></p>
-
-<dl><dd>
-  Name of the vector.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>VectorFEM</em></span></p>
-
-<dl><dd>
-  Copy of the vector with the new name.
-</dd></dl>
 
 <div class="toc-anchor"></div><h3>with_body()</h3>
 
@@ -509,14 +431,14 @@
 
 <pre class="py-sign">VectorFEM.<b>from_func</b>(<em>self</em>, func)</pre>
 
-<p>Defines the vector body from a function.</p>
+<p>Defines the vector via a function on the mesh nodes.</p>
 
 <p><b>Parameters</b></p>
 
 <p><span class="vardef"><code>func</code> : <em>Callable</em></span></p>
 
 <dl><dd>
-  Function with <code>(x, y)</code> call that returns the vector body.
+  Function <code>(x, y)</code> that returns the vector body.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -527,55 +449,15 @@
   Copy of the vector with the body updated.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>dirichsplit()</h3>
+<div class="toc-anchor"></div><h3>getsection()</h3>
 
-<pre class="py-sign">VectorFEM.<b>dirichsplit</b>(<em>self</em>)</pre>
-
-<p>Creates a Dirichlet (edge-core) partition.</p>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>VectorFEM</em></span></p>
-
-<dl><dd>
-  Copy of the vector with the partition defined.
-</dd></dl>
-
-<div class="toc-anchor"></div><h3>partitioned()</h3>
-
-<pre class="py-sign">VectorFEM.<b>partitioned</b>(<em>self</em>, meta)</pre>
-
-<p>Creates a partitioned vector.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
-
-<dl><dd>
-  Partition meta data (a).
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>VectorFEM</em></span></p>
-
-<dl><dd>
-  Copy of the vector with the partition defined.
-</dd></dl>
-
-<p><b>Notes</b></p>
-
-<p>(a) Same as for the FEM matrix.</p>
-
-<div class="toc-anchor"></div><h3>getsect()</h3>
-
-<pre class="py-sign">VectorFEM.<b>getsect</b>(<em>self</em>, key)</pre>
+<pre class="py-sign">VectorFEM.<b>getsection</b>(<em>self</em>, sec_id)</pre>
 
 <p>Returns a copy of the vector section.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
+<p><span class="vardef"><code>sec_id</code> : <em>int</em></span></p>
 
 <dl><dd>
   ID of the vector section.
@@ -589,15 +471,15 @@
   Copy of the vector section.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>setsect()</h3>
+<div class="toc-anchor"></div><h3>setsection()</h3>
 
-<pre class="py-sign">VectorFEM.<b>setsect</b>(<em>self</em>, key, data)</pre>
+<pre class="py-sign">VectorFEM.<b>setsection</b>(<em>self</em>, sec_id, data) → <em>None</em></pre>
 
 <p>Defines the vector section.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
+<p><span class="vardef"><code>sec_id</code> : <em>int</em></span></p>
 
 <dl><dd>
   ID of the vector section.
@@ -607,28 +489,6 @@
 
 <dl><dd>
   Data that defines the vector section.
-</dd></dl>
-
-<div class="toc-anchor"></div><h3>sectxy()</h3>
-
-<pre class="py-sign">VectorFEM.<b>sectxy</b>(<em>self</em>, key)</pre>
-
-<p>Returns xy-coordinates of the vector section.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
-
-<dl><dd>
-  ID of the vector section.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>two-row-float-array</em></span></p>
-
-<dl><dd>
-  xy-coordinates of the vector section.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>mesh_metric()</h2>

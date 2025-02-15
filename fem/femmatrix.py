@@ -1,77 +1,48 @@
 # -*- coding: utf-8 -*-
 """FEM matrix object.
 """
-import numpy as np
 
 
-def getmatrix(unit, body, meta):
+def getmatrix(partt, body, meta):
     """Creates a FEM matrix.
     """
-    return MatrixFEM.from_attrs(unit, body, meta)
+    return MatrixFEM.from_data(partt, body, meta)
 
 
 class MatrixData:
     """Root of the FEM matrix.
     """
 
-    def __init__(self, unit=None, body=None, meta=None):
-        self.unit = unit
+    def __init__(self, partt=None, body=None, meta=None):
+        self.partt = partt
         self.body = body
         self.meta = meta
 
     @classmethod
-    def from_attrs(cls, unit, body, meta):
+    def from_data(cls, unit, body, meta):
         return cls(unit, body, meta)
+
+    @property
+    def unit(self):
+        return self.partt.unit
 
     @property
     def shape(self):
         return self.body.shape
 
     @property
-    def name(self):
-        if self.is_named:
-            return self.meta['name']
-        return str(id(self))
+    def has_constraints(self):
+        return self.meta['has-constraints']
 
-    @property
-    def is_named(self):
-        return 'name' in self.meta
+    def get_block_indexer(self, row_id, col_id):
 
-    @property
-    def haspartition(self):
-        return 'partition' in self.meta
-
-    @property
-    def with_constraints(self):
-        return self.meta['with-constraints']
-
-    def update_meta(self, new_meta):
-        return self.__class__(
-            self.unit, self.body_copy, new_meta
-        )
-
-    def get_block_indexer(self, row_key, col_key):
-
-        row_indexer = self.get_section_indexer(row_key)
-        col_indexer = self.get_section_indexer(col_key)
+        row_indexer = self.get_section_indexer(row_id)
+        col_indexer = self.get_section_indexer(col_id)
 
         return row_indexer, col_indexer
 
     def get_section_indexer(self, key):
-
-        if not self.haspartition:
-            raise MatrixFEMError(
-                f"matrix '{self.name}' has not partition"
-            )
-
-        indexer = self.meta['partition'].get(key)
-
-        if indexer is None:
-            raise MatrixFEMError(
-                f"no section '{key}' in matrix '{self.name}'"
-            )
-
-        return indexer
+        return self.partt[key]
 
     def with_no_zeros(self):
         self.body.eliminate_zeros()
@@ -96,90 +67,26 @@ class MatrixFEM(MatrixData):
         return self.getblock(row_key, col_key)
 
     def __matmul__(self, vect):
-        """Multiplication by a FEM vector only.
-        """
-        return vect.update_body(
-            self.body @ vect.body
-        )
+        return vect.update_body(self.body @ vect.body)
 
-    def with_name(self, name):
-        """Prescribes the matrix name.
+    def getblock(self, row_id, col_id):
+        """Extracts a block of a matrix.
 
         Parameters
         ----------
-        name : str
-            Name of the matrix.
-
-        Returns
-        -------
-        MatrixFEM
-            Copy of the matrix with the new name.
-
-        """
-        return self.add_meta({'name': name})
-
-    def dirichsplit(self):
-        """Creates a Dirichlet (core-edge) partition.
-        """
-        return self.partitioned(
-            meta_edge_core(self.unit)
-        )
-
-    def partitioned(self, meta):
-        """Creates a partitioned matrix.
-
-        Parameters
-        ----------
-        meta : dict
-            Partition meta-data (a).
-
-        Returns
-        -------
-        MatrixFEM
-            Copy of the matrix with the partition defined.
-
-        Notes
-        -----
-
-        (a) Partition meta:
-
-        - Keys are section IDs.
-        - Values are section indices.
-
-        """
-
-        if not isinstance(meta, dict):
-            raise ValueError(
-                f"expected meta as dict, got '{type(meta)}'"
-            )
-
-        new_meta = {
-            'partition': meta
-        }
-
-        return self.add_meta(new_meta)
-
-    def add_meta(self, meta):
-        return self.update_meta(self.meta | meta)
-
-    def getblock(self, row_key, col_key):
-        """Extracts a block from a partitioned matrix.
-
-        Parameters
-        ----------
-        row_key : str-or-int
+        row_id : int
             ID of the vertical section.
-        col_key : str-or-int
+        col_id : int
             ID of the horizontal section.
 
         Returns
         -------
         csc-matrix
-            Block of a partitioned matrix.
+            Matrix bock in CSC format.
 
         """
 
-        rows, cols = self.get_block_indexer(row_key, col_key)
+        rows, cols = self.get_block_indexer(row_id, col_id)
         blockascsc = self.get_block_as_csc(rows, cols)
 
         return blockascsc
@@ -192,26 +99,3 @@ class MatrixFEM(MatrixData):
         block = panel[:, cols]
 
         return block
-
-
-MatrixFEMError = type(
-    'MatrixFEMError', (Exception,), {}
-)
-
-
-def meta_edge_core(unit):
-    """Dirichlet partition meta data for a FEM unit.
-    """
-
-    mesh_count = unit.mesh_count
-    edge_count = unit.edge_count
-
-    mesh_range = np.arange(mesh_count)
-
-    edge_range = mesh_range[:edge_count]
-    core_range = mesh_range[edge_count:]
-
-    return {
-        'edge': edge_range,
-        'core': core_range
-    }

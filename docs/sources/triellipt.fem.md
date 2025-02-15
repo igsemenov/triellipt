@@ -48,7 +48,7 @@ FEM computing unit.
 FEM operators as data-streams:
 
 Name        | Description
-------------|---------------------
+------------|----------------------
 `massmat`   | Mass-matrix
 `massdiag`  | Mass-matrix lumped
 `diff_1y`   | 1st-y derivative
@@ -56,51 +56,65 @@ Name        | Description
 `diff_2y`   | 2nd-y derivative
 `diff_2x`   | 2nd-x derivative
 
-FEM operators as FEM matrices:
-
-Name           | Description
--------------- |----------------------------------------
-`laplace_fem`  | Laplace operator
-`massmat_fem`  | Mass-matrix (no constraints)
-`massmat_amr`  | Mass-matrix (with constraints)
-`massdiag_fem` | Mass-matrix lumped (no constraints)
-`massdiag_amr` | Mass-matrix lumped (with constraints)
-
-Others:
+General properties:
 
 Name      | Description
-----------|----------------------------------
+----------|-----------------------------
 `grad`    | Gradient operator.
-`perm`    | Mesh-to-unit nodes permutation.
+`perm`    | Mesh-to-unit permutation.
+`base`    | Base edge-core partition.
+`partts`  | Map of unit partitions.
 `loops`   | List of the mesh loops.
 
-### fem_factory()
+### get_partt()
 
-<pre class="py-sign">FEMUnit.<b>fem_factory</b>(<em>self</em>, add_constraints=<span>True</span>)</pre>
+<pre class="py-sign">FEMUnit.<b>get_partt</b>(<em>self</em>, name)</pre>
 
-Creates a factory of FEM matrices.
+Fetches the unit partition.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>add_constraints</code> : <em>bool = True</em></span></p>
+<p><span class="vardef"><code>name</code> : <em>str</em></span></p>
 
 <dl><dd>
-  If <i>True</i>, forces constraints to be included in the matrix.
+  Partition name.
 </dd></dl>
 
 <b>Returns</b>
 
-<p><span class="vardef"><em>FEMFactory</em></span></p>
+<p><span class="vardef"><em>FEMPartt</em></span></p>
 
 <dl><dd>
-  Resulting factory of FEM matrices.
+  Desired unit partition.
 </dd></dl>
 
-### new_vector()
+### set_partt()
 
-<pre class="py-sign">FEMUnit.<b>new_vector</b>(<em>self</em>)</pre>
+<pre class="py-sign">FEMUnit.<b>set_partt</b>(<em>self</em>, partt) → <em>None</em></pre>
 
-Returns a new FEM vector.
+Assigns the partition to the unit.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>partt</code> : <em>FEMPartt</em></span></p>
+
+<dl><dd>
+  Input unit partition.
+</dd></dl>
+
+### add_partt()
+
+<pre class="py-sign">FEMUnit.<b>add_partt</b>(<em>self</em>, spec) → <em>None</em></pre>
+
+Adds new partition to the unit.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>spec</code> : <em>dict</em></span></p>
+
+<dl><dd>
+  Partition specification.
+</dd></dl>
 
 ### getinterp()
 
@@ -127,89 +141,105 @@ Creates an interpolator on a mesh.
 <p><span class="vardef"><em>TriInterp</em></span></p>
 
 <dl><dd>
-  Interpolator object.
+  Callable interpolator.
 </dd></dl>
 
-### partition()
+### massopr()
 
-<pre class="py-sign">FEMUnit.<b>partition</b>(<em>self</em>, loopnum, splitang, parttspec=<span>None</span>)</pre>
+<pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, lumped, constr, radial=<span>False</span>)</pre>
 
-Creates the FEM unit partition.
+Creates the mass operator.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>loopnum</code> : <em>int</em></span></p>
+<p><span class="vardef"><code>lumped</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Number of the mesh loop to partition.
+  Creates a lumped mass, if <i>True</i>.
 </dd></dl>
 
-<p><span class="vardef"><code>splitang</code> : <em>float</em></span></p>
+<p><span class="vardef"><code>constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Threshold angle for the loop splitting.
+  Adds constraints, if <i>True</i>.
 </dd></dl>
 
-<p><span class="vardef"><code>parttspec</code> : <em>list = None</em></span></p>
+<p><span class="vardef"><code>radial</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
-  List of <code>(edge1, edge2, operation)</code> triplets (a).
+  Adds the radial weight, if <i>True</i>.
 </dd></dl>
 
 <b>Returns</b>
 
-<p><span class="vardef"><em>Partition</em></span></p>
+<p><span class="vardef"><em>MatrixFEM</em></span></p>
 
 <dl><dd>
-  Partition object.
+  Mass operator as a matrix.
 </dd></dl>
 
-<b>Notes</b>
+### massinv()
 
-(a) Color-operations on the edges:
+<pre class="py-sign">FEMUnit.<b>massinv</b>(<em>self</em>, radial=<span>False</span>)</pre>
 
-- "l" — left-repainting
-- "r" — right-repainting
-- "s" — switching-of-colors
+Creates the mass operator inverse (lumped and constrained only).
 
-## FEMFactory
+<b>Parameters</b>
 
-<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMFactory</b>(unit=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
-
-Factory of FEM matrices.
-
-<b>Attributes</b>
-
-<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+<p><span class="vardef"><code>radial</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
-  Parent mesh.
+  Adds the radial weight, if <i>True</i>.
 </dd></dl>
 
-<p><span class="vardef"><code>body</code> : <em>sparse-matrix</em></span></p>
+<b>Returns</b>
+
+<p><span class="vardef"><em>MassDiagInv</em></span></p>
 
 <dl><dd>
-  FEM-matrix pattern.
+  Callable inverse operator.
 </dd></dl>
 
-<p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
+## FEMPartt
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMPartt</b>(unit=<span>None</span>, edge=<span>None</span>, meta=<span>None</span>)</pre>
+
+FEM unit partition.
+
+### new_vector()
+
+<pre class="py-sign">FEMPartt.<b>new_vector</b>(<em>self</em>, data=<span>None</span>)</pre>
+
+Creates a new FEM vector.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>data</code> : <em>scalar | flat-array</em></span></p>
 
 <dl><dd>
-  Factory metadata.
+  Vector initialization data (optional).
 </dd></dl>
 
-### feed_data()
+<b>Returns</b>
 
-<pre class="py-sign">FEMFactory.<b>feed_data</b>(<em>self</em>, data)</pre>
+### new_matrix()
 
-Transmits data to the FEM matrix.
+<pre class="py-sign">FEMPartt.<b>new_matrix</b>(<em>self</em>, data, constr)</pre>
+
+Creates a new FEM matrix.
 
 <b>Parameters</b>
 
 <p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Combination of local FEM operators (a).
+  Combination of local FEM operators.
+</dd></dl>
+
+<p><span class="vardef"><code>constr</code> : <em>bool</em></span></p>
+
+<dl><dd>
+  Constraints are included, if <i>True</i>.
 </dd></dl>
 
 <b>Returns</b>
@@ -220,88 +250,27 @@ Transmits data to the FEM matrix.
   Resulting FEM matrix.
 </dd></dl>
 
-<b>Notes</b>
-
-(a) Data stream compatible with ij-stream of the FEM unit.
-
 ## MatrixFEM
 
-<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>MatrixFEM</b>(unit=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>MatrixFEM</b>(partt=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
 
 Global FEM matrix.
 
-### with_name()
-
-<pre class="py-sign">MatrixFEM.<b>with_name</b>(<em>self</em>, name)</pre>
-
-Prescribes the matrix name.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>name</code> : <em>str</em></span></p>
-
-<dl><dd>
-  Name of the matrix.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>MatrixFEM</em></span></p>
-
-<dl><dd>
-  Copy of the matrix with the new name.
-</dd></dl>
-
-### dirichsplit()
-
-<pre class="py-sign">MatrixFEM.<b>dirichsplit</b>(<em>self</em>)</pre>
-
-Creates a Dirichlet (core-edge) partition.
-
-### partitioned()
-
-<pre class="py-sign">MatrixFEM.<b>partitioned</b>(<em>self</em>, meta)</pre>
-
-Creates a partitioned matrix.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
-
-<dl><dd>
-  Partition meta-data (a).
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>MatrixFEM</em></span></p>
-
-<dl><dd>
-  Copy of the matrix with the partition defined.
-</dd></dl>
-
-<b>Notes</b>
-
-(a) Partition meta:
-
-- Keys are section IDs.
-- Values are section indices.
-
 ### getblock()
 
-<pre class="py-sign">MatrixFEM.<b>getblock</b>(<em>self</em>, row_key, col_key)</pre>
+<pre class="py-sign">MatrixFEM.<b>getblock</b>(<em>self</em>, row_id, col_id)</pre>
 
-Extracts a block from a partitioned matrix.
+Extracts a block of a matrix.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>row_key</code> : <em>str-or-int</em></span></p>
+<p><span class="vardef"><code>row_id</code> : <em>int</em></span></p>
 
 <dl><dd>
   ID of the vertical section.
 </dd></dl>
 
-<p><span class="vardef"><code>col_key</code> : <em>str-or-int</em></span></p>
+<p><span class="vardef"><code>col_id</code> : <em>int</em></span></p>
 
 <dl><dd>
   ID of the horizontal section.
@@ -312,36 +281,14 @@ Extracts a block from a partitioned matrix.
 <p><span class="vardef"><em>csc-matrix</em></span></p>
 
 <dl><dd>
-  Block of a partitioned matrix.
+  Matrix bock in CSC format.
 </dd></dl>
 
 ## VectorFEM
 
-<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>VectorFEM</b>(unit=<span>None</span>, body=<span>None</span>, meta=<span>None</span>)</pre>
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>VectorFEM</b>(partt=<span>None</span>, body=<span>None</span>)</pre>
 
 FEM vector.
-
-### with_name()
-
-<pre class="py-sign">VectorFEM.<b>with_name</b>(<em>self</em>, name)</pre>
-
-Prescribes the vector name.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>name</code> : <em>str</em></span></p>
-
-<dl><dd>
-  Name of the vector.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>VectorFEM</em></span></p>
-
-<dl><dd>
-  Copy of the vector with the new name.
-</dd></dl>
 
 ### with_body()
 
@@ -369,14 +316,14 @@ Defines the vector body.
 
 <pre class="py-sign">VectorFEM.<b>from_func</b>(<em>self</em>, func)</pre>
 
-Defines the vector body from a function.
+Defines the vector via a function on the mesh nodes.
 
 <b>Parameters</b>
 
 <p><span class="vardef"><code>func</code> : <em>Callable</em></span></p>
 
 <dl><dd>
-  Function with <code>(x, y)</code> call that returns the vector body.
+  Function <code>(x, y)</code> that returns the vector body.
 </dd></dl>
 
 <b>Returns</b>
@@ -387,55 +334,15 @@ Defines the vector body from a function.
   Copy of the vector with the body updated.
 </dd></dl>
 
-### dirichsplit()
+### getsection()
 
-<pre class="py-sign">VectorFEM.<b>dirichsplit</b>(<em>self</em>)</pre>
-
-Creates a Dirichlet (edge-core) partition.
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>VectorFEM</em></span></p>
-
-<dl><dd>
-  Copy of the vector with the partition defined.
-</dd></dl>
-
-### partitioned()
-
-<pre class="py-sign">VectorFEM.<b>partitioned</b>(<em>self</em>, meta)</pre>
-
-Creates a partitioned vector.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>meta</code> : <em>dict</em></span></p>
-
-<dl><dd>
-  Partition meta data (a).
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>VectorFEM</em></span></p>
-
-<dl><dd>
-  Copy of the vector with the partition defined.
-</dd></dl>
-
-<b>Notes</b>
-
-(a) Same as for the FEM matrix.
-
-### getsect()
-
-<pre class="py-sign">VectorFEM.<b>getsect</b>(<em>self</em>, key)</pre>
+<pre class="py-sign">VectorFEM.<b>getsection</b>(<em>self</em>, sec_id)</pre>
 
 Returns a copy of the vector section.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
+<p><span class="vardef"><code>sec_id</code> : <em>int</em></span></p>
 
 <dl><dd>
   ID of the vector section.
@@ -449,15 +356,15 @@ Returns a copy of the vector section.
   Copy of the vector section.
 </dd></dl>
 
-### setsect()
+### setsection()
 
-<pre class="py-sign">VectorFEM.<b>setsect</b>(<em>self</em>, key, data)</pre>
+<pre class="py-sign">VectorFEM.<b>setsection</b>(<em>self</em>, sec_id, data) → <em>None</em></pre>
 
 Defines the vector section.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
+<p><span class="vardef"><code>sec_id</code> : <em>int</em></span></p>
 
 <dl><dd>
   ID of the vector section.
@@ -467,28 +374,6 @@ Defines the vector section.
 
 <dl><dd>
   Data that defines the vector section.
-</dd></dl>
-
-### sectxy()
-
-<pre class="py-sign">VectorFEM.<b>sectxy</b>(<em>self</em>, key)</pre>
-
-Returns xy-coordinates of the vector section.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
-
-<dl><dd>
-  ID of the vector section.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>two-row-float-array</em></span></p>
-
-<dl><dd>
-  xy-coordinates of the vector section.
 </dd></dl>
 
 ## mesh_metric()

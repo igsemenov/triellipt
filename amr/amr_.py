@@ -302,9 +302,12 @@ class Masser:
 
         unit = femunit.getunit(mesh)
 
+        mass_mat = unit.massopr(lumped=False, constr=False)
+        massdiag = unit.massopr(lumped=True, constr=False)
+
         meta = {
-            'mass-mat': unit.massmat_fem.body,
-            'massdiag': unit.massdiag_fem.body
+            'mass-mat': mass_mat.body,
+            'massdiag': massdiag.body
         }
 
         return cls(unit, meta)

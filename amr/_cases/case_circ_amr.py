@@ -26,7 +26,7 @@ unit.data[0] = unit.atfunc(layer)
 f0 = unit.data[0]
 m0 = unit.masser(f0)
 
-for t in range(1):
+for t in range(2):
 
     for _ in range(4):
         unit = unit.refine(
@@ -41,6 +41,8 @@ for t in range(1):
 f1 = unit.data[0]
 m1 = unit.masser(f1)
 
-plt.tricontourf(*unit.mesh.triu, unit.data[0])
-plt.triplot(*unit.mesh.triu, '-k', lw=0.5)
-plt.axis('equal')
+print(f'Mass-error: {m0-m1}')
+
+# plt.tricontourf(*unit.mesh.triu, unit.data[0])
+# plt.triplot(*unit.mesh.triu, '-k', lw=0.5)
+# plt.axis('equal')

@@ -89,24 +89,44 @@ class CycPath:
             self.prev_points, self.points, self.next_points
         )
 
-    def split(self, threshold_angle):
+    def dissect(self, angle):
         """Splits the cycle based on rotation angle.
 
         Parameters
         ----------
-        threshold_angle : float
+        angle : float
             Threshold angle for a node to become a corner.
 
         Returns
         -------
         PathMap
-            Resulting partition of a cycle.
+            Partition of a cycle.
 
         """
 
         corners, = np.where(
-            self.angles() >= threshold_angle
+            self.angles() >= angle
         )
+
+        return self.split_at_corners(corners)
+
+    def split(self, bins):
+        """Splits the cycle based on bins.
+
+        Parameters
+        ----------
+        bins : flat-int-array-like
+            Seed values of splitting bins.
+
+        Returns
+        -------
+        PathMap
+            Partition of a cycle.
+
+        """
+        return self.split_at_corners(np.add.accumulate(bins))
+
+    def split_at_corners(self, corners):
 
         if corners.size == 0:
             return loop.PathMap.from_paths(self.points)

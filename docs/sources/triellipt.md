@@ -27,35 +27,31 @@ Module                   | Description
             <li><a href="triellipt.fem.md#getunit">getunit()</a></li>
             <li><a href="triellipt.fem.md#femunit">FEMUnit</a>
                 <ul>
-                    <li><a href="triellipt.fem.md#fem_factory">fem_factory()</a></li>
-                    <li><a href="triellipt.fem.md#new_vector">new_vector()</a></li>
+                    <li><a href="triellipt.fem.md#get_partt">get_partt()</a></li>
+                    <li><a href="triellipt.fem.md#set_partt">set_partt()</a></li>
+                    <li><a href="triellipt.fem.md#add_partt">add_partt()</a></li>
                     <li><a href="triellipt.fem.md#getinterp">getinterp()</a></li>
-                    <li><a href="triellipt.fem.md#partition">partition()</a></li>
+                    <li><a href="triellipt.fem.md#massopr">massopr()</a></li>
+                    <li><a href="triellipt.fem.md#massinv">massinv()</a></li>
                 </ul>
             </li>
-            <li><a href="triellipt.fem.md#femfactory">FEMFactory</a>
+            <li><a href="triellipt.fem.md#fempartt">FEMPartt</a>
                 <ul>
-                    <li><a href="triellipt.fem.md#feed_data">feed_data()</a></li>
+                    <li><a href="triellipt.fem.md#new_vector">new_vector()</a></li>
+                    <li><a href="triellipt.fem.md#new_matrix">new_matrix()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.fem.md#matrixfem">MatrixFEM</a>
                 <ul>
-                    <li><a href="triellipt.fem.md#with_name">with_name()</a></li>
-                    <li><a href="triellipt.fem.md#dirichsplit">dirichsplit()</a></li>
-                    <li><a href="triellipt.fem.md#partitioned">partitioned()</a></li>
                     <li><a href="triellipt.fem.md#getblock">getblock()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.fem.md#vectorfem">VectorFEM</a>
                 <ul>
-                    <li><a href="triellipt.fem.md#with_name-1">with_name()</a></li>
                     <li><a href="triellipt.fem.md#with_body">with_body()</a></li>
                     <li><a href="triellipt.fem.md#from_func">from_func()</a></li>
-                    <li><a href="triellipt.fem.md#dirichsplit-1">dirichsplit()</a></li>
-                    <li><a href="triellipt.fem.md#partitioned-1">partitioned()</a></li>
-                    <li><a href="triellipt.fem.md#getsect">getsect()</a></li>
-                    <li><a href="triellipt.fem.md#setsect">setsect()</a></li>
-                    <li><a href="triellipt.fem.md#sectxy">sectxy()</a></li>
+                    <li><a href="triellipt.fem.md#getsection">getsection()</a></li>
+                    <li><a href="triellipt.fem.md#setsection">setsection()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.fem.md#mesh_metric">mesh_metric()</a></li>
@@ -128,6 +124,7 @@ Module                   | Description
             <li><a href="triellipt.geom.md#cycpath">CycPath</a>
                 <ul>
                     <li><a href="triellipt.geom.md#angles">angles()</a></li>
+                    <li><a href="triellipt.geom.md#dissect">dissect()</a></li>
                     <li><a href="triellipt.geom.md#split-1">split()</a></li>
                 </ul>
             </li>

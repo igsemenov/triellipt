@@ -6,7 +6,7 @@ import numpy as np
 from triellipt.fem import femoprs
 
 
-def getstream(skeleton):
+def getstreams(skeleton):
     _ = StreamOprs.from_skel(skeleton)
     return _.get_streams()
 

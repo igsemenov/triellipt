@@ -67,6 +67,7 @@
                         <li><a href="#cycpath">CycPath</a>
                             <ul>
                                 <li><a href="#angles">angles()</a></li>
+                                <li><a href="#dissect">dissect()</a></li>
                                 <li><a href="#split-1">split()</a></li>
                             </ul>
                         </li>
@@ -613,15 +614,15 @@
   Rotation angles of edges at each node.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>split()</h3>
+<div class="toc-anchor"></div><h3>dissect()</h3>
 
-<pre class="py-sign">CycPath.<b>split</b>(<em>self</em>, threshold_angle)</pre>
+<pre class="py-sign">CycPath.<b>dissect</b>(<em>self</em>, angle)</pre>
 
 <p>Splits the cycle based on rotation angle.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>threshold_angle</code> : <em>float</em></span></p>
+<p><span class="vardef"><code>angle</code> : <em>float</em></span></p>
 
 <dl><dd>
   Threshold angle for a node to become a corner.
@@ -632,7 +633,29 @@
 <p><span class="vardef"><em>PathMap</em></span></p>
 
 <dl><dd>
-  Resulting partition of a cycle.
+  Partition of a cycle.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>split()</h3>
+
+<pre class="py-sign">CycPath.<b>split</b>(<em>self</em>, bins)</pre>
+
+<p>Splits the cycle based on bins.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>bins</code> : <em>flat-int-array-like</em></span></p>
+
+<dl><dd>
+  Seed values of splitting bins.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>PathMap</em></span></p>
+
+<dl><dd>
+  Partition of a cycle.
 </dd></dl>
 
 <hr>

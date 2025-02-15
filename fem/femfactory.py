@@ -4,7 +4,6 @@
 import numpy as np
 from scipy import sparse as sp
 from triellipt.utils import pairs
-from triellipt.fem import femmatrix
 
 
 class FEMFactory:
@@ -38,6 +37,9 @@ class FEMFactory:
     def with_constraints(self):
         return self.meta['with-constraints']
 
+    def __call__(self, data):
+        return self.feed_data(data)
+
     def feed_data(self, data):
         """Transmits data to the FEM matrix.
 
@@ -48,8 +50,10 @@ class FEMFactory:
 
         Returns
         -------
-        MatrixFEM
-            Resulting FEM matrix.
+        csr-array
+            Body of the resulting FEM matrix.
+        dict
+            Matrix metadata.
 
         Notes
         -----
@@ -58,10 +62,22 @@ class FEMFactory:
 
         """
 
-        data = self.push_data(data)
-        matr = self.make_matrix(data)
+        body = self.make_body(data)
+        meta = self.make_meta()
 
-        return matr
+        return body, meta
+
+    def make_body(self, data):
+
+        data = self.push_data(data)
+
+        new_body = self.body.copy()
+
+        np.copyto(
+            new_body.data[:self.frame_offset], data
+        )
+
+        return new_body
 
     def push_data(self, data):
 
@@ -77,25 +93,10 @@ class FEMFactory:
             data[perm_reduced], order='C'
         )
 
-    def make_matrix(self, data):
-
-        body = self.make_matrix_body(data)
-
-        meta = {
-            'with-constraints': self.with_constraints
+    def make_meta(self):
+        return {
+            'has-constraints': self.with_constraints
         }
-
-        return femmatrix.getmatrix(self.unit, body, meta)
-
-    def make_matrix_body(self, data):
-
-        new_body = self.body.copy()
-
-        np.copyto(
-            new_body.data[:self.frame_offset], data
-        )
-
-        return new_body
 
     @property
     def frame_offset(self):
