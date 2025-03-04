@@ -2,10 +2,12 @@
 <html lang="en">
 
 <head>
-    <title>triellipt documentation</title>
+    <title>User Guide — triellipt documentation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
     <link rel="stylesheet" href="docpage.css">
+    <link rel="stylesheet" href="default.min.css">
     <script src="docpage.js"></script>
+    <script src="highlight.min.js"></script>
 </head>
 
 <body>
@@ -30,40 +32,24 @@
             <p>On this page</p><button onclick="closeTOC(this)">&#x2715;</button>
         </div>
         <div id="local-toc-box__text" class="toc-box__textbox">
-            <p>
-            <ul>
-                <li><a href="#contents">Contents</a></li>
-            </ul>
-            </p>
+
         </div>
     </div>
 
     <div id="content-box">
         <div id="title-box">
-            <h1 id="title-box__title">triellipt</h1>
+            <h1 id="title-box__title">triellipt — User Guide</h1>
             <h2 id="title-box__annotation"></h2>
             <hr>
         </div>
         <div id="doc-box">
-<div class="toc-anchor"></div><h2>Contents</h2>
+<p>This guide covers the basics of how to use <b>triellipt</b>.</p>
+
+<p>Refer to different sections of the guide for specific topics:</p>
 
 <p>
-<ul class="ref-list" id="index-toc">
-    <li><a href="usage.html">Usage</a>
-        <ul>
-            <li><a href="solver.html">Solver</a></li>
-        </ul>
-    </li>
-    <li><a href="triellipt.html">Modules</a>
-        <ul>
-            <li><a href="triellipt.fem.html">fem</a></li>
-            <li><a href="triellipt.amr.html">amr</a></li>
-            <li><a href="triellipt.geom.html">geom</a></li>
-            <li><a href="triellipt.mesher.html">mesher</a></li>
-            <li><a href="triellipt.trimesh.html">trimesh</a></li>
-            <li><a href="triellipt.mshread.html">mshread</a></li>
-        </ul>
-    </li>
+<ul class="md-list">
+    <li><a href="solver.html">Solver</a> — Step-by-step guide on how to solve PDEs.</li>
 </ul>
 </p>
 
@@ -76,6 +62,7 @@
 
     <script>
         setDocPage();
+        hljs.highlightAll();
     </script>
 
 </body>

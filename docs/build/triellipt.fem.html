@@ -37,9 +37,10 @@
                         <li><a href="#getunit">getunit()</a></li>
                         <li><a href="#femunit">FEMUnit</a>
                             <ul>
-                                <li><a href="#get_partt">get_partt()</a></li>
-                                <li><a href="#set_partt">set_partt()</a></li>
-                                <li><a href="#add_partt">add_partt()</a></li>
+                                <li><a href="#add_partition">add_partition()</a></li>
+                                <li><a href="#get_partition">get_partition()</a></li>
+                                <li><a href="#set_partition">set_partition()</a></li>
+                                <li><a href="#del_partition">del_partition()</a></li>
                                 <li><a href="#getinterp">getinterp()</a></li>
                                 <li><a href="#massopr">massopr()</a></li>
                                 <li><a href="#massinv">massinv()</a></li>
@@ -49,6 +50,7 @@
                             <ul>
                                 <li><a href="#new_vector">new_vector()</a></li>
                                 <li><a href="#new_matrix">new_matrix()</a></li>
+                                <li><a href="#get_nodes">get_nodes()</a></li>
                             </ul>
                         </li>
                         <li><a href="#matrixfem">MatrixFEM</a>
@@ -172,18 +174,40 @@
         <td>Base edge-core partition.</td>
     </tr>
     <tr>
-        <td><code>partts</code></td>
-        <td>Map of unit partitions.</td>
-    </tr>
-    <tr>
         <td><code>loops</code></td>
         <td>List of the mesh loops.</td>
     </tr>
+    <tr>
+        <td><code>partts</code></td>
+        <td>Map of the unit partitions.</td>
+    </tr>
 </table>
 
-<div class="toc-anchor"></div><h3>get_partt()</h3>
+<div class="toc-anchor"></div><h3>add_partition()</h3>
 
-<pre class="py-sign">FEMUnit.<b>get_partt</b>(<em>self</em>, name)</pre>
+<pre class="py-sign">FEMUnit.<b>add_partition</b>(<em>self</em>, spec)</pre>
+
+<p>Adds new partition to the unit.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>spec</code> : <em>dict</em></span></p>
+
+<dl><dd>
+  Partition specification.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>self</em></span></p>
+
+<dl><dd>
+  Unit with the partition added.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>get_partition()</h3>
+
+<pre class="py-sign">FEMUnit.<b>get_partition</b>(<em>self</em>, name)</pre>
 
 <p>Fetches the unit partition.</p>
 
@@ -203,9 +227,9 @@
   Desired unit partition.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>set_partt()</h3>
+<div class="toc-anchor"></div><h3>set_partition()</h3>
 
-<pre class="py-sign">FEMUnit.<b>set_partt</b>(<em>self</em>, partt) → <em>None</em></pre>
+<pre class="py-sign">FEMUnit.<b>set_partition</b>(<em>self</em>, partt) → <em>None</em></pre>
 
 <p>Assigns the partition to the unit.</p>
 
@@ -217,19 +241,11 @@
   Input unit partition.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>add_partt()</h3>
+<div class="toc-anchor"></div><h3>del_partition()</h3>
 
-<pre class="py-sign">FEMUnit.<b>add_partt</b>(<em>self</em>, spec) → <em>None</em></pre>
+<pre class="py-sign">FEMUnit.<b>del_partition</b>(<em>self</em>, name) → <em>None</em></pre>
 
-<p>Adds new partition to the unit.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>spec</code> : <em>dict</em></span></p>
-
-<dl><dd>
-  Partition specification.
-</dd></dl>
+<p>Deletes the specified partition from the unit.</p>
 
 <div class="toc-anchor"></div><h3>getinterp()</h3>
 
@@ -297,7 +313,7 @@
 
 <pre class="py-sign">FEMUnit.<b>massinv</b>(<em>self</em>, radial=<span>False</span>)</pre>
 
-<p>Creates the mass operator inverse (lumped and constrained only).</p>
+<p>Creates the inverse mass operator (lumped and constrained only).</p>
 
 <p><b>Parameters</b></p>
 
@@ -320,6 +336,31 @@
 <pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMPartt</b>(unit=<span>None</span>, edge=<span>None</span>, meta=<span>None</span>)</pre>
 
 <p>FEM unit partition.</p>
+
+<p><b>Properties</b></p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>name</code></td>
+        <td>Name of the partition.</td>
+    </tr>
+    <tr>
+        <td><code>edge</code></td>
+        <td>Map of the edge sections.</td>
+    </tr>
+    <tr>
+        <td><code>core</code></td>
+        <td>Core partition section.</td>
+    </tr>
+    <tr>
+        <td><code>meta</code></td>
+        <td>Partition metadata.</td>
+    </tr>
+</table>
 
 <div class="toc-anchor"></div><h3>new_vector()</h3>
 
@@ -363,6 +404,28 @@
 
 <dl><dd>
   Resulting FEM matrix.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>get_nodes()</h3>
+
+<pre class="py-sign">FEMPartt.<b>get_nodes</b>(<em>self</em>, key)</pre>
+
+<p>Retrieves the points of the partition section.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>key</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Number of the partition section.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>two-row-float-array</em></span></p>
+
+<dl><dd>
+  Points of the partition section stacked horizontally.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>MatrixFEM</h2>

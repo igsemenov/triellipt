@@ -27,9 +27,10 @@ Module                   | Description
             <li><a href="triellipt.fem.md#getunit">getunit()</a></li>
             <li><a href="triellipt.fem.md#femunit">FEMUnit</a>
                 <ul>
-                    <li><a href="triellipt.fem.md#get_partt">get_partt()</a></li>
-                    <li><a href="triellipt.fem.md#set_partt">set_partt()</a></li>
-                    <li><a href="triellipt.fem.md#add_partt">add_partt()</a></li>
+                    <li><a href="triellipt.fem.md#add_partition">add_partition()</a></li>
+                    <li><a href="triellipt.fem.md#get_partition">get_partition()</a></li>
+                    <li><a href="triellipt.fem.md#set_partition">set_partition()</a></li>
+                    <li><a href="triellipt.fem.md#del_partition">del_partition()</a></li>
                     <li><a href="triellipt.fem.md#getinterp">getinterp()</a></li>
                     <li><a href="triellipt.fem.md#massopr">massopr()</a></li>
                     <li><a href="triellipt.fem.md#massinv">massinv()</a></li>
@@ -39,6 +40,7 @@ Module                   | Description
                 <ul>
                     <li><a href="triellipt.fem.md#new_vector">new_vector()</a></li>
                     <li><a href="triellipt.fem.md#new_matrix">new_matrix()</a></li>
+                    <li><a href="triellipt.fem.md#get_nodes">get_nodes()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.fem.md#matrixfem">MatrixFEM</a>

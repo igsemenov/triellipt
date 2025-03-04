@@ -127,7 +127,11 @@ Related methods:
 
 <pre class="py-sign">TriMesh.<b>alignnodes</b>(<em>self</em>, *anchors)</pre>
 
-Numbers mesh points in the edge-core order.
+Numbers the mesh points in edge-core order.
+
+- Loop nodes are placed at the beginning of the node numbering.
+- Loops are oriented in counterclockwise (CCW) order.
+- Loops may be synchronized with optional anchor nodes.
 
 <b>Parameters</b>
 

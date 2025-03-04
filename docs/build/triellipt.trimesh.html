@@ -238,7 +238,15 @@
 
 <pre class="py-sign">TriMesh.<b>alignnodes</b>(<em>self</em>, *anchors)</pre>
 
-<p>Numbers mesh points in the edge-core order.</p>
+<p>Numbers the mesh points in edge-core order.</p>
+
+<p>
+<ul class="md-list">
+    <li>Loop nodes are placed at the beginning of the node numbering.</li>
+    <li>Loops are oriented in counterclockwise (CCW) order.</li>
+    <li>Loops may be synchronized with optional anchor nodes.</li>
+</ul>
+</p>
 
 <p><b>Parameters</b></p>
 

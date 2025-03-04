@@ -340,7 +340,11 @@ class TriMesh(_TriMesh):
         return self.deltriangs(*self.getvoids())
 
     def alignnodes(self, *anchors):
-        """Numbers mesh points in the edge-core order.
+        """Numbers the mesh points in edge-core order.
+
+        - Loop nodes are placed at the beginning of the node numbering.
+        - Loops are oriented in counterclockwise (CCW) order.
+        - Loops may be synchronized with optional anchor nodes.
 
         Parameters
         ----------

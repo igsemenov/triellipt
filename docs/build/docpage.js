@@ -218,6 +218,11 @@ docPage.pagelogo = `<svg width="40" height="40">
 </svg><p id="logo-title">triellipt</p>`;
 docPage.contents = `<p>
 <ul>
+    <li><a class="global-toc__top-item" href="usage.html">Usage</a>
+        <ul>
+            <li><a href="solver.html">Solver</a></li>
+        </ul>
+    </li>
     <li><a class="global-toc__top-item" href="triellipt.html">Modules</a>
         <ul>
             <li><a href="triellipt.fem.html">fem</a></li>

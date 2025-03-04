@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import triellipt as tri
 
 
-def bessel(unit):
+def bessel_operator(unit):
     """Creates the Bessel operator.
     """
 
@@ -19,13 +19,13 @@ def bessel(unit):
     )
 
 
-def func(argx, argy):
+def bessel_func(argx, argy):
     return j0(argy)
 
 
 box_partt = {
-    'name': 'box',
-    'loops-partition': {
+    'partition-title': 'box',
+    'partition-loops': {
         0: {
             "angle": 1.5,
             "coloring": [
@@ -33,26 +33,28 @@ box_partt = {
             ]
         }
     },
-    'dirichlet-sides': (1, 3)
+    'dirichlet-sides': [1, 3]
 }
 
 seed = tri.mesher.trilattice(31, 41, True) * 0.05
 unit = tri.fem.getunit(seed, (0,))
 
-unit.add_partt(box_partt)
+unit.add_partition(box_partt)
 
-L = unit.partts['box'].new_matrix(bessel(unit), constr=True)
-
-u = unit.partts['box'].new_vector()
-g = unit.partts['box'].new_vector().from_func(func)
-
-u[0] = sp.linalg.spsolve(
-    L(0, 0), - L(0, 1) @ g[1] - L(0, 3) @ g[3]
+mat = unit.partts['box'].new_matrix(
+    bessel_operator(unit), constr=False
 )
 
-err = np.amax(np.abs(u[0] - g[0]))
+sol = unit.partts['box'].new_vector()
+ref = unit.partts['box'].new_vector().from_func(bessel_func)
+
+sol[0] = sp.linalg.spsolve(
+    mat(0, 0), - mat(0, 1) @ ref[1] - mat(0, 3) @ ref[3]
+)
+
+err = np.amax(np.abs(sol[0] - ref[0]))
 print(f'L1 error: {err}')
 
-# plt.tricontourf(*unit.mesh.triu, u.body)
+# plt.tricontourf(*unit.mesh.triu, sol.body)
 # plt.triplot(*unit.mesh.triu, '-k', lw=0.2)
 # plt.axis('equal')

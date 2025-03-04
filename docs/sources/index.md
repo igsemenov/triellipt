@@ -8,6 +8,8 @@
 
 ## Contents
 
+- [Usage](usage.md)
+  - [Solver](solver.md)
 - [Modules](triellipt.md)
   - [fem](triellipt.fem.md)
   - [amr](triellipt.amr.md)

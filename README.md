@@ -23,8 +23,8 @@ Project number [515939493](https://gepris-extern.dfg.de/gepris/projekt/515939493
 
 View the available documentation here:
 
-- To get an overview of the package, refer to the local [module reference](/docs/sources/triellipt.md).
-- Use the offline module reference in HTML by starting with `docs/index.html`.
+- To get an overview of the package, refer to [local documentation](/docs/sources/index.md).
+- Use the offline documentation in HTML by starting with `docs/index.html`.
 
 ## Triangulations
 

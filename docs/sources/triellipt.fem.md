@@ -59,16 +59,38 @@ Name        | Description
 General properties:
 
 Name      | Description
-----------|-----------------------------
+----------|-------------------------------
 `grad`    | Gradient operator.
 `perm`    | Mesh-to-unit permutation.
 `base`    | Base edge-core partition.
-`partts`  | Map of unit partitions.
 `loops`   | List of the mesh loops.
+`partts`  | Map of the unit partitions.
 
-### get_partt()
+### add_partition()
 
-<pre class="py-sign">FEMUnit.<b>get_partt</b>(<em>self</em>, name)</pre>
+<pre class="py-sign">FEMUnit.<b>add_partition</b>(<em>self</em>, spec)</pre>
+
+Adds new partition to the unit.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>spec</code> : <em>dict</em></span></p>
+
+<dl><dd>
+  Partition specification.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>self</em></span></p>
+
+<dl><dd>
+  Unit with the partition added.
+</dd></dl>
+
+### get_partition()
+
+<pre class="py-sign">FEMUnit.<b>get_partition</b>(<em>self</em>, name)</pre>
 
 Fetches the unit partition.
 
@@ -88,9 +110,9 @@ Fetches the unit partition.
   Desired unit partition.
 </dd></dl>
 
-### set_partt()
+### set_partition()
 
-<pre class="py-sign">FEMUnit.<b>set_partt</b>(<em>self</em>, partt) → <em>None</em></pre>
+<pre class="py-sign">FEMUnit.<b>set_partition</b>(<em>self</em>, partt) → <em>None</em></pre>
 
 Assigns the partition to the unit.
 
@@ -102,19 +124,11 @@ Assigns the partition to the unit.
   Input unit partition.
 </dd></dl>
 
-### add_partt()
+### del_partition()
 
-<pre class="py-sign">FEMUnit.<b>add_partt</b>(<em>self</em>, spec) → <em>None</em></pre>
+<pre class="py-sign">FEMUnit.<b>del_partition</b>(<em>self</em>, name) → <em>None</em></pre>
 
-Adds new partition to the unit.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>spec</code> : <em>dict</em></span></p>
-
-<dl><dd>
-  Partition specification.
-</dd></dl>
+Deletes the specified partition from the unit.
 
 ### getinterp()
 
@@ -182,7 +196,7 @@ Creates the mass operator.
 
 <pre class="py-sign">FEMUnit.<b>massinv</b>(<em>self</em>, radial=<span>False</span>)</pre>
 
-Creates the mass operator inverse (lumped and constrained only).
+Creates the inverse mass operator (lumped and constrained only).
 
 <b>Parameters</b>
 
@@ -205,6 +219,15 @@ Creates the mass operator inverse (lumped and constrained only).
 <pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMPartt</b>(unit=<span>None</span>, edge=<span>None</span>, meta=<span>None</span>)</pre>
 
 FEM unit partition.
+
+<b>Properties</b>
+
+Name        | Description
+------------|----------------------------
+`name`      | Name of the partition.
+`edge`      | Map of the edge sections.
+`core`      | Core partition section.
+`meta`      | Partition metadata.
 
 ### new_vector()
 
@@ -248,6 +271,28 @@ Creates a new FEM matrix.
 
 <dl><dd>
   Resulting FEM matrix.
+</dd></dl>
+
+### get_nodes()
+
+<pre class="py-sign">FEMPartt.<b>get_nodes</b>(<em>self</em>, key)</pre>
+
+Retrieves the points of the partition section.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>key</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Number of the partition section.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>two-row-float-array</em></span></p>
+
+<dl><dd>
+  Points of the partition section stacked horizontally.
 </dd></dl>
 
 ## MatrixFEM

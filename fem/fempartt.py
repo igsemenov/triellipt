@@ -23,8 +23,8 @@ def getpartt(unit, spec):
 
     """
 
-    partt_name = spec['name']
-    loopspartt = spec['loops-partition']
+    partt_name = spec['partition-title']
+    loopspartt = spec['partition-loops']
     dirichlets = spec['dirichlet-sides']
 
     partt = makepartt(unit, loopspartt)
@@ -381,6 +381,17 @@ class DataPartt:
 
 class FEMPartt(DataPartt):
     """FEM unit partition.
+
+    Properties
+    ----------
+
+    Name        | Description
+    ------------|----------------------------
+    `name`      | Name of the partition.
+    `edge`      | Map of the edge sections.
+    `core`      | Core partition section.
+    `meta`      | Partition metadata.
+
     """
 
     def with_name(self, name):
@@ -438,3 +449,19 @@ class FEMPartt(DataPartt):
     def make_full_matrix(self, data):
         body, meta = self.unit.factory_full.feed_data(data)
         return femmatrix.getmatrix(self, body, meta)
+
+    def get_nodes(self, key):
+        """Retrieves the points of the partition section.
+
+        Parameters
+        ----------
+        key : int
+            Number of the partition section.
+
+        Returns
+        -------
+        two-row-float-array
+            Points of the partition section stacked horizontally.
+
+        """
+        return self.unit.mesh.points2d[:, self[key]]

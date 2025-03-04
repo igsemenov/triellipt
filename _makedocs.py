@@ -15,7 +15,7 @@ logo += '<p id="logo-title">triellipt</p>'
 config = {
     'doclogo': logo,
     'swaplinks': True,
-    'codeblocks': False,
+    'codeblocks': True,
     'extracss': f'{CFGPATH}/theme.css'
 }
 

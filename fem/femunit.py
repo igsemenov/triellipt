@@ -245,16 +245,37 @@ class FEMUnit(FEMRoot):
     General properties:
 
     Name      | Description
-    ----------|-----------------------------
+    ----------|-------------------------------
     `grad`    | Gradient operator.
     `perm`    | Mesh-to-unit permutation.
     `base`    | Base edge-core partition.
-    `partts`  | Map of unit partitions.
     `loops`   | List of the mesh loops.
+    `partts`  | Map of the unit partitions.
 
     """
 
-    def get_partt(self, name):
+    def add_partition(self, spec):
+        """Adds new partition to the unit.
+
+        Parameters
+        ----------
+        spec : dict
+            Partition specification.
+
+        Returns
+        -------
+        self
+            Unit with the partition added.
+
+        """
+
+        self.set_partition(
+            fempartt.getpartt(self, spec)
+        )
+
+        return self
+
+    def get_partition(self, name):
         """Fetches the unit partition.
 
         Parameters
@@ -268,13 +289,11 @@ class FEMUnit(FEMRoot):
             Desired unit partition.
 
         """
-        if name in self.partts:
-            return self.partts[name]
-        raise ValueError(
-            f"unit has no '{name}' partition"
-        )
+        if name not in self.partts:
+            raise ValueError(f"unit has no '{name}' partition")
+        return self.partts[name]
 
-    def set_partt(self, partt) -> None:
+    def set_partition(self, partt) -> None:
         """Assigns the partition to the unit.
 
         Parameters
@@ -291,18 +310,12 @@ class FEMUnit(FEMRoot):
 
         self.cache['partitions'][partt.name] = partt
 
-    def add_partt(self, spec) -> None:
-        """Adds new partition to the unit.
-
-        Parameters
-        ----------
-        spec : dict
-            Partition specification.
-
+    def del_partition(self, name) -> None:
+        """Deletes the specified partition from the unit.
         """
-        self.set_partt(
-            fempartt.getpartt(self, spec)
-        )
+        if name not in self.partts:
+            raise ValueError(f"unit has no '{name}' partition")
+        self.cache['partitions'].pop(name)
 
     def getinterp(self, xnodes, ynodes):
         """Creates an interpolator on a mesh.
@@ -344,38 +357,38 @@ class FEMUnit(FEMRoot):
             return self.massopr_lumped(constr, radial)
         return self.massopr_full(constr, radial)
 
-    def massopr_full(self, constr, radial):
+    def massopr_full(self, constr, is_radial):
 
         matrix = self.base.new_matrix(
-            self.massfem_full(radial), constr=constr
+            self.massfem_full(is_radial), constr=constr
         )
 
-        matrix.meta['is-radial'] = radial
+        matrix.meta['is-radial'] = is_radial
         return matrix
 
-    def massopr_lumped(self, constr, radial):
+    def massopr_lumped(self, constr, is_radial):
 
         matrix = self.base.new_matrix(
-            self.massfem_lumped(radial), constr=constr
+            self.massfem_lumped(is_radial), constr=constr
         )
 
         matrix = matrix.with_no_zeros()
-        matrix.meta['is-radial'] = radial
+        matrix.meta['is-radial'] = is_radial
 
         return matrix
 
-    def massfem_full(self, radial):
-        if radial is False:
+    def massfem_full(self, is_radial):
+        if is_radial is False:
             return self.massmat
         return self.radius * self.massmat
 
-    def massfem_lumped(self, radial):
-        if radial is False:
+    def massfem_lumped(self, is_radial):
+        if is_radial is False:
             return self.massdiag
         return self.radius * self.massdiag
 
     def massinv(self, radial=False):
-        """Creates the mass operator inverse (lumped and constrained only).
+        """Creates the inverse mass operator (lumped and constrained only).
 
         Parameters
         ----------
