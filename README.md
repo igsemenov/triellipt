@@ -6,7 +6,7 @@ An adaptive finite-element solver for elliptic PDEs.
 ## Features
 
 - Solves elliptic PDEs on both [*conformal*](#conformal-triangulation) and [*non-conformal triangulations*](#non-conformal-triangulation).
-- Utilizes a locally conservative control-volume FEM scheme.
+- Utilizes a locally conservative *control-volume* FEM scheme.
 - Has an interface to read GMSH meshes.
 
 ## Funding
@@ -23,7 +23,7 @@ Project number [515939493](https://gepris-extern.dfg.de/gepris/projekt/515939493
 
 View the available documentation here:
 
-- To get an overview of the package, refer to [local documentation](/docs/sources/index.md).
+- To get an overview of the package, refer to the [local documentation](/docs/sources/index.md).
 - Use the offline documentation in HTML by starting with `docs/index.html`.
 
 ## Triangulations

@@ -24,20 +24,14 @@ See [Solving a Problem](solver.md#solving-a-problem) for a complete example.
 
 There are a couple of methods to create a mesh:
 
-- Read a GMSH mesh using [triellipt.mshread](triellipt.mshread.md).
+- Read a Gmsh mesh using [triellipt.mshread](triellipt.mshread.md).
 - Create a structured mesh using [triellipt.mesher](triellipt.mesher.md).
-
-Here is an example of creating a structured grid:
-
-```python
-mesh = tri.mesher.trigrid(11, 11, 'east-slope')
-```
 
 ***
 
 ### Creating a FEM Unit
 
-With the mesh ready, the next step is to create a FEM unit:
+With the mesh ready, the next step is to create a FEM computing unit:
 
 ```python
 unit = tri.fem.getunit(mesh, anchors=(0,))
@@ -187,15 +181,17 @@ FEM matrices are generated from a partition of the FEM unit — see [triellipt.f
 Two steps are needed:
 
 - Define a FEM operator as a linear combination of basic operators.
-- Decide whether or not to include constraints in the matrix.
+- Decide if constraints should be included in the matrix (for non-conformal meshes only).
 
-After that, the matrix is created as follows:
+The matrix is then generated as follows:
 
 ```python
 matrix = unit.partts['new-domain'].new_matrix(operator, constr=True/False)
 ```
 
 #### Set an operator
+
+A general FEM operator is a linear combination of basic FEM operators.
 
 *Basic operators*
 
@@ -210,11 +206,10 @@ Name        | Description
 `diff_2y`   | 2nd-y derivative
 `diff_2x`   | 2nd-x derivative
 
-Key facts to know:
+Facts to know:
 
 - All basic operators are flat arrays representing a special data structure — *matrix data stream*. 
 - Understanding of matrix data streams is not necessary for using the package.
-- A general FEM operator is a linear combination of basic FEM operators.
 
 Here is an example of constructing a Laplace operator:
 
@@ -226,7 +221,7 @@ operator = unit.diff_2x + unit.diff_2y
 
 Operators can be multiplied by coefficients defined on the mesh triangles.
 
-Assume we define a coefficient as follows:
+Assume we define a coefficient as
 
 ```python
 coeff = some_func(*unit.mesh.centrs2d)
@@ -237,7 +232,7 @@ where
 - `some_func(x, y)` represents a certain 2D field
 - `unit.mesh.centrs2d` provides the centroids of triangles
 
-Then the scaled Laplace operator can be defined as:
+Then the scaled Laplace operator can be defined as
 
 ```python
 operator = coeff[unit.ij_t] * (unit.diff_2x + unit.diff_2y)
@@ -255,6 +250,7 @@ where we use `unit.ij_t` — indexer that maps triangle-based data to a matrix d
 
 - The resulting FEM matrix is callable with arguments `(row_id, col_id)`.
 - The output of the call is the matrix block for the specified partition sections.
+- The matrix block is a sparse matrix in CSC format.
 
 For more details, refer to [triellipt.fem.MatrixFEM](triellipt.fem.md#matrixfem).
 
@@ -264,8 +260,9 @@ For more details, refer to [triellipt.fem.MatrixFEM](triellipt.fem.md#matrixfem)
 
 FEM vectors are generated from a partition of the FEM unit — see [triellipt.fem.FEMPartt.new_vector()](triellipt.fem.md#new_vector).
 
-- Vector is defined on the mesh nodes.
-- Vector is indexable with the partition section ID.
+- The vector is defined on the mesh nodes.
+- The vector can be indexed using the partition section index.
+- The vector section is returned as a flat array.
 
 For more details, refer to [triellipt.fem.VectorFEM](triellipt.fem.md#vectorfem).
 

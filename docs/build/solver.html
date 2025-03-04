@@ -86,20 +86,16 @@
 
 <p>
 <ul class="md-list">
-    <li>Read a GMSH mesh using <a href="triellipt.mshread.html">triellipt.mshread</a>.</li>
+    <li>Read a Gmsh mesh using <a href="triellipt.mshread.html">triellipt.mshread</a>.</li>
     <li>Create a structured mesh using <a href="triellipt.mesher.html">triellipt.mesher</a>.</li>
 </ul>
 </p>
-
-<p>Here is an example of creating a structured grid:</p>
-
-<pre><span class="lang-name">Python</span><code class="language-python">mesh = tri.mesher.trigrid(11, 11, &#x27;east-slope&#x27;)</code></pre>
 
 <hr>
 
 <div class="toc-anchor"></div><h3>Creating a FEM Unit</h3>
 
-<p>With the mesh ready, the next step is to create a FEM unit:</p>
+<p>With the mesh ready, the next step is to create a FEM computing unit:</p>
 
 <pre><span class="lang-name">Python</span><code class="language-python">unit = tri.fem.getunit(mesh, anchors=(0,))</code></pre>
 
@@ -305,15 +301,17 @@
 <p>
 <ul class="md-list">
     <li>Define a FEM operator as a linear combination of basic operators.</li>
-    <li>Decide whether or not to include constraints in the matrix.</li>
+    <li>Decide if constraints should be included in the matrix (for non-conformal meshes only).</li>
 </ul>
 </p>
 
-<p>After that, the matrix is created as follows:</p>
+<p>The matrix is then generated as follows:</p>
 
 <pre><span class="lang-name">Python</span><code class="language-python">matrix = unit.partts[&#x27;new-domain&#x27;].new_matrix(operator, constr=True/False)</code></pre>
 
 <div class="toc-anchor"></div><h4>Set an operator</h4>
+
+<p>A general FEM operator is a linear combination of basic FEM operators.</p>
 
 <p><em>Basic operators</em></p>
 
@@ -350,13 +348,12 @@
     </tr>
 </table>
 
-<p>Key facts to know:</p>
+<p>Facts to know:</p>
 
 <p>
 <ul class="md-list">
     <li>All basic operators are flat arrays representing a special data structure — <em>matrix data stream</em>.</li>
     <li>Understanding of matrix data streams is not necessary for using the package.</li>
-    <li>A general FEM operator is a linear combination of basic FEM operators.</li>
 </ul>
 </p>
 
@@ -368,7 +365,7 @@
 
 <p>Operators can be multiplied by coefficients defined on the mesh triangles.</p>
 
-<p>Assume we define a coefficient as follows:</p>
+<p>Assume we define a coefficient as</p>
 
 <pre><span class="lang-name">Python</span><code class="language-python">coeff = some_func(*unit.mesh.centrs2d)</code></pre>
 
@@ -381,7 +378,7 @@
 </ul>
 </p>
 
-<p>Then the scaled Laplace operator can be defined as:</p>
+<p>Then the scaled Laplace operator can be defined as</p>
 
 <pre><span class="lang-name">Python</span><code class="language-python">operator = coeff[unit.ij_t] * (unit.diff_2x + unit.diff_2y)</code></pre>
 
@@ -403,6 +400,7 @@
 <ul class="md-list">
     <li>The resulting FEM matrix is callable with arguments <code>(row_id, col_id)</code>.</li>
     <li>The output of the call is the matrix block for the specified partition sections.</li>
+    <li>The matrix block is a sparse matrix in CSC format.</li>
 </ul>
 </p>
 
@@ -416,8 +414,9 @@
 
 <p>
 <ul class="md-list">
-    <li>Vector is defined on the mesh nodes.</li>
-    <li>Vector is indexable with the partition section ID.</li>
+    <li>The vector is defined on the mesh nodes.</li>
+    <li>The vector can be indexed using the partition section index.</li>
+    <li>The vector section is returned as a flat array.</li>
 </ul>
 </p>
 

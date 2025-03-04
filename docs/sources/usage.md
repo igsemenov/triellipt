@@ -8,6 +8,6 @@
 
 This guide covers the basics of how to use **triellipt**.
 
-Refer to different sections of the guide for specific topics:
+Refer to the following sections for specific topics:
 
 - [Solver](solver.md) — Step-by-step guide on how to solve PDEs.
