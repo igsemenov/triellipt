@@ -201,10 +201,10 @@ Name        | Description
 ------------|----------------------
 `massmat`   | Mass-matrix
 `massdiag`  | Mass-matrix lumped
-`diff_1y`   | 1st-y derivative
-`diff_1x`   | 1st-x derivative
-`diff_2y`   | 2nd-y derivative
-`diff_2x`   | 2nd-x derivative
+`diff_1y`   | 1st y-derivative
+`diff_1x`   | 1st x-derivative
+`diff_2y`   | 2nd y-derivative
+`diff_2x`   | 2nd x-derivative
 
 Facts to know:
 
@@ -280,6 +280,10 @@ Here is a complete example of how to reproduce the Bessel function:
 - Guides you through the basic solution steps.
 - Mesh is kept conformal for simplicity (no hanging nodes).
 
+The equation solved is:
+
+    d/dy[y∙du/dy] + d/dx[y∙du/dx] + y∙u = 0
+
 """
 import numpy as np
 from scipy import sparse as sp
@@ -301,7 +305,7 @@ def bessel_operator(unit):
     radius = unit.mesh.centrs_complex.imag[unit.ij_t]
 
     return radius * (
-        unit.diff_2x + unit.diff_2y - unit.massmat
+        unit.diff_2x + unit.diff_2y + unit.massmat
     )
 
 # Partition specification.

@@ -332,19 +332,19 @@
     </tr>
     <tr>
         <td><code>diff_1y</code></td>
-        <td>1st-y derivative</td>
+        <td>1st y-derivative</td>
     </tr>
     <tr>
         <td><code>diff_1x</code></td>
-        <td>1st-x derivative</td>
+        <td>1st x-derivative</td>
     </tr>
     <tr>
         <td><code>diff_2y</code></td>
-        <td>2nd-y derivative</td>
+        <td>2nd y-derivative</td>
     </tr>
     <tr>
         <td><code>diff_2x</code></td>
-        <td>2nd-x derivative</td>
+        <td>2nd x-derivative</td>
     </tr>
 </table>
 
@@ -435,6 +435,10 @@
 - Guides you through the basic solution steps.
 - Mesh is kept conformal for simplicity (no hanging nodes).
 
+The equation solved is:
+
+    d/dy[y∙du/dy] + d/dx[y∙du/dx] + y∙u = 0
+
 &quot;&quot;&quot;
 import numpy as np
 from scipy import sparse as sp
@@ -456,7 +460,7 @@ def bessel_operator(unit):
     radius = unit.mesh.centrs_complex.imag[unit.ij_t]
 
     return radius * (
-        unit.diff_2x + unit.diff_2y - unit.massmat
+        unit.diff_2x + unit.diff_2y + unit.massmat
     )
 
 # Partition specification.

@@ -15,12 +15,12 @@ def bessel_operator(unit):
     radius = unit.mesh.centrs_complex.imag[unit.ij_t]
 
     return radius * (
-        unit.diff_2x + unit.diff_2y - unit.massmat
+        unit.diff_2x + unit.diff_2y + unit.massmat
     )
 
 
-def bessel_func(argx, argy):
-    return j0(argy)
+def bessel_func(x, y):
+    return j0(y)
 
 
 box_partt = {

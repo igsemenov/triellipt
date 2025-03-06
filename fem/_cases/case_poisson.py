@@ -23,12 +23,12 @@ META = {
 }
 
 
-def sol_exact(argx, argy):
-    return np.sin(2 * argx + 2 * argy)
+def sol_exact(x, y):
+    return np.sin(2 * x + 2 * y)
 
 
-def rho_exact(argx, argy):
-    return 8. * np.sin(2 * argx + 2 * argy)
+def rho_exact(x, y):
+    return - 8. * np.sin(2 * x + 2 * y)
 
 
 class FEMData:

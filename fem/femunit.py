@@ -123,19 +123,19 @@ class FEMRoot(FEMData):
 
     @property
     def diff_1x(self):
-        return self.femoprs['diff_1x'].data
+        return - self.femoprs['diff_1x'].data
 
     @property
     def diff_1y(self):
-        return self.femoprs['diff_1y'].data
+        return - self.femoprs['diff_1y'].data
 
     @property
     def diff_2x(self):
-        return self.femoprs['diff_2x'].data
+        return - self.femoprs['diff_2x'].data
 
     @property
     def diff_2y(self):
-        return self.femoprs['diff_2y'].data
+        return - self.femoprs['diff_2y'].data
 
     @property
     def radius(self):
@@ -237,10 +237,10 @@ class FEMUnit(FEMRoot):
     ------------|----------------------
     `massmat`   | Mass-matrix
     `massdiag`  | Mass-matrix lumped
-    `diff_1y`   | 1st-y derivative
-    `diff_1x`   | 1st-x derivative
-    `diff_2y`   | 2nd-y derivative
-    `diff_2x`   | 2nd-x derivative
+    `diff_1y`   | 1st y-derivative
+    `diff_1x`   | 1st x-derivative
+    `diff_2y`   | 2nd y-derivative
+    `diff_2x`   | 2nd x-derivative
 
     General properties:
 

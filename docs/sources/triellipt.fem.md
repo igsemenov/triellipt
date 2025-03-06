@@ -51,10 +51,10 @@ Name        | Description
 ------------|----------------------
 `massmat`   | Mass-matrix
 `massdiag`  | Mass-matrix lumped
-`diff_1y`   | 1st-y derivative
-`diff_1x`   | 1st-x derivative
-`diff_2y`   | 2nd-y derivative
-`diff_2x`   | 2nd-x derivative
+`diff_1y`   | 1st y-derivative
+`diff_1x`   | 1st x-derivative
+`diff_2y`   | 2nd y-derivative
+`diff_2x`   | 2nd x-derivative
 
 General properties:
 
