@@ -107,7 +107,7 @@ class MakerMassInv:
     def fetch_meta_massdiag(self):
 
         massdiag = self.unit.massopr(
-            lumped=True, constr=True, radial=self.is_radial
+            is_lumped=True, add_constr=True, is_radial=self.is_radial
         )
 
         return {

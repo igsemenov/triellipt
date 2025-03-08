@@ -71,7 +71,6 @@ Module                   | Description
             <li><a href="triellipt.amr.md#getunit">getunit()</a></li>
             <li><a href="triellipt.amr.md#amrunit">AMRUnit</a>
                 <ul>
-                    <li><a href="triellipt.amr.md#tofem">tofem()</a></li>
                     <li><a href="triellipt.amr.md#refine">refine()</a></li>
                     <li><a href="triellipt.amr.md#coarsen">coarsen()</a></li>
                     <li><a href="triellipt.amr.md#find_node">find_node()</a></li>

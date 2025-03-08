@@ -3,9 +3,13 @@
 """
 import numpy as np
 from scipy import sparse as sp
-from scipy.special import j0
-from matplotlib import pyplot as plt
+from scipy import special
+#from matplotlib import pyplot as plt
 import triellipt as tri
+
+
+def bessel_func(x, y):
+    return getattr(special, 'j0')(y)
 
 
 def bessel_operator(unit):
@@ -19,30 +23,24 @@ def bessel_operator(unit):
     )
 
 
-def bessel_func(x, y):
-    return j0(y)
-
-
-box_partt = {
-    'partition-title': 'box',
-    'partition-loops': {
-        0: {
-            "angle": 1.5,
-            "coloring": [
-                (1, 2, 'rshift'), (3, 4, 'rshift')
-            ]
-        }
-    },
+partt = {
+    'name': 'box',
+    'anchors': [
+        (1.5, 0.1), (1.5, 3.5), (0, 3.4)
+    ],
     'dirichlet-sides': [1, 3]
 }
 
-seed = tri.mesher.trilattice(31, 41, True) * 0.05
-unit = tri.fem.getunit(seed, (0,))
+seed = tri.mesher.trilattice(31, 41, close=True) * 0.05
 
-unit.add_partition(box_partt)
+unit = tri.fem.getunit(
+    seed, anchors=((0, 0),)
+)
+
+unit = unit.add_partition(partt)
 
 mat = unit.partts['box'].new_matrix(
-    bessel_operator(unit), constr=False
+    bessel_operator(unit), add_constr=False
 )
 
 sol = unit.partts['box'].new_vector()

@@ -127,18 +127,14 @@ Related methods:
 
 <pre class="py-sign">TriMesh.<b>alignnodes</b>(<em>self</em>, *anchors)</pre>
 
-Numbers the mesh points in edge-core order.
-
-- Loop nodes are placed at the beginning of the node numbering.
-- Loops are oriented in counterclockwise (CCW) order.
-- Loops may be synchronized with optional anchor nodes.
+Performs the edge-core ordering of the mesh nodes.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>anchors</code> : <em>*int</em></span></p>
+<p><span class="vardef"><code>anchors</code> : <em>*(float, float)</em></span></p>
 
 <dl><dd>
-  Node numbers used to synchronize the edge loops.
+  Points to synchronize the mesh loops with.
 </dd></dl>
 
 <b>Returns</b>
@@ -146,7 +142,7 @@ Numbers the mesh points in edge-core order.
 <p><span class="vardef"><em>TriMesh | None</em></span></p>
 
 <dl><dd>
-  New mesh or <i>None</i>, if loops cannot be fetched.
+  New mesh, or <i>None</i> if the mesh loops cannot be fetched.
 </dd></dl>
 
 ### renumed()

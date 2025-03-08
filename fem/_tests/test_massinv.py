@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests mass-inverse operator.
+"""Tests the mass-inverse operator.
 """
 import unittest
 import numpy as np
@@ -31,11 +31,15 @@ class Tester(unittest.TestCase):
 
     @property
     def massdiag_fem(self):
-        return self.UNIT.massopr(lumped=True, constr=False)
+        return self.UNIT.massopr(
+            is_lumped=True, add_constr=False
+        )
 
     @property
     def massdiag_amr(self):
-        return self.UNIT.massopr(lumped=True, constr=True)
+        return self.UNIT.massopr(
+            is_lumped=True, add_constr=True
+        )
 
     @property
     def rho(self):

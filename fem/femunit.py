@@ -21,8 +21,8 @@ def getunit(mesh, anchors=None):
     ----------
     mesh : TriMesh
         Input triangle mesh.
-    anchors : tuple = None
-        Nodes numbers to synchronize the mesh boundary.
+    anchors : Iterable = None
+        Provides `(float, float)` points to synchronize the mesh boundary.
 
     Returns
     -------
@@ -103,7 +103,7 @@ class FEMData:
         """
 
         self.cache['partitions'] = {
-            'base': fempartt.make_partt_base(self)
+            'base': fempartt.make_base_partition(self)
         }
 
         return self
@@ -184,12 +184,12 @@ class FEMRoot(FEMData):
     def partts(self):
         return self.cache['partitions']
 
-    def fem_factory(self, constr=True):
+    def fem_factory(self, add_constr=True):
         """Creates a factory of FEM matrices.
 
         Parameters
         ----------
-        constr : bool = True
+        add_constr : bool = True
             If True, forces constraints to be included in the matrix.
 
         Returns
@@ -198,7 +198,7 @@ class FEMRoot(FEMData):
             Callable factory of FEM matrices.
 
         """
-        return femfactory.FEMFactory.from_unit(self, constr)
+        return femfactory.FEMFactory.from_unit(self, add_constr)
 
     @property
     def factory_free(self):
@@ -208,7 +208,7 @@ class FEMRoot(FEMData):
         if 'factory-free' in self.cache:
             return self.cache['factory-free']
 
-        _ = self.fem_factory(constr=False)
+        _ = self.fem_factory(add_constr=False)
         self.cache['factory-free'] = _
         return self.factory_free
 
@@ -220,7 +220,7 @@ class FEMRoot(FEMData):
         if 'factory-full' in self.cache:
             return self.cache['factory-full']
 
-        _ = self.fem_factory(constr=True)
+        _ = self.fem_factory(add_constr=True)
         self.cache['factory-full'] = _
         return self.factory_full
 
@@ -335,16 +335,16 @@ class FEMUnit(FEMRoot):
         """
         return trinterp.getinterp(self, xnodes, ynodes)
 
-    def massopr(self, lumped, constr, radial=False):
+    def massopr(self, is_lumped, add_constr, is_radial=False):
         """Creates the mass operator.
 
         Parameters
         ----------
-        lumped : bool
+        is_lumped : bool
             Creates a lumped mass, if True.
-        constr : bool
+        add_constr : bool
             Adds constraints, if True.
-        radial : bool = False
+        is_radial : bool = False
             Adds the radial weight, if True.
 
         Returns
@@ -353,28 +353,27 @@ class FEMUnit(FEMRoot):
             Mass operator as a matrix.
 
         """
-        if lumped is True:
-            return self.massopr_lumped(constr, radial)
-        return self.massopr_full(constr, radial)
+        if is_lumped is True:
+            return self.massopr_lumped(add_constr, is_radial)
+        return self.massopr_full(add_constr, is_radial)
 
-    def massopr_full(self, constr, is_radial):
+    def massopr_full(self, add_constr, is_radial):
 
         matrix = self.base.new_matrix(
-            self.massfem_full(is_radial), constr=constr
+            self.massfem_full(is_radial), add_constr
         )
 
         matrix.meta['is-radial'] = is_radial
         return matrix
 
-    def massopr_lumped(self, constr, is_radial):
+    def massopr_lumped(self, add_constr, is_radial):
 
         matrix = self.base.new_matrix(
-            self.massfem_lumped(is_radial), constr=constr
+            self.massfem_lumped(is_radial), add_constr
         )
 
         matrix = matrix.with_no_zeros()
         matrix.meta['is-radial'] = is_radial
-
         return matrix
 
     def massfem_full(self, is_radial):
@@ -388,7 +387,7 @@ class FEMUnit(FEMRoot):
         return self.radius * self.massdiag
 
     def massinv(self, radial=False):
-        """Creates the inverse mass operator (lumped and constrained only).
+        """Creates the inverse mass operator.
 
         Parameters
         ----------
@@ -399,6 +398,11 @@ class FEMUnit(FEMRoot):
         -------
         MassDiagInv
             Callable inverse operator.
+
+        Notes
+        -----
+
+        Used only for a lumped mass operator with constraints.
 
         """
         return massinv_.getmassinv(self, radial)

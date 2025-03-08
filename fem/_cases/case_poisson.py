@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Validates the Poisson solver.
 """
-import time
 import numpy as np
 from scipy import sparse as sp
 from matplotlib import pyplot as plt
@@ -28,11 +27,11 @@ def sol_exact(x, y):
 
 
 def rho_exact(x, y):
-    return - 8. * np.sin(2 * x + 2 * y)
+    return - 8 * np.sin(2 * x + 2 * y)
 
 
 class FEMData:
-    """Root of the prolem frame.
+    """Root of the problem frame.
     """
 
     def __init__(self, meta):
@@ -43,11 +42,22 @@ class FEMData:
     def from_meta(cls, meta):
         return cls(meta)
 
-    @property
-    def grid_params(self):
-        yield self.meta['grid']['size']
-        yield self.meta['grid']['size']
-        yield self.meta['grid']['mode']
+    def make_grid(self):
+        return self.make_grid_unscaled() / self.grid_scaling_factor
+
+    def make_grid_unscaled(self):
+
+        size = self.meta['grid']['size']
+        mode = self.meta['grid']['mode']
+
+        grid = tri.mesher.trigrid(size, size, mode)
+
+        if self.mesh_refine_depth == 0:
+            return grid
+
+        for _ in range(self.mesh_refine_depth):
+            grid = grid.reduced(self.mesh_refine_count)
+        return grid
 
     @property
     def grid_scaling_factor(self):
@@ -60,21 +70,6 @@ class FEMData:
     @property
     def mesh_refine_count(self):
         return self.meta['amr']['count']
-
-    def make_seed_mesh(self):
-        seed = self.make_grid_unscaled()
-        return seed / self.grid_scaling_factor
-
-    def make_grid_unscaled(self):
-
-        grid = tri.mesher.trigrid(*self.grid_params)
-
-        if self.mesh_refine_depth == 0:
-            return grid
-
-        for _ in range(self.mesh_refine_depth):
-            grid = grid.reduced(self.mesh_refine_count)
-        return grid
 
 
 class FEMFrame(FEMData):
@@ -94,12 +89,9 @@ class FEMFrame(FEMData):
         return self
 
     def get_fem_unit(self):
-
-        unit = tri.fem.getunit(
-            self.make_seed_mesh()
+        return tri.fem.getunit(
+            self.make_grid(), anchors=((0, 0),)
         )
-
-        return unit
 
     def get_massmat(self):
         if self.meta['fem']['mass-diag'] is True:
@@ -108,7 +100,7 @@ class FEMFrame(FEMData):
 
     def get_laplace(self):
         return self.unit.base.new_matrix(
-            self.unit.diff_2x + self.unit.diff_2y, constr=True
+            self.unit.diff_2x + self.unit.diff_2y, add_constr=True
         )
 
     def solve(self):
@@ -119,22 +111,17 @@ class FEMFrame(FEMData):
         sol = self.unit.base.new_vector().from_func(sol_exact)
         rho = self.unit.base.new_vector().from_func(rho_exact)
 
-        rhs_rho = massmat @ rho
-
-        tic = time.time()
+        rhs = massmat @ rho
 
         sol[0] = sp.linalg.spsolve(
-            laplace(0, 0), rhs_rho[0] - laplace(0, 1) @ sol[1]
+            laplace(0, 0), rhs[0] - laplace(0, 1) @ sol[1]
         )
-
-        toc = time.time()
-        cpu = toc - tic
 
         err = np.amax(
             abs(sol[0] - self.sol_exact_core)
         )
 
-        return sol, err, cpu
+        return sol, err
 
     @property
     def sol_exact_core(self):
@@ -156,23 +143,26 @@ class FEMFrame(FEMData):
 
     @property
     def massmat_fem(self):
-        return self.unit.massopr(lumped=False, constr=False)
+        return self.unit.massopr(
+            is_lumped=False, add_constr=False
+        )
 
     @property
     def massdiag_fem(self):
-        return self.unit.massopr(lumped=True, constr=False)
+        return self.unit.massopr(
+            is_lumped=True, add_constr=False
+        )
 
 
 if __name__ == '__main__':
 
     frame = FEMFrame.from_meta(META).activated()
 
-    sol_, err_, cpu_ = frame.solve()
-
-    print(f'cpu-time: {cpu_}')
+    sol_, err_ = frame.solve()
     print(f'L1-error: {err_}')
 
-    if META['fem']['with-plot']:
+    if META['fem']['with-plot'] is True:
+
         plt.tricontourf(*frame.triu, sol_.body)
         plt.triplot(*frame.triu, '-k', lw=0.2)
         plt.axis('equal')

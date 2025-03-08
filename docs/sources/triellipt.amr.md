@@ -58,28 +58,6 @@ Name        | Description
 `refiner`   | Data-refiner after refinement.
 `collector` | Data-collector after coarsening.
 
-### tofem()
-
-<pre class="py-sign">AMRUnit.<b>tofem</b>(<em>self</em>, anchors=<span>None</span>)</pre>
-
-Converts the AMR unit to a FEM one.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>anchors</code> : <em>tuple = None</em></span></p>
-
-<dl><dd>
-  Nodes numbers to synchronize the mesh boundary.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>FEMUnit</em></span></p>
-
-<dl><dd>
-  The resulting FEM unit.
-</dd></dl>
-
 ### refine()
 
 <pre class="py-sign">AMRUnit.<b>refine</b>(<em>self</em>, trinums=<span>None</span>)</pre>

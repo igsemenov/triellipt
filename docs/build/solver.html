@@ -40,9 +40,8 @@
                         <li><a href="#creating-a-fem-unit">Creating a FEM Unit</a></li>
                         <li><a href="#creating-a-partition">Creating a Partition</a>
                             <ul>
+                                <li><a href="#boundary-partition">Boundary partition</a></li>
                                 <li><a href="#section-numbering">Section numbering</a></li>
-                                <li><a href="#section-creation">Section creation</a></li>
-                                <li><a href="#section-coloring">Section coloring</a></li>
                             </ul>
                         </li>
                         <li><a href="#creating-a-matrix">Creating a Matrix</a>
@@ -72,7 +71,7 @@
 
 <p>This page guides you through the process of solving PDEs with <b>triellipt</b>.</p>
 
-<p>In what follows, we assume the following import with an alias:</p>
+<p>In what follows, we assume the following import with an alias is used:</p>
 
 <pre><span class="lang-name">Python</span><code class="language-python">import triellipt as tri</code></pre>
 
@@ -95,7 +94,7 @@
 
 <div class="toc-anchor"></div><h3>Creating a FEM Unit</h3>
 
-<p>With the mesh ready, the next step is to create a FEM computing unit:</p>
+<p>Once the mesh is ready, the next step is to create a FEM computing unit:</p>
 
 <pre><span class="lang-name">Python</span><code class="language-python">unit = tri.fem.getunit(mesh, anchors=(0,))</code></pre>
 
@@ -124,7 +123,7 @@
 
 <div class="toc-anchor"></div><h3>Creating a Partition</h3>
 
-<p>Once you have a FEM unit, you need to create a domain partition for defining the <em>boundary conditions (BCs)</em>.</p>
+<p>After creating the FEM unit, you must partition the domain to define the <em>boundary conditions (BCs)</em>.</p>
 
 <p>Two steps are needed:</p>
 
@@ -139,7 +138,7 @@
 
 <p>
 <ul class="md-list">
-    <li>The map of unit partitions is available as <code>unit.partts</code>.</li>
+    <li>The map of current unit partitions is available as <code>unit.partts</code>.</li>
     <li>Each unit has the default edge-core partition — <code>unit.base</code>.</li>
 </ul>
 </p>
@@ -147,11 +146,10 @@
 <p>Here is the basic structure of the partition spec:</p>
 
 <pre><span class="lang-name">Python</span><code class="language-python">parttspec = {
-    &#x27;partition-title&#x27;: &#x27;new-domain&#x27;,
-    &#x27;partition-loops&#x27;: {
-        0: {...},
-        1: {...}, ...
-    },
+    &#x27;name&#x27;: &#x27;new-domain&#x27;,
+    &#x27;anchors&#x27;: [
+        (0, 0), (0, 1), ...
+    ],
     &#x27;dirichlet-sides&#x27;: [1, 2, ...]
 }</code></pre>
 
@@ -163,18 +161,27 @@
         <th>Description</th>
     </tr>
     <tr>
-        <td><code>"partition-title"</code></td>
-        <td>Title (name) of the partition.</td>
+        <td><code>"name"</code></td>
+        <td>Name of the partition.</td>
     </tr>
     <tr>
-        <td><code>"partition-loops"</code></td>
-        <td>Instructions on how to split loops of the mesh.</td>
+        <td><code>"anchors"</code></td>
+        <td>Points that define how the mesh boundary is split.</td>
     </tr>
     <tr>
         <td><code>"dirichlet-sides"</code></td>
-        <td>Indices of sections where Dirichlet BCs are applied.</td>
+        <td>Section numbers where Dirichlet BCs are applied.</td>
     </tr>
 </table>
+
+<div class="toc-anchor"></div><h4>Boundary partition</h4>
+
+<p>
+<ul class="md-list">
+    <li>The boundary partition is defined by anchor points.</li>
+    <li>The mesh node that splits the boundary is the one closest to the anchor point.</li>
+</ul>
+</p>
 
 <div class="toc-anchor"></div><h4>Section numbering</h4>
 
@@ -182,115 +189,12 @@
 
 <p>
 <ul class="md-list">
-    <li>The loop sections are numbered with positive integers: 1, 2, 3, ...</li>
+    <li>The boundary sections are numbered with positive integers: 1, 2, 3, ...</li>
     <li>The section numbered 0 is referred to as the <em>core section</em>.</li>
 </ul>
 </p>
 
 <p>The <em>core section</em> includes all mesh nodes except those on Dirichlet sides.</p>
-
-<div class="toc-anchor"></div><h4>Section creation</h4>
-
-<p>There are two ways to split a mesh loop into sections:</p>
-
-<p>
-<ul class="md-list">
-    <li>Splitting based on rotation angles between segments.</li>
-    <li>Splitting based on bins, like in <code>numpy.split()</code>.</li>
-</ul>
-</p>
-
-<p>Here is an example of the angle-based splitting:</p>
-
-<pre><span class="lang-name">Python</span><code class="language-python">{
-    &#x27;partition-title&#x27;: &#x27;new-domain&#x27;,
-    &#x27;partition-loops&#x27;: {
-        0: {
-            &#x27;angle&#x27;: 1.5
-        }
-    },
-    &#x27;dirichlet-sides&#x27;: [1, 2, ...]
-}</code></pre>
-
-<p>Here is an example of the bins-based splitting:</p>
-
-<pre><span class="lang-name">Python</span><code class="language-python">{
-    &#x27;partition-title&#x27;: &#x27;new-domain&#x27;,
-    &#x27;partition-loops&#x27;: {
-        0: {
-            &#x27;bins&#x27;: [10, 5, 10, ...]
-        }
-    },
-    &#x27;dirichlet-sides&#x27;: [1, 2, ...]
-}</code></pre>
-
-<p>The keys are as follows:</p>
-
-<table>
-    <tr>
-        <th>Key</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td><code>"angle"</code></td>
-        <td>Threshold angle for splitting a loop.</td>
-    </tr>
-    <tr>
-        <td><code>"bins"</code></td>
-        <td>Splitting bins like in <code>numpy.split()</code>.</td>
-    </tr>
-</table>
-
-<p>The operating conventions are:</p>
-
-<p>
-<ul class="md-list">
-    <li>At least one of the keys must be present.</li>
-    <li>Angle-based splitting takes priority if both keys are given.</li>
-</ul>
-</p>
-
-<div class="toc-anchor"></div><h4>Section coloring</h4>
-
-<p>After the initial partition, loop sections are treated as colored parts.</p>
-
-<p>In the partition spec, you can initiate postprocessing events for colors, for example:</p>
-
-<pre><span class="lang-name">Python</span><code class="language-python">{
-    &#x27;partition-title&#x27;: &#x27;new-domain&#x27;,
-    &#x27;partition-loops&#x27;: {
-        0: {
-            ...,
-            &#x27;coloring&#x27;: [
-                (1, 2, &#x27;rshift&#x27;), (3, 4, &#x27;rshift&#x27;), (5, 6, &#x27;switch&#x27;)
-            ]
-        }
-    },
-    &#x27;dirichlet-sides&#x27;: [1, 2, ...]
-}</code></pre>
-
-<p>Here, <code>coloring</code> is a list of events defined by triplets of the form <code>(section1, section2, event)</code>.</p>
-
-<p>Available events are:</p>
-
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td><code>"rshift"</code></td>
-        <td>Shifts the color contact one node to the right.</td>
-    </tr>
-    <tr>
-        <td><code>"lshift"</code></td>
-        <td>Shifts the color contact one node to the left.</td>
-    </tr>
-    <tr>
-        <td><code>"switch"</code></td>
-        <td>Repaints the second color with the first one.</td>
-    </tr>
-</table>
 
 <div class="toc-anchor"></div><h3>Creating a Matrix</h3>
 
@@ -307,7 +211,7 @@
 
 <p>The matrix is then generated as follows:</p>
 
-<pre><span class="lang-name">Python</span><code class="language-python">matrix = unit.partts[&#x27;new-domain&#x27;].new_matrix(operator, constr=True/False)</code></pre>
+<pre><span class="lang-name">Python</span><code class="language-python">matrix = unit.partts[&#x27;new-domain&#x27;].new_matrix(operator, add_constr=True/False)</code></pre>
 
 <div class="toc-anchor"></div><h4>Set an operator</h4>
 
@@ -373,8 +277,8 @@
 
 <p>
 <ul class="md-list">
-    <li><code>some_func(x, y)</code> represents a certain 2D field</li>
-    <li><code>unit.mesh.centrs2d</code> provides the centroids of triangles</li>
+    <li><code>some_func(x, y)</code> represents a certain 2D field.</li>
+    <li><code>unit.mesh.centrs2d</code> provides the centroids of triangles.</li>
 </ul>
 </p>
 
@@ -432,10 +336,8 @@
 
 <pre><span class="lang-name">Python</span><code class="language-python">&quot;&quot;&quot;Example of using triellipt to reproduce the Bessel function.
 
-- Guides you through the basic solution steps.
-- Mesh is kept conformal for simplicity (no hanging nodes).
-
-The equation solved is:
+- The mesh is kept conformal for simplicity.
+- The equation solved is:
 
     d/dy[y∙du/dy] + d/dx[y∙du/dx] + y∙u = 0
 
@@ -463,34 +365,34 @@ def bessel_operator(unit):
         unit.diff_2x + unit.diff_2y + unit.massmat
     )
 
-# Partition specification.
+# Creating a mesh.
 
-box_partt = {
-    &#x27;partition-title&#x27;: &#x27;box&#x27;,
-    &#x27;partition-loops&#x27;: {
-        0: {
-            &quot;angle&quot;: 1.5,
-            &quot;coloring&quot;: [
-                (1, 2, &#x27;rshift&#x27;), (3, 4, &#x27;rshift&#x27;)
-            ]
-        }
-    },
-    &#x27;dirichlet-sides&#x27;: [1, 3]
-}
+seed = tri.mesher.trilattice(31, 41, close=True) * 0.05
 
 # Creating a FEM unit.
 
-seed = tri.mesher.trilattice(31, 41, True) * 0.05
-unit = tri.fem.getunit(seed, (0,))
+unit = tri.fem.getunit(
+    seed, anchors=((0, 0),)
+)
+
+# Partition specification.
+
+partt_box = {
+    &#x27;name&#x27;: &#x27;box&#x27;,
+    &#x27;anchors&#x27;: [
+        (1.5, 0.1), (1.5, 3.5), (0, 3.4)
+    ],
+    &#x27;dirichlet-sides&#x27;: [1, 3]
+}
 
 # Adding partition to the unit.
 
-unit.add_partition(box_partt)
+unit = unit.add_partition(partt_box)
 
 # Creating a FEM matrix.
 
 mat = unit.partts[&#x27;box&#x27;].new_matrix(
-    bessel_operator(unit), constr=False
+    bessel_operator(unit), add_constr=False
 )
 
 # Creating FEM vectors (solution and reference).

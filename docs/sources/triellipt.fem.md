@@ -23,10 +23,10 @@ Creates a FEM computing unit.
   Input triangle mesh.
 </dd></dl>
 
-<p><span class="vardef"><code>anchors</code> : <em>tuple = None</em></span></p>
+<p><span class="vardef"><code>anchors</code> : <em>Iterable = None</em></span></p>
 
 <dl><dd>
-  Nodes numbers to synchronize the mesh boundary.
+  Provides <code>(float, float)</code> points to synchronize the mesh boundary.
 </dd></dl>
 
 <b>Returns</b>
@@ -160,25 +160,25 @@ Creates an interpolator on a mesh.
 
 ### massopr()
 
-<pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, lumped, constr, radial=<span>False</span>)</pre>
+<pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, is_lumped, add_constr, is_radial=<span>False</span>)</pre>
 
 Creates the mass operator.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>lumped</code> : <em>bool</em></span></p>
+<p><span class="vardef"><code>is_lumped</code> : <em>bool</em></span></p>
 
 <dl><dd>
   Creates a lumped mass, if <i>True</i>.
 </dd></dl>
 
-<p><span class="vardef"><code>constr</code> : <em>bool</em></span></p>
+<p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
   Adds constraints, if <i>True</i>.
 </dd></dl>
 
-<p><span class="vardef"><code>radial</code> : <em>bool = False</em></span></p>
+<p><span class="vardef"><code>is_radial</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
   Adds the radial weight, if <i>True</i>.
@@ -196,7 +196,7 @@ Creates the mass operator.
 
 <pre class="py-sign">FEMUnit.<b>massinv</b>(<em>self</em>, radial=<span>False</span>)</pre>
 
-Creates the inverse mass operator (lumped and constrained only).
+Creates the inverse mass operator.
 
 <b>Parameters</b>
 
@@ -214,55 +214,56 @@ Creates the inverse mass operator (lumped and constrained only).
   Callable inverse operator.
 </dd></dl>
 
+<b>Notes</b>
+
+Used only for a lumped mass operator with constraints.
+
 ## FEMPartt
 
-<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMPartt</b>(unit=<span>None</span>, edge=<span>None</span>, meta=<span>None</span>)</pre>
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMPartt</b>(unit, meta, edge)</pre>
 
 FEM unit partition.
 
 <b>Properties</b>
 
 Name        | Description
-------------|----------------------------
-`name`      | Name of the partition.
-`edge`      | Map of the edge sections.
-`core`      | Core partition section.
+------------|-------------------------
+`core`      | Core section.
+`edge`      | Map of edge sections.
 `meta`      | Partition metadata.
 
 ### new_vector()
 
-<pre class="py-sign">FEMPartt.<b>new_vector</b>(<em>self</em>, data=<span>None</span>)</pre>
+<pre class="py-sign">FEMPartt.<b>new_vector</b>(<em>self</em>)</pre>
 
 Creates a new FEM vector.
 
-<b>Parameters</b>
+<b>Returns</b>
 
-<p><span class="vardef"><code>data</code> : <em>scalar | flat-array</em></span></p>
+<p><span class="vardef"><em>VectorFEM</em></span></p>
 
 <dl><dd>
-  Vector initialization data (optional).
+  New empty FEM vector.
 </dd></dl>
-
-<b>Returns</b>
 
 ### new_matrix()
 
-<pre class="py-sign">FEMPartt.<b>new_matrix</b>(<em>self</em>, data, constr)</pre>
+<pre class="py-sign">FEMPartt.<b>new_matrix</b>(<em>self</em>, operator, add_constr)</pre>
 
 Creates a new FEM matrix.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
+<p><span class="vardef"><code>operator</code> : <em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Combination of local FEM operators.
+  Linear combination of the basic FEM operators.
 </dd></dl>
 
-<p><span class="vardef"><code>constr</code> : <em>bool</em></span></p>
+<p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Constraints are included, if <i>True</i>.
+  Constraints are included in the matrix, if <i>True</i>.
 </dd></dl>
 
 <b>Returns</b>

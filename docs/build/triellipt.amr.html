@@ -37,7 +37,6 @@
                         <li><a href="#getunit">getunit()</a></li>
                         <li><a href="#amrunit">AMRUnit</a>
                             <ul>
-                                <li><a href="#tofem">tofem()</a></li>
                                 <li><a href="#refine">refine()</a></li>
                                 <li><a href="#coarsen">coarsen()</a></li>
                                 <li><a href="#find_node">find_node()</a></li>
@@ -124,28 +123,6 @@
         <td>Data-collector after coarsening.</td>
     </tr>
 </table>
-
-<div class="toc-anchor"></div><h3>tofem()</h3>
-
-<pre class="py-sign">AMRUnit.<b>tofem</b>(<em>self</em>, anchors=<span>None</span>)</pre>
-
-<p>Converts the AMR unit to a FEM one.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>anchors</code> : <em>tuple = None</em></span></p>
-
-<dl><dd>
-  Nodes numbers to synchronize the mesh boundary.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>FEMUnit</em></span></p>
-
-<dl><dd>
-  The resulting FEM unit.
-</dd></dl>
 
 <div class="toc-anchor"></div><h3>refine()</h3>
 

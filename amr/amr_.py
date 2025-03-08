@@ -91,22 +91,6 @@ class AMRUnit(AMRData):
 
     """
 
-    def tofem(self, anchors=None):
-        """Converts the AMR unit to a FEM one.
-
-        Parameters
-        ----------
-        anchors : tuple = None
-            Nodes numbers to synchronize the mesh boundary.
-
-        Returns
-        -------
-        FEMUnit
-            The resulting FEM unit.
-
-        """
-        return femunit.getunit(self.mesh, anchors)
-
     def refine(self, trinums=None):
         """Performs a static mesh refinement.
 

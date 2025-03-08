@@ -10,7 +10,7 @@
 
 This page guides you through the process of solving PDEs with **triellipt**.
 
-In what follows, we assume the following import with an alias:
+In what follows, we assume the following import with an alias is used:
 
 ```python
 import triellipt as tri
@@ -31,7 +31,7 @@ There are a couple of methods to create a mesh:
 
 ### Creating a FEM Unit
 
-With the mesh ready, the next step is to create a FEM computing unit:
+Once the mesh is ready, the next step is to create a FEM computing unit:
 
 ```python
 unit = tri.fem.getunit(mesh, anchors=(0,))
@@ -54,7 +54,7 @@ For more details, refer to [triellipt.fem.FEMUnit](triellipt.fem.md#femunit).
 
 ### Creating a Partition
 
-Once you have a FEM unit, you need to create a domain partition for defining the *boundary conditions (BCs)*.
+After creating the FEM unit, you must partition the domain to define the *boundary conditions (BCs)*.
 
 Two steps are needed:
 
@@ -63,116 +63,42 @@ Two steps are needed:
 
 Facts to know:
 
-- The map of unit partitions is available as `unit.partts`.
+- The map of current unit partitions is available as `unit.partts`.
 - Each unit has the default edge-core partition — `unit.base`.
 
 Here is the basic structure of the partition spec:
 
 ```python
 parttspec = {
-    'partition-title': 'new-domain',
-    'partition-loops': {
-        0: {...},
-        1: {...}, ...
-    },
+    'name': 'new-domain',
+    'anchors': [
+        (0, 0), (0, 1), ...
+    ],
     'dirichlet-sides': [1, 2, ...]
 }
 ```
 
 The keys are:
 
-Key                   | Description
-----------------------|-------------------------------------------------------
-`"partition-title"`   | Title (name) of the partition.
-`"partition-loops"`   | Instructions on how to split loops of the mesh.
-`"dirichlet-sides"`   | Indices of sections where Dirichlet BCs are applied.
+Key                 | Description
+--------------------|------------------------------------------------------
+`"name"`            | Name of the partition.
+`"anchors"`         | Points that define how the mesh boundary is split.
+`"dirichlet-sides"` | Section numbers where Dirichlet BCs are applied.
+
+#### Boundary partition
+
+- The boundary partition is defined by anchor points.
+- The mesh node that splits the boundary is the one closest to the anchor point.
 
 #### Section numbering
 
 The numbering convention is as follows:
 
-- The loop sections are numbered with positive integers: 1, 2, 3, ...
+- The boundary sections are numbered with positive integers: 1, 2, 3, ...
 - The section numbered 0 is referred to as the *core section*. 
 
 The *core section* includes all mesh nodes except those on Dirichlet sides.
-
-#### Section creation
-
-There are two ways to split a mesh loop into sections:
-
-- Splitting based on rotation angles between segments.
-- Splitting based on bins, like in `numpy.split()`.
-
-Here is an example of the angle-based splitting:
-
-```python
-{
-    'partition-title': 'new-domain',
-    'partition-loops': {
-        0: {
-            'angle': 1.5
-        }
-    },
-    'dirichlet-sides': [1, 2, ...]
-}
-```
-
-Here is an example of the bins-based splitting:
-
-```python
-{
-    'partition-title': 'new-domain',
-    'partition-loops': {
-        0: {
-            'bins': [10, 5, 10, ...]
-        }
-    },
-    'dirichlet-sides': [1, 2, ...]
-}
-```
-
-The keys are as follows:
-
-Key         | Description
-------------|------------------------------------------
-`"angle"`   | Threshold angle for splitting a loop.
-`"bins"`    | Splitting bins like in `numpy.split()`.
-
-The operating conventions are:
-
-- At least one of the keys must be present.
-- Angle-based splitting takes priority if both keys are given.
-
-#### Section coloring
-
-After the initial partition, loop sections are treated as colored parts.
-
-In the partition spec, you can initiate postprocessing events for colors, for example:
-
-```python
-{
-    'partition-title': 'new-domain',
-    'partition-loops': {
-        0: {
-            ...,
-            'coloring': [
-                (1, 2, 'rshift'), (3, 4, 'rshift'), (5, 6, 'switch')
-            ]
-        }
-    },
-    'dirichlet-sides': [1, 2, ...]
-}
-```
-
-Here, `coloring` is a list of events defined by triplets of the form `(section1, section2, event)`.
-
-Available events are:
-
-Name         | Description
--------------|-------------------------------------------------------
-`"rshift"`   | Shifts the color contact one node to the right.
-`"lshift"`   | Shifts the color contact one node to the left.
-`"switch"`   | Repaints the second color with the first one.
 
 ### Creating a Matrix
 
@@ -186,7 +112,7 @@ Two steps are needed:
 The matrix is then generated as follows:
 
 ```python
-matrix = unit.partts['new-domain'].new_matrix(operator, constr=True/False)
+matrix = unit.partts['new-domain'].new_matrix(operator, add_constr=True/False)
 ```
 
 #### Set an operator
@@ -229,8 +155,8 @@ coeff = some_func(*unit.mesh.centrs2d)
 
 where 
 
-- `some_func(x, y)` represents a certain 2D field
-- `unit.mesh.centrs2d` provides the centroids of triangles
+- `some_func(x, y)` represents a certain 2D field.
+- `unit.mesh.centrs2d` provides the centroids of triangles.
 
 Then the scaled Laplace operator can be defined as
 
@@ -277,10 +203,8 @@ Here is a complete example of how to reproduce the Bessel function:
 ```python
 """Example of using triellipt to reproduce the Bessel function.
 
-- Guides you through the basic solution steps.
-- Mesh is kept conformal for simplicity (no hanging nodes).
-
-The equation solved is:
+- The mesh is kept conformal for simplicity.
+- The equation solved is:
 
     d/dy[y∙du/dy] + d/dx[y∙du/dx] + y∙u = 0
 
@@ -308,34 +232,34 @@ def bessel_operator(unit):
         unit.diff_2x + unit.diff_2y + unit.massmat
     )
 
-# Partition specification.
+# Creating a mesh.
 
-box_partt = {
-    'partition-title': 'box',
-    'partition-loops': {
-        0: {
-            "angle": 1.5,
-            "coloring": [
-                (1, 2, 'rshift'), (3, 4, 'rshift')
-            ]
-        }
-    },
-    'dirichlet-sides': [1, 3]
-}
+seed = tri.mesher.trilattice(31, 41, close=True) * 0.05
 
 # Creating a FEM unit.
 
-seed = tri.mesher.trilattice(31, 41, True) * 0.05
-unit = tri.fem.getunit(seed, (0,))
+unit = tri.fem.getunit(
+    seed, anchors=((0, 0),)
+)
+
+# Partition specification.
+
+partt_box = {
+    'name': 'box',
+    'anchors': [
+        (1.5, 0.1), (1.5, 3.5), (0, 3.4)
+    ],
+    'dirichlet-sides': [1, 3]
+}
 
 # Adding partition to the unit.
 
-unit.add_partition(box_partt)
+unit = unit.add_partition(partt_box)
 
 # Creating a FEM matrix.
 
 mat = unit.partts['box'].new_matrix(
-    bessel_operator(unit), constr=False
+    bessel_operator(unit), add_constr=False
 )
 
 # Creating FEM vectors (solution and reference).

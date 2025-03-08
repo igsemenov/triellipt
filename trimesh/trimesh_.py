@@ -340,25 +340,25 @@ class TriMesh(_TriMesh):
         return self.deltriangs(*self.getvoids())
 
     def alignnodes(self, *anchors):
-        """Numbers the mesh points in edge-core order.
-
-        - Loop nodes are placed at the beginning of the node numbering.
-        - Loops are oriented in counterclockwise (CCW) order.
-        - Loops may be synchronized with optional anchor nodes.
+        """Performs the edge-core ordering of the mesh nodes.
 
         Parameters
         ----------
-        anchors : *int
-            Node numbers used to synchronize the edge loops.
+        anchors : *(float, float)
+            Points to synchronize the mesh loops with.
 
         Returns
         -------
         TriMesh | None
-            New mesh or None, if loops cannot be fetched.
+            New mesh, or None if the mesh loops cannot be fetched.
 
         """
-        _ = renumer.AlignNodes.from_mesh(self)
-        return _.aligned(*anchors)
+
+        aligner = renumer.AlignNodes.from_mesh(self)
+
+        return aligner.aligned(
+            *_find_closest(self.points, anchors)
+        )
 
     def renumed(self, permuter):
         """Renumbers the mesh nodes.
@@ -493,3 +493,16 @@ def _norminds(inds, size):
     )
 
     return inds[mask].copy('C')
+
+
+def _find_closest(points, anchors):
+
+    anchors = [
+        complex(x, y) for x, y in anchors
+    ]
+
+    indices = [
+        np.argmin(abs(points - anchor)) for anchor in anchors
+    ]
+
+    return indices

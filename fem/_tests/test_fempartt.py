@@ -1,91 +1,73 @@
 # -*- coding: utf-8 -*-
-"""Tests the mesh skeleton.
+"""Tests the unit partition.
 """
 import unittest
 from triellipt import mesher
 from triellipt.fem import femunit
 
 
-PARTT_ANGLE = {
-    'partition-title': 'box',
-    'partition-loops': {
-        0: {
-            'angle': 1.5,
-            'coloring': [
-                (1, 2, 'rshift'), (3, 4, 'rshift')
-            ]
-        }
-    },
-    'dirichlet-sides': [1, 3]
+SPEC_WITH_DIRICHS = {
+    'name': 'box',
+    'anchors': [(1, 0), (1, 1), (0, 1)],
+    'dirichlet-sides': (1, 3)
 }
 
-PARTT_BINS = {
-    'partition-title': 'box',
-    'partition-loops': {
-        0: {
-            'bins': [5, 2, 5, 2],
-            'coloring': []
-        }
-    },
+SPEC_NO_DIRICHS = {
+    'name': 'box',
+    'anchors': [(1, 0), (1, 1), (0, 1)],
     'dirichlet-sides': []
 }
 
 
 class Tester(unittest.TestCase):
 
-    UNIT = None
-
     @classmethod
     def unit(cls):
         return femunit.getunit(
-            cls.mesh(), anchors=(0,)
+            cls.mesh(), anchors=[(0, 0)]
         )
 
     @classmethod
     def mesh(cls):
-        return mesher.trigrid(5, 4, 'east-slope')
+        return mesher.trigrid(5, 5, 'east-slope') * 0.25
 
     @property
     def box(self):
         return self.UNIT.partts['box']
 
 
-class TestParttAngle(Tester):
+class TestParttWithDirichlets(Tester):
 
     @classmethod
     def setUpClass(cls):
-        cls.UNIT = cls.unit().add_partition(PARTT_ANGLE)
+        cls.UNIT = cls.unit().add_partition(SPEC_WITH_DIRICHS)
 
     def test_edge(self):
-        assert self.box.edge[1].tolist() == [0, 1, 2, 3, 4]
-        assert self.box.edge[3].tolist() == [7, 8, 9, 10, 11]
-        assert self.box.edge[2].tolist() == [5, 6]
-        assert self.box.edge[4].tolist() == [12, 13]
+        assert self.box.edge[1].tolist() == [0, 1, 2, 3]
+        assert self.box.edge[2].tolist() == [4, 5, 6, 7]
+        assert self.box.edge[3].tolist() == [8, 9, 10, 11]
+        assert self.box.edge[4].tolist() == [12, 13, 14, 15]
 
     def test_core(self):
-        assert self.box.core.tolist() == [5, 6, 12, 13, *range(14, 20)]
+        assert self.box.core.tolist() == [
+            *[4, 5, 6, 7], *[12, 13, 14, 15], *range(16, 25)
+        ]
 
-    def test_dirich_sides(self):
-        assert self.box.dirich_sides == {1, 3}
 
-
-class TestParttBins(Tester):
+class TestParttNoDirichlets(Tester):
 
     @classmethod
     def setUpClass(cls):
-        cls.UNIT = cls.unit().add_partition(PARTT_BINS)
+        cls.UNIT = cls.unit().add_partition(SPEC_NO_DIRICHS)
 
     def test_edge(self):
-        assert self.box.edge[1].tolist() == [0, 1, 2, 3, 4]
-        assert self.box.edge[3].tolist() == [7, 8, 9, 10, 11]
-        assert self.box.edge[2].tolist() == [5, 6]
-        assert self.box.edge[4].tolist() == [12, 13]
+        assert self.box.edge[1].tolist() == [0, 1, 2, 3]
+        assert self.box.edge[2].tolist() == [4, 5, 6, 7]
+        assert self.box.edge[3].tolist() == [8, 9, 10, 11]
+        assert self.box.edge[4].tolist() == [12, 13, 14, 15]
 
     def test_core(self):
-        assert self.box.core.tolist() == list(range(20))
-
-    def test_dirich_sides(self):
-        assert self.box.dirich_sides == set()
+        assert self.box.core.tolist() == list(range(25))
 
 
 if __name__ == '__main__':

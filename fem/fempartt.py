@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """FEM unit partition.
 """
-from abc import ABC, abstractmethod
 import itertools as itr
 import numpy as np
-from triellipt import geom
 from triellipt.fem import femvector, femmatrix
 
 
@@ -22,24 +20,33 @@ def getpartt(unit, spec):
         Partition object.
 
     """
-
-    partt_name = spec['partition-title']
-    loopspartt = spec['partition-loops']
-    dirichlets = spec['dirichlet-sides']
-
-    partt = makepartt(unit, loopspartt)
-    partt = partt.with_name(partt_name)
-    partt = partt.with_dirich_sides(*dirichlets)
-
-    return partt
+    partter = UnitPartter.from_unit(unit)
+    return partter.getpartt(spec)
 
 
-def makepartt(unit, loopspartt):
-    _ = UnitPartter.from_unit(unit).with_loops_partt(loopspartt)
-    return _.get_unit_partt()
+def make_base_partition(unit):
+    """Makes the edge-core unit partition.
+    """
+
+    meta = {
+        'name': 'base',
+        'dirichlet-sides': (1,)
+    }
+
+    loops = [
+        loop.nodnums_unique for loop in unit.loops
+    ]
+
+    edges = {
+        1: np.hstack(loops)
+    }
+
+    return FEMPartt(
+        unit, meta, edges
+    )
 
 
-class UnitAgent(ABC):
+class UnitAgent:
     """Operator on a FEM unit.
     """
 
@@ -51,258 +58,87 @@ class UnitAgent(ABC):
     def from_unit(cls, unit):
         return cls(unit)
 
+    def get_loops_nodenums(self):
+
+        nodenums = [
+            loop.nodnums1 for loop in self.unit.loops
+        ]
+
+        return np.hstack(nodenums)
+
+    def get_loops_points(self):
+
+        points = [
+            loop.nodes_complex for loop in self.unit.loops
+        ]
+
+        return np.hstack(points)
+
 
 class UnitPartter(UnitAgent):
     """Makes unit partition.
     """
 
-    def with_loops_partt(self, loopspartt):
-        self.cache['loops-partt'] = self.make_loops_partt(loopspartt)
-        return self
+    def getpartt(self, spec):
 
-    @property
-    def loops_partt(self):
-        return self.cache['loops-partt']
+        self.cache['spec'] = spec
 
-    def make_loops_partt(self, data):
-        return LoopsPartt.from_attrs(self.unit, data).checked()
+        return FEMPartt(
+            self.unit, spec, self.make_edges()
+        )
 
-    def get_unit_partt(self):
+    def make_edges(self):
 
-        sides = self.get_sides_across_loops()
+        sides = self.split_loops()
 
-        sides = {
+        return {
             i + 1: v for i, v in enumerate(sides)
         }
 
-        return FEMPartt(
-            self.unit, sides
+    def split_loops(self):
+
+        sides = itr.chain.from_iterable(
+            self.split_loop(l) for l in self.loops_as_arrays
         )
 
-    def get_sides_across_loops(self):
-        return itr.chain.from_iterable(
-            self.gen_sides_across_loops()
+        return sides
+
+    def split_loop(self, loop):
+
+        anchors = self.find_anchors()
+
+        _, inds, _ = np.intersect1d(
+            loop, anchors, assume_unique=True, return_indices=True
         )
 
-    def gen_sides_across_loops(self):
+        return np.split(loop, inds)
 
-        for num, loop in enumerate(self.unit.loops):
+    def find_anchors(self):
 
-            splitter = self.loops_partt.get_splitter_for_loop(num)
-            coloring = self.loops_partt[num].get('coloring')
+        points = self.get_loops_points()
+        nodenums = self.get_loops_nodenums()
 
-            yield splitter(loop, coloring)
-
-
-LoopsParttError = type(
-    'LoopsParttError', (Exception,), {}
-)
-
-
-class LoopsPartt:
-    """Loops partition metadata.
-    """
-
-    def __init__(self, unit, data):
-        self.unit = unit
-        self.data = data
-
-    @classmethod
-    def from_attrs(cls, unit, data):
-        return cls(unit, data)
-
-    @property
-    def loops_count(self):
-        return len(self.unit.loops)
-
-    def __getitem__(self, num):
-        return self.data[num]
-
-    def get_splitter_for_loop(self, loopnum):
-
-        if 'angle' in self.data[loopnum]:
-            return splitter_by_angle(
-                self.data[loopnum]['angle']
-            )
-
-        if 'bins' in self.data[loopnum]:
-            return splitter_by_bins(
-                self.data[loopnum]['bins']
-            )
-
-        return None
-
-    def checked(self):
-        self.check_loops_numbers()
-        self.check_partt_types()
-        return self
-
-    def check_loops_numbers(self):
-        for loopnum in range(self.loops_count):
-            if loopnum not in self.data:
-                raise LoopsParttError(
-                    f"no partition data for the loop {loopnum}"
-                )
-
-    def check_partt_types(self):
-        for loopnum in range(self.loops_count):
-            self.check_partt_type(loopnum)
-
-    def check_partt_type(self, loopnum):
-        if 'angle' in self.data[loopnum]:
-            return
-        if 'bins' in self.data[loopnum]:
-            return
-        raise LoopsParttError(
-            f"no partition type for the loop {loopnum}"
-        )
-
-
-def splitter_by_bins(bins):
-    def splitter_(loop, coloring):
-        _ = SplitByBins(loop, coloring).with_bins(bins)
-        return _.get_edges()
-    return splitter_
-
-
-def splitter_by_angle(angle):
-    def splitter_(loop, coloring):
-        _ = SplitByAngle(loop, coloring).with_angle(angle)
-        return _.get_edges()
-    return splitter_
-
-
-class LoopSplitter:
-    """Base splitter of loops.
-
-    Parameters
-    ----------
-    loop : mesh-loop
-        Loop to be partitioned.
-    spec : dict
-        Coloring specification.
-
-    """
-
-    def __init__(self, loop, spec):
-        self.loop = loop
-        self.spec = spec
-        self.cache = {}
-
-    def get_edges(self):
-
-        self.make_loop_cycle()
-        self.make_loop_colored()
-        self.sync_loop_colored()
-
-        paths = self.cache['loop-colored'].split()
-
-        return [
-            path.numbers for path in paths
+        closestinds = [
+            _find_closest(points, p) for p in self.anchors_complex
         ]
 
-    def sync_loop_colored(self):
-
-        if not self.spec:
-            return
-
-        coloroprs = {
-            'lshift': self.lshift,
-            'rshift': self.rshift,
-            'switch': self.switch
-        }
-
-        for sidenum1, sidenum2, mode in self.spec:
-            coloroprs[mode](
-                sidenum1 - 1, sidenum2 - 1
-            )
-
-    @abstractmethod
-    def make_loop_colored(self):
-        """Makes the pathmap from the loop-cycle.
-        """
-
-    def make_loop_cycle(self):
-
-        cycle = geom.makecycle(
-            self.loop.nodes_complex
-        )
-
-        self.cache['loop-cycle'] = cycle
-        return cycle
-
-    def lshift(self, color1, color2):
-        self.pathmap = self.pathmap.lshift(color1, color2)
-
-    def rshift(self, color1, color2):
-        self.pathmap = self.pathmap.rshift(color1, color2)
-
-    def switch(self, color1, color2):
-        self.pathmap = self.pathmap.repaint(color1, color2)
+        return nodenums[closestinds]
 
     @property
-    def cycle(self):
-        return self.cache['loop-cycle']
+    def loops_as_arrays(self):
+        return [
+            loop.nodnums1 for loop in self.unit.loops
+        ]
 
     @property
-    def pathmap(self):
-        return self.cache['loop-colored']
-
-    @pathmap.setter
-    def pathmap(self, new_pathmap):
-        self.cache['loop-colored'] = new_pathmap
-
-
-class SplitByBins(LoopSplitter):
-    """Splits the unit loop by bins.
-    """
-
-    def with_bins(self, bins):
-        self.cache['split-bins'] = bins
-        return self
-
-    def make_loop_colored(self):
-        pathmap = self.cycle.split(self.split_bins)
-        self.cache['loop-colored'] = pathmap
+    def anchors_complex(self):
+        return [
+            complex(x, y) for x, y in self.cache['spec']['anchors']
+        ]
 
     @property
-    def split_bins(self):
-        return self.cache['split-bins']
-
-
-class SplitByAngle(LoopSplitter):
-    """Splits the unit loop by an angle.
-    """
-
-    def with_angle(self, angle):
-        self.cache['split-angle'] = angle
-        return self
-
-    def make_loop_colored(self):
-        pathmap = self.cycle.dissect(self.split_angle)
-        self.cache['loop-colored'] = pathmap
-
-    @property
-    def split_angle(self):
-        return self.cache['split-angle']
-
-
-def make_partt_base(unit):
-    """Makes the base edge-core-partition.
-    """
-
-    edges = [
-        loop.nodnums_unique for loop in unit.loops
-    ]
-
-    partt = FEMPartt(
-        unit, {1: np.hstack(edges)}
-    )
-
-    partt = partt.with_name('base')
-    partt = partt.with_dirich_sides(1)
-
-    return partt
+    def anchors_nodnums(self):
+        return self.cache['anchors-nodnums']
 
 
 FEMParttError = type(
@@ -317,17 +153,17 @@ class DataPartt:
     ----------
     unit : FEMUnit
         Parent FEM unit.
-    edge : dict
-        Edge sides numbered from one.
     meta : dict
         Partition metadata.
+    edge : dict
+        Edge sides numbered from one.
 
     """
 
-    def __init__(self, unit=None, edge=None, meta=None):
+    def __init__(self, unit, meta, edge):
         self.unit = unit
+        self.meta = meta
         self.edge = edge
-        self.meta = meta or {}
 
     def __getitem__(self, key):
         if key == 0:
@@ -340,18 +176,11 @@ class DataPartt:
 
     @property
     def name(self):
-        if 'name' in self.meta:
-            return self.meta['name']
-        return str(self)
+        return self.meta['name']
 
     @property
     def dirich_sides(self):
-        return self.meta.get('dirich_sides')
-
-    def update_meta(self, **kwargs):
-        return self.__class__(
-            self.unit, self.edge, self.meta | kwargs
-        )
+        return self.meta['dirichlet-sides']
 
     @property
     def core(self):
@@ -386,51 +215,33 @@ class FEMPartt(DataPartt):
     ----------
 
     Name        | Description
-    ------------|----------------------------
-    `name`      | Name of the partition.
-    `edge`      | Map of the edge sections.
-    `core`      | Core partition section.
+    ------------|-------------------------
+    `core`      | Core section.
+    `edge`      | Map of edge sections.
     `meta`      | Partition metadata.
 
     """
 
-    def with_name(self, name):
-        return self.update_meta(name=name)
-
-    def with_dirich_sides(self, *side_numbers):
-        return self.update_meta(
-            dirich_sides=set(side_numbers)
-        )
-
-    def new_vector(self, data=None):
+    def new_vector(self):
         """Creates a new FEM vector.
-
-        Parameters
-        ----------
-        data : scalar | flat-array
-            Vector initialization data (optional).
 
         Returns
         -------
         VectorFEM
+            New empty FEM vector.
 
         """
+        return femvector.getvector(self)
 
-        vector = femvector.getvector(self)
-
-        if data is None:
-            return vector
-        return vector.with_body(data)
-
-    def new_matrix(self, data, constr):
+    def new_matrix(self, operator, add_constr):
         """Creates a new FEM matrix.
 
         Parameters
         ----------
-        data : flat-float-array
-            Combination of local FEM operators.
-        constr : bool
-            Constraints are included, if True.
+        operator : flat-float-array
+            Linear combination of the basic FEM operators.
+        add_constr : bool
+            Constraints are included in the matrix, if True.
 
         Returns
         -------
@@ -438,9 +249,9 @@ class FEMPartt(DataPartt):
             Resulting FEM matrix.
 
         """
-        if constr is False:
-            return self.make_free_matrix(data)
-        return self.make_full_matrix(data)
+        if add_constr is False:
+            return self.make_free_matrix(operator)
+        return self.make_full_matrix(operator)
 
     def make_free_matrix(self, data):
         body, meta = self.unit.factory_free.feed_data(data)
@@ -465,3 +276,7 @@ class FEMPartt(DataPartt):
 
         """
         return self.unit.mesh.points2d[:, self[key]]
+
+
+def _find_closest(points, anchor):
+    return np.argmin(abs(points - anchor))

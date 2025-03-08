@@ -99,10 +99,10 @@
   Input triangle mesh.
 </dd></dl>
 
-<p><span class="vardef"><code>anchors</code> : <em>tuple = None</em></span></p>
+<p><span class="vardef"><code>anchors</code> : <em>Iterable = None</em></span></p>
 
 <dl><dd>
-  Nodes numbers to synchronize the mesh boundary.
+  Provides <code>(float, float)</code> points to synchronize the mesh boundary.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -277,25 +277,25 @@
 
 <div class="toc-anchor"></div><h3>massopr()</h3>
 
-<pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, lumped, constr, radial=<span>False</span>)</pre>
+<pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, is_lumped, add_constr, is_radial=<span>False</span>)</pre>
 
 <p>Creates the mass operator.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>lumped</code> : <em>bool</em></span></p>
+<p><span class="vardef"><code>is_lumped</code> : <em>bool</em></span></p>
 
 <dl><dd>
   Creates a lumped mass, if <i>True</i>.
 </dd></dl>
 
-<p><span class="vardef"><code>constr</code> : <em>bool</em></span></p>
+<p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
   Adds constraints, if <i>True</i>.
 </dd></dl>
 
-<p><span class="vardef"><code>radial</code> : <em>bool = False</em></span></p>
+<p><span class="vardef"><code>is_radial</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
   Adds the radial weight, if <i>True</i>.
@@ -313,7 +313,7 @@
 
 <pre class="py-sign">FEMUnit.<b>massinv</b>(<em>self</em>, radial=<span>False</span>)</pre>
 
-<p>Creates the inverse mass operator (lumped and constrained only).</p>
+<p>Creates the inverse mass operator.</p>
 
 <p><b>Parameters</b></p>
 
@@ -331,9 +331,13 @@
   Callable inverse operator.
 </dd></dl>
 
+<p><b>Notes</b></p>
+
+<p>Used only for a lumped mass operator with constraints.</p>
+
 <div class="toc-anchor"></div><h2>FEMPartt</h2>
 
-<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMPartt</b>(unit=<span>None</span>, edge=<span>None</span>, meta=<span>None</span>)</pre>
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMPartt</b>(unit, meta, edge)</pre>
 
 <p>FEM unit partition.</p>
 
@@ -345,16 +349,12 @@
         <th>Description</th>
     </tr>
     <tr>
-        <td><code>name</code></td>
-        <td>Name of the partition.</td>
+        <td><code>core</code></td>
+        <td>Core section.</td>
     </tr>
     <tr>
         <td><code>edge</code></td>
-        <td>Map of the edge sections.</td>
-    </tr>
-    <tr>
-        <td><code>core</code></td>
-        <td>Core partition section.</td>
+        <td>Map of edge sections.</td>
     </tr>
     <tr>
         <td><code>meta</code></td>
@@ -364,38 +364,36 @@
 
 <div class="toc-anchor"></div><h3>new_vector()</h3>
 
-<pre class="py-sign">FEMPartt.<b>new_vector</b>(<em>self</em>, data=<span>None</span>)</pre>
+<pre class="py-sign">FEMPartt.<b>new_vector</b>(<em>self</em>)</pre>
 
 <p>Creates a new FEM vector.</p>
 
-<p><b>Parameters</b></p>
+<p><b>Returns</b></p>
 
-<p><span class="vardef"><code>data</code> : <em>scalar | flat-array</em></span></p>
+<p><span class="vardef"><em>VectorFEM</em></span></p>
 
 <dl><dd>
-  Vector initialization data (optional).
+  New empty FEM vector.
 </dd></dl>
-
-<p><b>Returns</b></p>
 
 <div class="toc-anchor"></div><h3>new_matrix()</h3>
 
-<pre class="py-sign">FEMPartt.<b>new_matrix</b>(<em>self</em>, data, constr)</pre>
+<pre class="py-sign">FEMPartt.<b>new_matrix</b>(<em>self</em>, operator, add_constr)</pre>
 
 <p>Creates a new FEM matrix.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
+<p><span class="vardef"><code>operator</code> : <em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Combination of local FEM operators.
+  Linear combination of the basic FEM operators.
 </dd></dl>
 
-<p><span class="vardef"><code>constr</code> : <em>bool</em></span></p>
+<p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Constraints are included, if <i>True</i>.
+  Constraints are included in the matrix, if <i>True</i>.
 </dd></dl>
 
 <p><b>Returns</b></p>
