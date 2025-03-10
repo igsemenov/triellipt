@@ -11,8 +11,25 @@ MSHReaderError = type(
 )
 
 
+def getreader(path):
+    """Creates a reader of Gmsh meshes.
+
+    Parameters
+    ----------
+    path : str
+        Path to the folder with Gmsh meshes.
+
+    Returns
+    -------
+    MSHReader
+        Reader of Gmsh meshes.
+
+    """
+    return MSHReader.from_path(path)
+
+
 class MSHReader:
-    """Reader of `.msh` meshes.
+    """Reader of Gmsh meshes.
     """
 
     def __init__(self, root_path=None):
@@ -34,21 +51,9 @@ class MSHReader:
             "root directory not found, check the path"
         )
 
-    def with_root(self, path):
-        """Assigns the root directory to the reader.
-
-        Parameters
-        ----------
-        path : str
-            Absolute path to the root directory.
-
-        Returns
-        -------
-        MSHReader
-            New reader.
-
-        """
-        return self.__class__(path)
+    @classmethod
+    def from_path(cls, path):
+        return cls(path)
 
     def listmeshes(self):
         """Returns list of `.msh` files in the root directory.
@@ -78,15 +83,16 @@ class MSHReader:
 
         """
 
-        mesh_dict = self.read_mesh_dict(file_name)
-        trimesh = self.from_mesh_dict(mesh_dict)
+        mshdata = self.read_mesh_data(file_name)
+        trimesh = self.from_mesh_data(mshdata)
 
+        trimesh = trimesh.delghosts()
         return trimesh
 
-    def from_mesh_dict(self, mesh_dict):
+    def from_mesh_data(self, mesh_dict):
         return trimesh_.TriMesh.from_mesh_dict(mesh_dict)
 
-    def read_mesh_dict(self, file_name) -> dict:
+    def read_mesh_data(self, file_name) -> dict:
 
         try:
             filepath = os.path.join(

@@ -286,8 +286,13 @@ class Masser:
 
         unit = femunit.getunit(mesh)
 
-        mass_mat = unit.massopr(lumped=False, constr=False)
-        massdiag = unit.massopr(lumped=True, constr=False)
+        mass_mat = unit.massopr(
+            is_lumped=False, add_constr=False
+        )
+
+        massdiag = unit.massopr(
+            is_lumped=True, add_constr=False
+        )
 
         meta = {
             'mass-mat': mass_mat.body,

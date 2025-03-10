@@ -345,12 +345,12 @@ class TriMesh(_TriMesh):
         Parameters
         ----------
         anchors : *(float, float)
-            Points to synchronize the mesh loops with.
+            Points to synchronize the mesh boundary.
 
         Returns
         -------
         TriMesh | None
-            New mesh, or None if the mesh loops cannot be fetched.
+            New mesh, or None if the mesh boundary can not be fetched.
 
         """
 

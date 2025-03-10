@@ -9,24 +9,18 @@
 
 Reader of Gmsh meshes.
 
-## MSHReader
+## getreader()
 
-<pre class="py-sign"><b><em>class</em></b> triellipt.mshread.<b>MSHReader</b>(root_path=<span>None</span>)</pre>
+<pre class="py-sign">triellipt.mshread.<b>getreader</b>(path)</pre>
 
-Reader of `.msh` meshes.
-
-### with_root()
-
-<pre class="py-sign">MSHReader.<b>with_root</b>(<em>self</em>, path)</pre>
-
-Assigns the root directory to the reader.
+Creates a reader of Gmsh meshes.
 
 <b>Parameters</b>
 
 <p><span class="vardef"><code>path</code> : <em>str</em></span></p>
 
 <dl><dd>
-  Absolute path to the root directory.
+  Path to the folder with Gmsh meshes.
 </dd></dl>
 
 <b>Returns</b>
@@ -34,8 +28,14 @@ Assigns the root directory to the reader.
 <p><span class="vardef"><em>MSHReader</em></span></p>
 
 <dl><dd>
-  New reader.
+  Reader of Gmsh meshes.
 </dd></dl>
+
+## MSHReader
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.mshread.<b>MSHReader</b>(root_path=<span>None</span>)</pre>
+
+Reader of Gmsh meshes.
 
 ### listmeshes()
 

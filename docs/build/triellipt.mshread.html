@@ -34,9 +34,9 @@
             <ul>
                 <li><a href="#triellipt.mshread">triellipt.mshread</a>
                     <ul>
+                        <li><a href="#getreader">getreader()</a></li>
                         <li><a href="#mshreader">MSHReader</a>
                             <ul>
-                                <li><a href="#with_root">with_root()</a></li>
                                 <li><a href="#listmeshes">listmeshes()</a></li>
                                 <li><a href="#read_mesh">read_mesh()</a></li>
                             </ul>
@@ -59,24 +59,18 @@
 
 <p>Reader of Gmsh meshes.</p>
 
-<div class="toc-anchor"></div><h2>MSHReader</h2>
+<div class="toc-anchor"></div><h2>getreader()</h2>
 
-<pre class="py-sign"><b><em>class</em></b> triellipt.mshread.<b>MSHReader</b>(root_path=<span>None</span>)</pre>
+<pre class="py-sign">triellipt.mshread.<b>getreader</b>(path)</pre>
 
-<p>Reader of <code>.msh</code> meshes.</p>
-
-<div class="toc-anchor"></div><h3>with_root()</h3>
-
-<pre class="py-sign">MSHReader.<b>with_root</b>(<em>self</em>, path)</pre>
-
-<p>Assigns the root directory to the reader.</p>
+<p>Creates a reader of Gmsh meshes.</p>
 
 <p><b>Parameters</b></p>
 
 <p><span class="vardef"><code>path</code> : <em>str</em></span></p>
 
 <dl><dd>
-  Absolute path to the root directory.
+  Path to the folder with Gmsh meshes.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -84,8 +78,14 @@
 <p><span class="vardef"><em>MSHReader</em></span></p>
 
 <dl><dd>
-  New reader.
+  Reader of Gmsh meshes.
 </dd></dl>
+
+<div class="toc-anchor"></div><h2>MSHReader</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.mshread.<b>MSHReader</b>(root_path=<span>None</span>)</pre>
+
+<p>Reader of Gmsh meshes.</p>
 
 <div class="toc-anchor"></div><h3>listmeshes()</h3>
 

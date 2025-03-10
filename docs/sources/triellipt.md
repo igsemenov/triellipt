@@ -211,9 +211,9 @@ Module                   | Description
 <ul class="ref-list" id="mod-refs">
     <li><a href="triellipt.mshread.md#triellipt.mshread">triellipt.mshread</a>
         <ul>
+            <li><a href="triellipt.mshread.md#getreader">getreader()</a></li>
             <li><a href="triellipt.mshread.md#mshreader">MSHReader</a>
                 <ul>
-                    <li><a href="triellipt.mshread.md#with_root">with_root()</a></li>
                     <li><a href="triellipt.mshread.md#listmeshes">listmeshes()</a></li>
                     <li><a href="triellipt.mshread.md#read_mesh">read_mesh()</a></li>
                 </ul>

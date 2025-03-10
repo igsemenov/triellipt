@@ -435,8 +435,13 @@ class MakerDataCollect(MeshSubAgent):
 
         unit = self.cache['mass-unit']
 
-        mass_fem = unit.massopr(lumped=True, constr=False)
-        mass_amr = unit.massopr(lumped=True, constr=True)
+        mass_fem = unit.massopr(
+            is_lumped=True, add_constr=False
+        )
+
+        mass_amr = unit.massopr(
+            is_lumped=True, add_constr=True
+        )
 
         mass_mat = mass_fem.body.copy()
         mass_amr = mass_amr.body.tocsc()

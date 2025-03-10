@@ -16,7 +16,7 @@ class TestReader(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.READER = MSHReader().with_root(dirpath())
+        cls.READER = MSHReader.from_path(dirpath())
 
     def test_listmeshes(self):
         assert 'circ-gmsh.msh' in self.READER.listmeshes()
@@ -32,11 +32,11 @@ class TestReader(unittest.TestCase):
 
     @property
     def mesh_circ(self):
-        return self.READER.read_mesh_dict('circ-gmsh.msh')
+        return self.READER.read_mesh_data('circ-gmsh.msh')
 
     @property
     def mesh_rect(self):
-        return self.READER.read_mesh_dict('rect-gmsh.msh')
+        return self.READER.read_mesh_data('rect-gmsh.msh')
 
 
 if __name__ == '__main__':

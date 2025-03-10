@@ -134,7 +134,7 @@ Performs the edge-core ordering of the mesh nodes.
 <p><span class="vardef"><code>anchors</code> : <em>*(float, float)</em></span></p>
 
 <dl><dd>
-  Points to synchronize the mesh loops with.
+  Points to synchronize the mesh boundary.
 </dd></dl>
 
 <b>Returns</b>
@@ -142,7 +142,7 @@ Performs the edge-core ordering of the mesh nodes.
 <p><span class="vardef"><em>TriMesh | None</em></span></p>
 
 <dl><dd>
-  New mesh, or <i>None</i> if the mesh loops cannot be fetched.
+  New mesh, or <i>None</i> if the mesh boundary can not be fetched.
 </dd></dl>
 
 ### renumed()
