@@ -2,7 +2,7 @@
 """AMR public tools.
 """
 import numpy as np
-from triellipt.fem import femunit
+from triellipt.fem import femunit, trinterp
 from triellipt.amr import (
     trirefine, tricoarsen, trinspect, trifronts
 )
@@ -108,7 +108,7 @@ class AMRUnit(AMRData):
         -----
 
         - The `data-refiner` is included in the mesh metadata.
-        - The voids ears are not refined to keep the mesh 1-irregular.
+        - The void ears are not refined to keep the mesh 1-irregular.
 
         """
 
@@ -141,7 +141,7 @@ class AMRUnit(AMRData):
         Parameters
         ----------
         trinums_cores : Iterable
-            Numbers of the super-triangles-cores to coarsen.
+            Numbers of the super-triangle-cores to coarsen.
 
         Returns
         -------
@@ -239,34 +239,63 @@ class AMRUnit(AMRData):
         """
         return trifronts.TriFrontFine.from_unit(self)
 
-    def constrain(self, data):
-        """Constrains data on a mesh.
+    def makedata(self, key, func, constrain):
+        """Generates a unit data item from a given function.
 
         Parameters
         ----------
-        data : flat-float-array
-            Nodal data to be constrained.
+        key : str-or-int
+            Key of the unit data item.
+        func : Callable
+            Function `(x, y)` on the mesh nodes.
+        constrain : bool
+            Constrains the new data item, if True.
 
         Returns
         -------
-        flat-float-array
-            Constained nodal data.
+        self
+            The unit with the new data item.
 
         """
-        return trirefine.constr_data(self.mesh, data)
 
-    def atfunc(self, func):
-        return self.constrain(
-            func(*self.mesh.points2d)
+        data = func(
+            *self.mesh.points2d
         )
+
+        if constrain is False:
+            self.data[key] = data
+            return self
+
+        self.data[key] = trirefine.constr_data(self.mesh, data)
+        return self
+
+    def getinterp(self, xnodes, ynodes):
+        """Creates an interpolator on a mesh.
+
+        Parameters
+        ----------
+        xnodes : flat-float-array
+            x-coordinates of the interpolation nodes.
+        ynodes : flat-float-array
+            y-coordinates of the interpolation nodes.
+
+        Returns
+        -------
+        TriInterp
+            Callable interpolator.
+
+        """
+        return trinterp.getinterp(
+            self.mesh, xnodes, ynodes
+        )
+
+    @property
+    def data_items(self):
+        return self.data.items()
 
     @property
     def masser(self):
         return self.get_masser(self.mesh)
-
-    @classmethod
-    def constr_data(cls, mesh, data):
-        return trirefine.constr_data(mesh, data)
 
     @classmethod
     def get_masser(cls, mesh):
@@ -304,14 +333,6 @@ class Masser:
     def __call__(self, data):
         return self.mass_diag(data)
 
-    @property
-    def mass_mat(self):
-        return self.meta['mass-mat']
-
-    @property
-    def massdiag(self):
-        return self.meta['massdiag']
-
     def mass_full(self, data):
         return np.sum(
             self.mass_mat @ self.unit.perm(data)
@@ -321,3 +342,11 @@ class Masser:
         return np.sum(
             self.massdiag @ self.unit.perm(data)
         )
+
+    @property
+    def mass_mat(self):
+        return self.meta['mass-mat']
+
+    @property
+    def massdiag(self):
+        return self.meta['massdiag']

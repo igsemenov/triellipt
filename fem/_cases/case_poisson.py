@@ -108,6 +108,7 @@ class FEMFrame(FEMData):
         massmat = self.get_massmat()
         laplace = self.get_laplace()
 
+        ref = self.unit.base.new_vector().from_func(sol_exact)
         sol = self.unit.base.new_vector().from_func(sol_exact)
         rho = self.unit.base.new_vector().from_func(rho_exact)
 
@@ -118,28 +119,17 @@ class FEMFrame(FEMData):
         )
 
         err = np.amax(
-            abs(sol[0] - self.sol_exact_core)
+            abs(sol[0] - ref[0])
         )
 
-        return sol, err
-
-    @property
-    def sol_exact_core(self):
-        return sol_exact(
-            *self.nodes2d_core
-        )
+        return {
+            'sol': sol,
+            'err': err
+        }
 
     @property
     def triu(self):
         return self.unit.mesh.triu
-
-    @property
-    def nodes2d_core(self):
-        return self.unit.base.nodes2d(0)
-
-    @property
-    def nodes2d_edge(self):
-        return self.unit.base.nodes2d(1)
 
     @property
     def massmat_fem(self):
@@ -157,12 +147,12 @@ class FEMFrame(FEMData):
 if __name__ == '__main__':
 
     frame = FEMFrame.from_meta(META).activated()
+    out = frame.solve()
 
-    sol_, err_ = frame.solve()
-    print(f'L1-error: {err_}')
+    print(f'err-norm: {out["err"]}')
 
     if META['fem']['with-plot'] is True:
 
-        plt.tricontourf(*frame.triu, sol_.body)
+        plt.tricontourf(*frame.triu, out['sol'].body)
         plt.triplot(*frame.triu, '-k', lw=0.2)
         plt.axis('equal')

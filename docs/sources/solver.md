@@ -37,7 +37,7 @@ Once the mesh is ready, the next step is to create a FEM computing unit:
 unit = tri.fem.getunit(mesh, anchors=(0,))
 ```
 
-The mesh is preprocessed when creating a unit:
+The mesh is *preprocessed* when creating a unit:
 
 - Mesh nodes are aligned using [triellipt.trimesh.TriMesh.alignnodes()](triellipt.trimesh.md#alignnodes).
 - The void pivots are placed at the end of the node numbering.
@@ -54,12 +54,12 @@ For more details, refer to [triellipt.fem.FEMUnit](triellipt.fem.md#femunit).
 
 ### Creating a Partition
 
-After creating the FEM unit, you must partition the domain to define the *boundary conditions (BCs)*.
+After creating the FEM unit, you must partition the mesh boundary to define the *boundary conditions (BCs)*.
 
 Two steps are needed:
 
-- Create a dictionary with the partition specification, e.g. — `parttspec`.
-- Run `unit.add_partition(parttspec)` to add the partition to the FEM unit.
+- Create a dictionary with the partition specification, e.g. — `partt_spec`.
+- Run [unit.add_partition(partt_spec)](triellipt.fem.md#add_partition) to add the partition to the FEM unit.
 
 Facts to know:
 
@@ -69,7 +69,7 @@ Facts to know:
 Here is the basic structure of the partition spec:
 
 ```python
-parttspec = {
+partt_spec = {
     'name': 'new-domain',
     'anchors': [
         (0, 0), (0, 1), ...
@@ -274,7 +274,7 @@ sol[0] = sp.linalg.spsolve(
 )
 
 err = np.amax(np.abs(sol[0] - ref[0]))
-print(f'L1 error: {err}')
+print(f'error-norm: {err}')
 
 # Plotting the result.
 

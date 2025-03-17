@@ -519,8 +519,8 @@ class DataCollector:
         mass_fem = self.massmat @ data_fem
         data_fem = self.massinv.solve(mass_fem)
 
-        data_new = np.zeros(
-            self.mesh.npoints
+        data_new = np.zeros_like(
+            self.root2mass, dtype=float
         )
 
         data_new[self.root2mass] = data_fem[self.unit2mass]

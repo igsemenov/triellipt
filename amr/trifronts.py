@@ -9,12 +9,13 @@ from triellipt.utils import tables
 class TriFront:
     """Front of triangles.
 
-    Attributes
+    Properties
     ----------
-    unit : AMRUnit
-        Parent AMR unit.
-    data : flat-int-array
-        Numbers of triangles in the front.
+
+     Name       | Description
+    ------------|----------------------------------------
+    `trinums`   | Indices of the front-facing triangles.
+    `voidnums`  | Indices of void triangles in the front.
 
     """
 
@@ -39,6 +40,10 @@ class TriFront:
         return self.data[0, :]
 
     @property
+    def voidnums(self):
+        return self.data[1, :]
+
+    @property
     def trinums_voids(self):
         return self.data[1, :]
 
@@ -60,48 +65,34 @@ class TriFront:
     def centrs_complex_voids(self):
         return self.unit.mesh.centrs_complex[self.trinums_voids]
 
-    @property
-    def ranks(self):
-        return self.getranks()
-
-    def getranks(self):
-
-        _, counts = np.unique(
-            self.trinums, return_counts=True
-        )
-
-        return np.unique(counts).tolist()
-
-    def atrank(self, rank):
-        """Selects the front with the specified rank.
-        """
-        return self.getspec()[rank]
-
-    def getspec(self):
-        """Classifies front triangles based on their count.
-        """
-
-        inds = dict(
-            _spec_col1d(self.data[[0], :].T)
-        )
-
-        spec = {
-            r: self.subfront(*i) for r, i in inds.items()
-        }
-
-        return spec
-
     def angles(self):
-        """Returns angles between the voids and front triangles.
+        """Computes the orientation angles of the front.
+
+        Returns
+        -------
+        flat-float-array
+            Angles between the voids and the front centroids.
+
         """
         return np.angle(
             self.centrs_complex - self.centrs_complex_voids
         )
 
     def scales(self):
-        return np.abs(
+        """Computes the normalized front scales.
+
+        Returns
+        -------
+        flat-float-array
+            Normalized distances between the front centroids and voids.
+
+        """
+
+        scales = np.abs(
             self.centrs_complex - self.centrs_complex_voids
         )
+
+        return _normalize(scales)
 
     def filter_by_mask(self, mask):
         """Filters the front by the mask.
@@ -122,7 +113,7 @@ class TriFront:
         )
 
     def filter_by_angle(self, angmin, angmax):
-        """Filters the front by orientation angles.
+        """Filters the front by the orientation angles.
         """
 
         angs = self.angles()
@@ -134,7 +125,7 @@ class TriFront:
         return self.update_data(self.data[:, mask])
 
     def filter_by_scale(self, minval, maxval):
-        """Filters the front by scales.
+        """Filters the front by the scales.
         """
 
         scales = self.scales()
@@ -144,25 +135,6 @@ class TriFront:
         )
 
         return self.update_data(self.data[:, mask])
-
-    def filter_by_normal(self, angle, scale):
-        """Filters the front by a normal vector.
-
-        Parameters
-        ----------
-        angle : (float, float)
-            Range of angles (min-max).
-        scale : (float, float)
-            Range of scales (min-max).
-
-        """
-
-        front = self
-
-        front = front.filter_by_angle(*angle)
-        front = front.filter_by_scale(*scale)
-
-        return front
 
 
 class TriFrontFine(TriFront):
@@ -309,6 +281,10 @@ def _unpack_complex(argz):
     return np.vstack(
         [argz.real, argz.imag]
     )
+
+
+def _normalize(data):
+    return data / np.amax(data)
 
 
 def _spec_col1d(col1d):

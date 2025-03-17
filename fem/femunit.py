@@ -200,6 +200,22 @@ class FEMRoot(FEMData):
         """
         return femfactory.FEMFactory.from_unit(self, add_constr)
 
+    def massinv(self):
+        """Creates the inverse mass operator.
+
+        Returns
+        -------
+        MassDiagInv
+            Callable inverse operator.
+
+        Notes
+        -----
+
+        Used only for a lumped mass operator with constraints.
+
+        """
+        return massinv_.getmassinv(self)
+
     @property
     def factory_free(self):
         """Factory with no constraints.
@@ -254,12 +270,12 @@ class FEMUnit(FEMRoot):
 
     """
 
-    def add_partition(self, spec):
+    def add_partition(self, partt_spec):
         """Adds new partition to the unit.
 
         Parameters
         ----------
-        spec : dict
+        partt_spec : dict
             Partition specification.
 
         Returns
@@ -270,17 +286,17 @@ class FEMUnit(FEMRoot):
         """
 
         self.set_partition(
-            fempartt.getpartt(self, spec)
+            fempartt.getpartt(self, partt_spec)
         )
 
         return self
 
-    def get_partition(self, name):
+    def get_partition(self, partt_name):
         """Fetches the unit partition.
 
         Parameters
         ----------
-        name : str
+        partt_name : str
             Partition name.
 
         Returns
@@ -289,9 +305,9 @@ class FEMUnit(FEMRoot):
             Desired unit partition.
 
         """
-        if name not in self.partts:
-            raise ValueError(f"unit has no '{name}' partition")
-        return self.partts[name]
+        if partt_name not in self.partts:
+            raise ValueError(f"unit has no '{partt_name}' partition")
+        return self.partts[partt_name]
 
     def set_partition(self, partt) -> None:
         """Assigns the partition to the unit.
@@ -333,19 +349,19 @@ class FEMUnit(FEMRoot):
             Callable interpolator.
 
         """
-        return trinterp.getinterp(self, xnodes, ynodes)
+        return trinterp.getinterp(
+            self.mesh, xnodes, ynodes
+        )
 
-    def massopr(self, is_lumped, add_constr, is_radial=False):
-        """Creates the mass operator.
+    def massopr(self, is_lumped, add_constr):
+        """Creates the mass operator from the base partition.
 
         Parameters
         ----------
         is_lumped : bool
-            Creates a lumped mass, if True.
+            Creates a lumped mass operator, if True.
         add_constr : bool
             Adds constraints, if True.
-        is_radial : bool = False
-            Adds the radial weight, if True.
 
         Returns
         -------
@@ -354,58 +370,15 @@ class FEMUnit(FEMRoot):
 
         """
         if is_lumped is True:
-            return self.massopr_lumped(add_constr, is_radial)
-        return self.massopr_full(add_constr, is_radial)
+            return self.massopr_lumped(add_constr)
+        return self.massopr_full(add_constr)
 
-    def massopr_full(self, add_constr, is_radial):
+    def massopr_full(self, add_constr):
+        return self.base.new_matrix(self.massmat, add_constr)
 
-        matrix = self.base.new_matrix(
-            self.massfem_full(is_radial), add_constr
-        )
-
-        matrix.meta['is-radial'] = is_radial
-        return matrix
-
-    def massopr_lumped(self, add_constr, is_radial):
-
-        matrix = self.base.new_matrix(
-            self.massfem_lumped(is_radial), add_constr
-        )
-
-        matrix = matrix.with_no_zeros()
-        matrix.meta['is-radial'] = is_radial
-        return matrix
-
-    def massfem_full(self, is_radial):
-        if is_radial is False:
-            return self.massmat
-        return self.radius * self.massmat
-
-    def massfem_lumped(self, is_radial):
-        if is_radial is False:
-            return self.massdiag
-        return self.radius * self.massdiag
-
-    def massinv(self, radial=False):
-        """Creates the inverse mass operator.
-
-        Parameters
-        ----------
-        radial : bool = False
-            Adds the radial weight, if True.
-
-        Returns
-        -------
-        MassDiagInv
-            Callable inverse operator.
-
-        Notes
-        -----
-
-        Used only for a lumped mass operator with constraints.
-
-        """
-        return massinv_.getmassinv(self, radial)
+    def massopr_lumped(self, add_constr):
+        matrix = self.base.new_matrix(self.massdiag, add_constr)
+        return matrix.with_no_zeros()
 
     def constrproj(self):
         return femfactory.get_constr_proj(self)

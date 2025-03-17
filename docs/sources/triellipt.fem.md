@@ -68,13 +68,13 @@ Name      | Description
 
 ### add_partition()
 
-<pre class="py-sign">FEMUnit.<b>add_partition</b>(<em>self</em>, spec)</pre>
+<pre class="py-sign">FEMUnit.<b>add_partition</b>(<em>self</em>, partt_spec)</pre>
 
 Adds new partition to the unit.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>spec</code> : <em>dict</em></span></p>
+<p><span class="vardef"><code>partt_spec</code> : <em>dict</em></span></p>
 
 <dl><dd>
   Partition specification.
@@ -90,13 +90,13 @@ Adds new partition to the unit.
 
 ### get_partition()
 
-<pre class="py-sign">FEMUnit.<b>get_partition</b>(<em>self</em>, name)</pre>
+<pre class="py-sign">FEMUnit.<b>get_partition</b>(<em>self</em>, partt_name)</pre>
 
 Fetches the unit partition.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>name</code> : <em>str</em></span></p>
+<p><span class="vardef"><code>partt_name</code> : <em>str</em></span></p>
 
 <dl><dd>
   Partition name.
@@ -160,28 +160,22 @@ Creates an interpolator on a mesh.
 
 ### massopr()
 
-<pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, is_lumped, add_constr, is_radial=<span>False</span>)</pre>
+<pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, is_lumped, add_constr)</pre>
 
-Creates the mass operator.
+Creates the mass operator from the base partition.
 
 <b>Parameters</b>
 
 <p><span class="vardef"><code>is_lumped</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Creates a lumped mass, if <i>True</i>.
+  Creates a lumped mass operator, if <i>True</i>.
 </dd></dl>
 
 <p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
   Adds constraints, if <i>True</i>.
-</dd></dl>
-
-<p><span class="vardef"><code>is_radial</code> : <em>bool = False</em></span></p>
-
-<dl><dd>
-  Adds the radial weight, if <i>True</i>.
 </dd></dl>
 
 <b>Returns</b>
@@ -191,32 +185,6 @@ Creates the mass operator.
 <dl><dd>
   Mass operator as a matrix.
 </dd></dl>
-
-### massinv()
-
-<pre class="py-sign">FEMUnit.<b>massinv</b>(<em>self</em>, radial=<span>False</span>)</pre>
-
-Creates the inverse mass operator.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>radial</code> : <em>bool = False</em></span></p>
-
-<dl><dd>
-  Adds the radial weight, if <i>True</i>.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>MassDiagInv</em></span></p>
-
-<dl><dd>
-  Callable inverse operator.
-</dd></dl>
-
-<b>Notes</b>
-
-Used only for a lumped mass operator with constraints.
 
 ## FEMPartt
 
@@ -378,6 +346,20 @@ Defines the vector via a function on the mesh nodes.
 
 <dl><dd>
   Copy of the vector with the body updated.
+</dd></dl>
+
+### constrained()
+
+<pre class="py-sign">VectorFEM.<b>constrained</b>(<em>self</em>)</pre>
+
+Constrains the vector on the parent mesh.
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>VectorFEM</em></span></p>
+
+<dl><dd>
+  Copy of the vector with the body constrained.
 </dd></dl>
 
 ### getsection()

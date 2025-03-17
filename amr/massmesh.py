@@ -200,8 +200,8 @@ class MakerTriangsBeta(SubSupTriAgent):
     - Makes inner sides with the shifted numbers.
 
     - Makes extra data on voids:
-        - Finds original voids to delete.
         - Makes outer voids to insert.
+        - Finds original voids to delete.
 
     """
 

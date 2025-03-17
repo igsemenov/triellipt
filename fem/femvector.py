@@ -104,6 +104,22 @@ class VectorFEM(VectorData):
 
         return self.update_body(self.body_copy)
 
+    def constrained(self):
+        """Constrains the vector on the parent mesh.
+
+        Returns
+        -------
+        VectorFEM
+            Copy of the vector with the body constrained.
+
+        """
+
+        new_body = constr_data(
+            self.partt.unit.mesh, self.body
+        )
+
+        return self.update_body(new_body)
+
     def getsection(self, sec_id):
         """Returns a copy of the vector section.
 
@@ -138,3 +154,22 @@ class VectorFEM(VectorData):
         """
         indexer = self.get_section_indexer(sec_id)
         self.body[indexer] = data
+
+
+def constr_data(mesh, data):
+    """Constrains data on a mesh.
+    """
+
+    voids_trinums = mesh.getvoids()
+
+    if voids_trinums.size == 0:
+        return data
+    voids_triangs = mesh.triangs[voids_trinums, :]
+
+    west, east, pivs = voids_triangs.T
+
+    data[pivs] = 0.5 * (
+        data[west] + data[east]
+    )
+
+    return data.copy('C')

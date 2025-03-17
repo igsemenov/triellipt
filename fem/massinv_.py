@@ -5,8 +5,8 @@ from scipy import sparse as sp
 import numpy as np
 
 
-def getmassinv(unit, radial):
-    maker = MakerMassInv(unit, radial)
+def getmassinv(unit):
+    maker = MakerMassInv(unit)
     return maker.get_massinv()
 
 
@@ -93,9 +93,8 @@ class MakerMassInv:
     """Maker of the mass-inverse operator.
     """
 
-    def __init__(self, unit, is_radial):
+    def __init__(self, unit):
         self.unit = unit
-        self.is_radial = is_radial
         self.meta = self.fetch_meta()
         self.cache = {}
 
@@ -107,7 +106,7 @@ class MakerMassInv:
     def fetch_meta_massdiag(self):
 
         massdiag = self.unit.massopr(
-            is_lumped=True, add_constr=True, is_radial=self.is_radial
+            is_lumped=True, add_constr=True
         )
 
         return {
@@ -134,8 +133,7 @@ class MakerMassInv:
             'mass-diag': np.copy(
                 self.massdiag_body.data[:], order='C'
             ),
-            'has-constraints': False,
-            'is-radial': self.is_radial
+            'has-constraints': False
         }
 
     def get_massinv(self):
@@ -161,8 +159,7 @@ class MakerMassInv:
             'perm-inv': self.perm_inv,
             'mass-diag': self.mass_diag_only,
             'constr-lu': self.mass_with_constr_lu,
-            'has-constraints': True,
-            'is-radial': self.is_radial
+            'has-constraints': True
         }
 
     def make_constr_lu(self):

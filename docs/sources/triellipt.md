@@ -33,7 +33,6 @@ Module                   | Description
                     <li><a href="triellipt.fem.md#del_partition">del_partition()</a></li>
                     <li><a href="triellipt.fem.md#getinterp">getinterp()</a></li>
                     <li><a href="triellipt.fem.md#massopr">massopr()</a></li>
-                    <li><a href="triellipt.fem.md#massinv">massinv()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.fem.md#fempartt">FEMPartt</a>
@@ -52,6 +51,7 @@ Module                   | Description
                 <ul>
                     <li><a href="triellipt.fem.md#with_body">with_body()</a></li>
                     <li><a href="triellipt.fem.md#from_func">from_func()</a></li>
+                    <li><a href="triellipt.fem.md#constrained">constrained()</a></li>
                     <li><a href="triellipt.fem.md#getsection">getsection()</a></li>
                     <li><a href="triellipt.fem.md#setsection">setsection()</a></li>
                 </ul>
@@ -78,7 +78,17 @@ Module                   | Description
                     <li><a href="triellipt.amr.md#find_masked">find_masked()</a></li>
                     <li><a href="triellipt.amr.md#front_coarse">front_coarse()</a></li>
                     <li><a href="triellipt.amr.md#front_fine">front_fine()</a></li>
-                    <li><a href="triellipt.amr.md#constrain">constrain()</a></li>
+                    <li><a href="triellipt.amr.md#makedata">makedata()</a></li>
+                    <li><a href="triellipt.amr.md#getinterp">getinterp()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.amr.md#trifront">TriFront</a>
+                <ul>
+                    <li><a href="triellipt.amr.md#angles">angles()</a></li>
+                    <li><a href="triellipt.amr.md#scales">scales()</a></li>
+                    <li><a href="triellipt.amr.md#filter_by_mask">filter_by_mask()</a></li>
+                    <li><a href="triellipt.amr.md#filter_by_angle">filter_by_angle()</a></li>
+                    <li><a href="triellipt.amr.md#filter_by_scale">filter_by_scale()</a></li>
                 </ul>
             </li>
         </ul>

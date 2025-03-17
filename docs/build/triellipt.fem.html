@@ -43,7 +43,6 @@
                                 <li><a href="#del_partition">del_partition()</a></li>
                                 <li><a href="#getinterp">getinterp()</a></li>
                                 <li><a href="#massopr">massopr()</a></li>
-                                <li><a href="#massinv">massinv()</a></li>
                             </ul>
                         </li>
                         <li><a href="#fempartt">FEMPartt</a>
@@ -62,6 +61,7 @@
                             <ul>
                                 <li><a href="#with_body">with_body()</a></li>
                                 <li><a href="#from_func">from_func()</a></li>
+                                <li><a href="#constrained">constrained()</a></li>
                                 <li><a href="#getsection">getsection()</a></li>
                                 <li><a href="#setsection">setsection()</a></li>
                             </ul>
@@ -185,13 +185,13 @@
 
 <div class="toc-anchor"></div><h3>add_partition()</h3>
 
-<pre class="py-sign">FEMUnit.<b>add_partition</b>(<em>self</em>, spec)</pre>
+<pre class="py-sign">FEMUnit.<b>add_partition</b>(<em>self</em>, partt_spec)</pre>
 
 <p>Adds new partition to the unit.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>spec</code> : <em>dict</em></span></p>
+<p><span class="vardef"><code>partt_spec</code> : <em>dict</em></span></p>
 
 <dl><dd>
   Partition specification.
@@ -207,13 +207,13 @@
 
 <div class="toc-anchor"></div><h3>get_partition()</h3>
 
-<pre class="py-sign">FEMUnit.<b>get_partition</b>(<em>self</em>, name)</pre>
+<pre class="py-sign">FEMUnit.<b>get_partition</b>(<em>self</em>, partt_name)</pre>
 
 <p>Fetches the unit partition.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>name</code> : <em>str</em></span></p>
+<p><span class="vardef"><code>partt_name</code> : <em>str</em></span></p>
 
 <dl><dd>
   Partition name.
@@ -277,28 +277,22 @@
 
 <div class="toc-anchor"></div><h3>massopr()</h3>
 
-<pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, is_lumped, add_constr, is_radial=<span>False</span>)</pre>
+<pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, is_lumped, add_constr)</pre>
 
-<p>Creates the mass operator.</p>
+<p>Creates the mass operator from the base partition.</p>
 
 <p><b>Parameters</b></p>
 
 <p><span class="vardef"><code>is_lumped</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Creates a lumped mass, if <i>True</i>.
+  Creates a lumped mass operator, if <i>True</i>.
 </dd></dl>
 
 <p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
   Adds constraints, if <i>True</i>.
-</dd></dl>
-
-<p><span class="vardef"><code>is_radial</code> : <em>bool = False</em></span></p>
-
-<dl><dd>
-  Adds the radial weight, if <i>True</i>.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -308,32 +302,6 @@
 <dl><dd>
   Mass operator as a matrix.
 </dd></dl>
-
-<div class="toc-anchor"></div><h3>massinv()</h3>
-
-<pre class="py-sign">FEMUnit.<b>massinv</b>(<em>self</em>, radial=<span>False</span>)</pre>
-
-<p>Creates the inverse mass operator.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>radial</code> : <em>bool = False</em></span></p>
-
-<dl><dd>
-  Adds the radial weight, if <i>True</i>.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>MassDiagInv</em></span></p>
-
-<dl><dd>
-  Callable inverse operator.
-</dd></dl>
-
-<p><b>Notes</b></p>
-
-<p>Used only for a lumped mass operator with constraints.</p>
 
 <div class="toc-anchor"></div><h2>FEMPartt</h2>
 
@@ -508,6 +476,20 @@
 
 <dl><dd>
   Copy of the vector with the body updated.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>constrained()</h3>
+
+<pre class="py-sign">VectorFEM.<b>constrained</b>(<em>self</em>)</pre>
+
+<p>Constrains the vector on the parent mesh.</p>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>VectorFEM</em></span></p>
+
+<dl><dd>
+  Copy of the vector with the body constrained.
 </dd></dl>
 
 <div class="toc-anchor"></div><h3>getsection()</h3>

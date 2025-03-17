@@ -51,7 +51,7 @@ sol[0] = sp.linalg.spsolve(
 )
 
 err = np.amax(np.abs(sol[0] - ref[0]))
-print(f'L1 error: {err}')
+print(f'err-norm: {err}')
 
 # plt.tricontourf(*unit.mesh.triu, sol.body)
 # plt.triplot(*unit.mesh.triu, '-k', lw=0.2)

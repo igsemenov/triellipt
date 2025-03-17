@@ -4,13 +4,13 @@
 import numpy as np
 
 
-def getinterp(unit, xseeds, yseeds):
-    """Creates an interpolator for a FEM unit.
+def getinterp(mesh, xseeds, yseeds):
+    """Creates an interpolator for a mesh.
 
     Parameters
     ----------
-    unit : FEMUnit
-        Parent FEM unit.
+    mesh : TriMesh
+        Parent mesh.
     xseeds : float-flat-array
         X-coordinates of interpolation nodes.
     yseeds : float-flat-array
@@ -23,7 +23,7 @@ def getinterp(unit, xseeds, yseeds):
 
     """
 
-    maker = get_interp_maker(unit)
+    maker = get_interp_maker(mesh)
 
     return maker.get_triinterp(
         *align_nodes(xseeds, yseeds)
@@ -42,14 +42,14 @@ def align_nodes(xnodes, ynodes):
     return xnodes, ynodes
 
 
-def get_interp_maker(unit):
-    """Interpolator maker for a FEM unit.
+def get_interp_maker(mesh):
+    """Interpolator maker for a mesh.
     """
 
-    if not unit.hasvoids:
-        return TriInterpMaker.from_mesh(unit.mesh)
+    if not mesh.hasvoids():
+        return TriInterpMaker.from_mesh(mesh)
 
-    mesh_proxy = unit.mesh.delvoids()
+    mesh_proxy = mesh.delvoids()
     return TriInterpMaker.from_mesh(mesh_proxy)
 
 
@@ -58,12 +58,6 @@ class TriInterp:
     """
 
     def __init__(self, mesh=None, meta=None):
-
-        if mesh is None:
-            return
-        if meta is None:
-            return
-
         self.mesh = mesh
         self.meta = meta
 

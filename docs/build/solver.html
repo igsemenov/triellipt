@@ -98,7 +98,7 @@
 
 <pre><span class="lang-name">Python</span><code class="language-python">unit = tri.fem.getunit(mesh, anchors=(0,))</code></pre>
 
-<p>The mesh is preprocessed when creating a unit:</p>
+<p>The mesh is <em>preprocessed</em> when creating a unit:</p>
 
 <p>
 <ul class="md-list">
@@ -123,14 +123,14 @@
 
 <div class="toc-anchor"></div><h3>Creating a Partition</h3>
 
-<p>After creating the FEM unit, you must partition the domain to define the <em>boundary conditions (BCs)</em>.</p>
+<p>After creating the FEM unit, you must partition the mesh boundary to define the <em>boundary conditions (BCs)</em>.</p>
 
 <p>Two steps are needed:</p>
 
 <p>
 <ul class="md-list">
-    <li>Create a dictionary with the partition specification, e.g. — <code>parttspec</code>.</li>
-    <li>Run <code>unit.add_partition(parttspec)</code> to add the partition to the FEM unit.</li>
+    <li>Create a dictionary with the partition specification, e.g. — <code>partt_spec</code>.</li>
+    <li>Run <a href="triellipt.fem.html#add_partition">unit.add_partition(partt_spec)</a> to add the partition to the FEM unit.</li>
 </ul>
 </p>
 
@@ -145,7 +145,7 @@
 
 <p>Here is the basic structure of the partition spec:</p>
 
-<pre><span class="lang-name">Python</span><code class="language-python">parttspec = {
+<pre><span class="lang-name">Python</span><code class="language-python">partt_spec = {
     &#x27;name&#x27;: &#x27;new-domain&#x27;,
     &#x27;anchors&#x27;: [
         (0, 0), (0, 1), ...
@@ -407,7 +407,7 @@ sol[0] = sp.linalg.spsolve(
 )
 
 err = np.amax(np.abs(sol[0] - ref[0]))
-print(f&#x27;L1 error: {err}&#x27;)
+print(f&#x27;error-norm: {err}&#x27;)
 
 # Plotting the result.
 

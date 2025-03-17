@@ -83,7 +83,7 @@ Performs a static mesh refinement.
 <b>Notes</b>
 
 - The `data-refiner` is included in the mesh metadata.
-- The voids ears are not refined to keep the mesh 1-irregular.
+- The void ears are not refined to keep the mesh 1-irregular.
 
 ### coarsen()
 
@@ -96,7 +96,7 @@ Performs a static mesh coarsening.
 <p><span class="vardef"><code>trinums_cores</code> : <em>Iterable</em></span></p>
 
 <dl><dd>
-  Numbers of the super-triangles-cores to coarsen.
+  Numbers of the super-triangle-cores to coarsen.
 </dd></dl>
 
 <b>Returns</b>
@@ -201,24 +201,139 @@ Finds a front of coarse triangles.
 
 Finds a front of fine triangles.
 
-### constrain()
+### makedata()
 
-<pre class="py-sign">AMRUnit.<b>constrain</b>(<em>self</em>, data)</pre>
+<pre class="py-sign">AMRUnit.<b>makedata</b>(<em>self</em>, key, func, constrain)</pre>
 
-Constrains data on a mesh.
+Generates a unit data item from a given function.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
+<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
 
 <dl><dd>
-  Nodal data to be constrained.
+  Key of the unit data item.
 </dd></dl>
+
+<p><span class="vardef"><code>func</code> : <em>Callable</em></span></p>
+
+<dl><dd>
+  Function <code>(x, y)</code> on the mesh nodes.
+</dd></dl>
+
+<p><span class="vardef"><code>constrain</code> : <em>bool</em></span></p>
+
+<dl><dd>
+  Constrains the new data item, if <i>True</i>.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>self</em></span></p>
+
+<dl><dd>
+  The unit with the new data item.
+</dd></dl>
+
+### getinterp()
+
+<pre class="py-sign">AMRUnit.<b>getinterp</b>(<em>self</em>, xnodes, ynodes)</pre>
+
+Creates an interpolator on a mesh.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>xnodes</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  x-coordinates of the interpolation nodes.
+</dd></dl>
+
+<p><span class="vardef"><code>ynodes</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  y-coordinates of the interpolation nodes.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TriInterp</em></span></p>
+
+<dl><dd>
+  Callable interpolator.
+</dd></dl>
+
+## TriFront
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.amr.<b>TriFront</b>(unit=<span>None</span>, data=<span>None</span>)</pre>
+
+Front of triangles.
+
+<b>Properties</b>
+
+ Name       | Description
+------------|----------------------------------------
+`trinums`   | Indices of the front-facing triangles.
+`voidnums`  | Indices of void triangles in the front.
+
+### angles()
+
+<pre class="py-sign">TriFront.<b>angles</b>(<em>self</em>)</pre>
+
+Computes the orientation angles of the front.
 
 <b>Returns</b>
 
 <p><span class="vardef"><em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Constained nodal data.
+  Angles between the voids and the front centroids.
 </dd></dl>
+
+### scales()
+
+<pre class="py-sign">TriFront.<b>scales</b>(<em>self</em>)</pre>
+
+Computes the normalized front scales.
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Normalized distances between the front centroids and voids.
+</dd></dl>
+
+### filter_by_mask()
+
+<pre class="py-sign">TriFront.<b>filter_by_mask</b>(<em>self</em>, mask)</pre>
+
+Filters the front by the mask.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>mask</code> : <em>function</em></span></p>
+
+<dl><dd>
+  Boolean mask <code>(x, y) </code> on the triangles centroids.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TriFront</em></span></p>
+
+<dl><dd>
+  New front.
+</dd></dl>
+
+### filter_by_angle()
+
+<pre class="py-sign">TriFront.<b>filter_by_angle</b>(<em>self</em>, angmin, angmax)</pre>
+
+Filters the front by the orientation angles.
+
+### filter_by_scale()
+
+<pre class="py-sign">TriFront.<b>filter_by_scale</b>(<em>self</em>, minval, maxval)</pre>
+
+Filters the front by the scales.

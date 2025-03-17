@@ -11,8 +11,8 @@ An adaptive finite-element solver for elliptic PDEs.
 
 ## Funding
 
-Funded by the **German Research Foundation (DFG)** —
-Project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?language=en)
+**Funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) —
+project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?language=en)**
 
 ## Status
 
