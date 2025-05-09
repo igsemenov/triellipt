@@ -29,10 +29,9 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 
 ## Documentation
 
-View the available documentation here:
-
-- To get an overview of the package, refer to the [local documentation](/docs/sources/index.md).
-- Use the offline documentation in HTML by starting with `docs/index.html`.
+- ✅ Check the live documentation [here]().
+- 📄 Check the local source documentation [here](docs/sources/index.md).
+- 💾 Offline HTML documentation is available by opening `docs/index.html`.
 
 ## Triangle meshes
 
