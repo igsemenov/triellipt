@@ -8,7 +8,7 @@ An adaptive finite-element solver for elliptic PDEs.
 **Meshes:**
 - Has an interface to read GMSH meshes  
 - Supports [*conforming*](#conforming-mesh) and [*non-conforming*](#non-conforming-mesh) triangle meshes
-- Provides a flexible framework for mesh adaptation
+- Provides a flexible framework for mesh [*adaptation*](#adaptive-mesh)
 
 **Discretization:**
 - Operates on linear elements  
@@ -37,8 +37,13 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 
 ### Conforming mesh
 
-<img src="./docs/images/conforming-mesh.png" width="400">
+<img src="./docs/images/conforming-mesh.png" width="450">
 
 ### Non-conforming mesh
 
-<img src="./docs/images/non-conforming-mesh.png" width="400">
+<img src="./docs/images/non-conforming-mesh.png" width="450">
+
+### Adaptive mesh
+
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="docs/images/circ-amr.gif" alt="Demo GIF" width="400"/>
+
