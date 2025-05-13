@@ -1,7 +1,10 @@
 
 # <img src="./docs/configs/logo.png" width="30" height="30"> triellipt
 
-An adaptive finite-element solver for elliptic PDEs.
+An adaptive finite-element solver for elliptic and parabolic PDEs.
+
+- Capable of solving steady-state and transient convection-diffusion problems.
+- Suitable for basic elliptic problems, such as electrostatics and Helmholtz-type equations.
 
 ## Features
 
@@ -57,3 +60,8 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 
 &nbsp;&nbsp;&nbsp;&nbsp;<img src="docs/images/circ-amr.gif" alt="Demo GIF" width="400"/>
 
+## Examples
+
+### Zernike modes
+
+<img src="./docs/images/zernike-polys.png" width="800">
