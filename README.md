@@ -12,20 +12,20 @@ An adaptive finite-element solver for elliptic PDEs.
 
 **Discretization:**
 
+*Methods*
+
+- Nodal Continuous Galerkin Method 
+- Nodal Finite Volume Method
+- Edge-based HPS¹ discretization (under construction)
+
+¹ Hierarchical Poincaré–Steklov
+
 *Features*
 
 - Operates on linear elements and macroelements¹
 - Ensures mass conservation on adaptive meshes
 
-¹ Under development
-
-*Methods*
-
-- Nodal Continuous Galerkin Method 
-- Nodal Finite Volume Method
-- Edge-based HPS¹ discretization
-
-¹ Hierarchical Poincaré–Steklov
+¹ For HPS scheme only
 
 ## Funding
 
