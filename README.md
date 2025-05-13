@@ -11,11 +11,21 @@ An adaptive finite-element solver for elliptic PDEs.
 - Provides a flexible framework for mesh [*adaptation*](#adaptive-mesh)
 
 **Discretization:**
-- Operates on linear elements  
-- Supports the following methods:  
-  - Continuous Galerkin method  
-  - Finite volume element method  
+
+*Features*
+
+- Operates on linear elements and macroelements¹
 - Ensures mass conservation on adaptive meshes
+
+¹ Under development
+
+*Methods*
+
+- Nodal Continuous Galerkin Method 
+- Nodal Finite Volume Method
+- Edge-based HPS¹ discretization
+
+¹ Hierarchical Poincaré–Steklov
 
 ## Funding
 
