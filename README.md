@@ -9,6 +9,7 @@ An adaptive finite-element solver for elliptic and parabolic PDEs.
 ## Features
 
 **Meshes:**
+
 - Has an interface to read GMSH meshes  
 - Supports [*conforming*](#conforming-mesh) and [*non-conforming*](#non-conforming-mesh) triangle meshes
 - Provides a flexible framework for mesh [*adaptation*](#adaptive-mesh)
@@ -18,17 +19,12 @@ An adaptive finite-element solver for elliptic and parabolic PDEs.
 *Methods*
 
 - Nodal Continuous Galerkin Method 
-- Nodal Finite Volume Method
-- Edge-based HPS¹ discretization (under construction)
-
-¹ Hierarchical Poincaré–Steklov
+- Nodal Finite Volume Element Method
 
 *Features*
 
-- Operates on linear elements and macroelements¹
 - Ensures mass conservation on adaptive meshes
-
-¹ For HPS scheme only
+- Supports inter-level coupling in *hierarchical discretization* schemes
 
 ## Funding
 
@@ -59,6 +55,10 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 ### Adaptive mesh
 
 &nbsp;&nbsp;&nbsp;&nbsp;<img src="docs/images/circ-amr.gif" alt="Demo GIF" width="400"/>
+
+### Pin-to-plate mesh
+
+<img src="./docs/images/pin-to-plate.png" width="500">
 
 ## Examples
 
