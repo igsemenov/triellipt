@@ -69,3 +69,7 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 ### Ionization wave
 
 <img src="./docs/images/streamer.gif" width="400">
+
+&nbsp;<img src="./docs/images/streamer-grid.png" width="400">
+
+&nbsp;<img src="./docs/images/streamer-lattice.png" width="400">
