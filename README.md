@@ -65,3 +65,7 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 ### Zernike modes
 
 <img src="./docs/images/zernike-polys.png" width="800">
+
+### Ionization wave
+
+<img src="./docs/images/streamer.gif" width="400">
