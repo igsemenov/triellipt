@@ -20,6 +20,9 @@ An adaptive finite-element solver for elliptic and parabolic PDEs.
 
 - Nodal Continuous Galerkin Method 
 - Nodal Finite Volume Element Method
+- Edge-based hierarchical Poincaré-Steklov (HPS) scheme¹
+
+¹ Nearing completion and will be available shortly.
 
 *Features*
 
