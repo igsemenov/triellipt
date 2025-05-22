@@ -67,6 +67,7 @@
                             </ul>
                         </li>
                         <li><a href="#mesh_metric">mesh_metric()</a></li>
+                        <li><a href="#mesh_geom">mesh_geom()</a></li>
                     </ul>
                 </li>
             </ul>
@@ -108,7 +109,7 @@
 <p><span class="vardef"><code>mode</code> : <em>str = None</em></span></p>
 
 <dl><dd>
-  Solver mode — <mark>&quot;fem&quot;</mark> or <mark>&quot;fvm&quot;</mark> (default).
+  Solver mode — <mark>&quot;fvm&quot;</mark> or <mark>&quot;fem&quot;</mark> (default).
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -170,6 +171,10 @@
     <tr>
         <td><code>grad</code></td>
         <td>Gradient operator.</td>
+    </tr>
+    <tr>
+        <td><code>trigeo</code></td>
+        <td>Geometric properties.</td>
     </tr>
     <tr>
         <td><code>perm</code></td>
@@ -560,6 +565,28 @@
 
 <dl><dd>
   Object with the metric properties of triangles.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>mesh_geom()</h2>
+
+<pre class="py-sign">triellipt.fem.<b>mesh_geom</b>(mesh)</pre>
+
+<p>Returns the mesh geometric properties.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Triangular mesh.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>MeshGeom</em></span></p>
+
+<dl><dd>
+  Object with the geometric properties of triangles.
 </dd></dl>
 
 <hr>

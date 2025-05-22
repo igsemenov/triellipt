@@ -32,6 +32,24 @@ def getgrad(mesh):
     return maker.get_grad()
 
 
+def mesh_geom(mesh):
+    """Returns the mesh geometric properties.
+
+    Parameters
+    ----------
+    mesh : TriMesh
+        Triangular mesh.
+
+    Returns
+    -------
+    MeshGeom
+        Object with the geometric properties of triangles.
+
+    """
+    maker = MeshGeomMaker.from_metric(mesh_metric(mesh))
+    return maker.get_mesh_geom()
+
+
 def mesh_metric(mesh):
     """Returns the mesh metric properties.
 
@@ -113,6 +131,23 @@ class MeshMetric:
 
     def __getitem__(self, key):
         return self.data[key]
+
+
+class MeshGeom:
+    """Mesh geometric properties.
+    """
+
+    def __init__(self, mesh=None, data=None):
+        self.mesh = mesh
+        self.data = data
+
+    @property
+    def areas(self):
+        return self.data['areas']
+
+    @property
+    def sides(self):
+        return self.data['sides']
 
 
 class MeshAgent:
@@ -328,6 +363,41 @@ class GradMaker(MetricAgent):
     def make_ccoeffs_scaled(self):
         return 0.5 * (
             self.metric.ccoeffs * self.areas1d_inv
+        )
+
+
+class MeshGeomMaker(MetricAgent):
+    """Computes the geomeric properties of the triangles.
+    """
+
+    def get_mesh_geom(self):
+
+        data = {
+            'areas': self.get_areas(),
+            'sides': self.get_sides()
+        }
+
+        return MeshGeom(
+            self.metric.mesh, data
+        )
+
+    def get_areas(self):
+        return self.metric.areas1d.flatten()
+
+    def get_sides(self):
+
+        sides_permuted = self.get_sides_permuted()
+
+        sides_arranged = sides_permuted[:, [2, 0, 1]]
+        return sides_arranged.copy('C')
+
+    def get_sides_permuted(self):
+
+        bcoefs = self.metric.bcoeffs
+        ccoefs = self.metric.ccoeffs
+
+        return np.sqrt(
+            bcoefs * bcoefs + ccoefs * ccoefs
         )
 
 

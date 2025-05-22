@@ -38,6 +38,10 @@ class AMRData:
     def from_mesh(cls, mesh):
         return cls(mesh)
 
+    def with_data(self, data):
+        self.data = data.copy()
+        return self
+
     @property
     def mesh_twin(self):
         return self.mesh.twin()

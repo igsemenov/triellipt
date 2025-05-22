@@ -20,14 +20,10 @@ An adaptive finite-element solver for elliptic and parabolic PDEs.
 
 - Nodal Continuous Galerkin Method 
 - Nodal Finite Volume Element Method
-- Edge-based hierarchical Poincaré-Steklov (HPS) scheme¹
-
-¹ Nearing completion and will be available shortly.
 
 *Features*
 
 - Ensures mass conservation on adaptive meshes
-- Supports inter-level coupling in *hierarchical discretization* schemes
 
 ## Funding
 
@@ -58,6 +54,10 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 ### Adaptive mesh
 
 &nbsp;&nbsp;&nbsp;&nbsp;<img src="docs/images/circ-amr.gif" alt="Demo GIF" width="400"/>
+
+### Composite multielement mesh
+
+<img src="./docs/images/mrs-mesh.png" width="400">
 
 ### Pin-to-plate mesh
 

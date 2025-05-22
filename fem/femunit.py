@@ -24,7 +24,7 @@ def getunit(mesh, anchors=None, mode=None):
     anchors : Iterable = None
         Provides `(float, float)` points to synchronize the mesh boundary.
     mode : str = None
-        Solver mode — "fem" or "fvm" (default).
+        Solver mode — "fvm" or "fem" (default).
 
     Returns
     -------
@@ -33,7 +33,7 @@ def getunit(mesh, anchors=None, mode=None):
 
     """
     return FEMUnit.from_mesh(
-        mesh, anchors, mode or "fvm"
+        mesh, anchors, mode or "fem"
     )
 
 
@@ -175,6 +175,17 @@ class FEMRoot(FEMData):
         return self.grad
 
     @property
+    def trigeo(self):
+        """Dictionary with the geometric properties of triangles.
+        """
+
+        if 'trigeo' in self.cache:
+            return self.cache['trigeo']
+
+        self.cache['trigeo'] = femoprs.mesh_geom(self.mesh)
+        return self.trigeo
+
+    @property
     def perm(self):
         """Nodes permutation in the mesh-to-unit transition.
         """
@@ -267,6 +278,7 @@ class FEMUnit(FEMRoot):
     Name      | Description
     ----------|-------------------------------
     `grad`    | Gradient operator.
+    `trigeo`  | Geometric properties.
     `perm`    | Mesh-to-unit permutation.
     `base`    | Base edge-core partition.
     `loops`   | List of the mesh loops.

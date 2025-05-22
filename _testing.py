@@ -14,10 +14,11 @@ dirnames = [
     'mshread',
     'trimesh',
     'fem',
-    'amr'
+    'amr',
+    'mrs'
 ]
 
-for testnum in range(7):
+for testnum in range(8):
 
     DIRNAME = dirnames[testnum]
 

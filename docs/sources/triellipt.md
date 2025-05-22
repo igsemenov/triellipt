@@ -57,6 +57,7 @@ Module                   | Description
                 </ul>
             </li>
             <li><a href="triellipt.fem.md#mesh_metric">mesh_metric()</a></li>
+            <li><a href="triellipt.fem.md#mesh_geom">mesh_geom()</a></li>
         </ul>
     </li>
 </ul>

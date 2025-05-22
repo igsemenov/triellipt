@@ -32,7 +32,7 @@ Creates a FEM computing unit.
 <p><span class="vardef"><code>mode</code> : <em>str = None</em></span></p>
 
 <dl><dd>
-  Solver mode — <mark>&quot;fem&quot;</mark> or <mark>&quot;fvm&quot;</mark> (default).
+  Solver mode — <mark>&quot;fvm&quot;</mark> or <mark>&quot;fem&quot;</mark> (default).
 </dd></dl>
 
 <b>Returns</b>
@@ -67,6 +67,7 @@ General properties:
 Name      | Description
 ----------|-------------------------------
 `grad`    | Gradient operator.
+`trigeo`  | Geometric properties.
 `perm`    | Mesh-to-unit permutation.
 `base`    | Base edge-core partition.
 `loops`   | List of the mesh loops.
@@ -430,4 +431,26 @@ Returns the mesh metric properties.
 
 <dl><dd>
   Object with the metric properties of triangles.
+</dd></dl>
+
+## mesh_geom()
+
+<pre class="py-sign">triellipt.fem.<b>mesh_geom</b>(mesh)</pre>
+
+Returns the mesh geometric properties.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Triangular mesh.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>MeshGeom</em></span></p>
+
+<dl><dd>
+  Object with the geometric properties of triangles.
 </dd></dl>
