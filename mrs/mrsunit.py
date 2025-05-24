@@ -5,6 +5,7 @@ import numpy as np
 from triellipt.amr import trinspect
 from triellipt.mrs import triskel
 from triellipt.mrs import trielm
+from triellipt.mrs import mrsmesh
 
 
 def getunit(mesh):
@@ -24,7 +25,7 @@ def getunit(mesh):
     return MRSUnit.from_mesh(mesh)
 
 
-class MRSData:
+class MRSBase:
     """Parent MRS unit.
     """
 
@@ -74,7 +75,7 @@ class MRSData:
         return self.elms[0].data.keys()
 
 
-class MRSUnit(MRSData):
+class MRSUnit(MRSBase):
     """MRS unit.
     """
 
@@ -215,6 +216,9 @@ class MRSUnit(MRSData):
 
     def getpremesh(self):
         return triskel.getskel(self).get_premesh()
+
+    def getmrsmesh(self):
+        return mrsmesh.getmrsmesh(self)
 
 
 def _filtnums(nums, size):

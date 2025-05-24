@@ -4,7 +4,7 @@
 import itertools as itr
 import numpy as np
 from triellipt import mesher
-from triellipt.mrs import mrsmesh
+from triellipt import utils
 
 
 def getpremesh(skel):
@@ -19,9 +19,10 @@ class PreMesh:
     """Global mesh prototype.
     """
 
-    def __init__(self, skel=None, mesh=None):
+    def __init__(self, skel=None, mesh=None, meta=None):
         self.skel = skel
         self.mesh = mesh
+        self.meta = meta
 
     @classmethod
     def from_skel(cls, skel):
@@ -30,6 +31,18 @@ class PreMesh:
     @property
     def data(self):
         return self.skel.data
+
+    @property
+    def holes(self):
+        return self.meta['holes']
+
+    @property
+    def holes_flat(self):
+        return np.hstack(self.holes)
+
+    @property
+    def gluers(self):
+        return self.meta['gluers']
 
     @property
     def triu(self):
@@ -42,12 +55,19 @@ class PreMesh:
         nodes0 = self.mesh.points[self.mesh.triangs[:, 0]]
         nodes1 = self.mesh.points[self.mesh.triangs[:, 1]]
 
-        return np.where(
+        trinums, = np.where(
             abs(nodes0 - nodes1) < 1e-10
         )
 
-    def getmrsmesher(self):
-        return mrsmesh.getmesher(self)
+        return trinums
+
+    def with_holes(self):
+        self.meta['holes'] = HolesFetcher(self.mesh).get_holes()
+        return self
+
+    def with_gluers(self):
+        self.meta['gluers'] = GluersFetcher(self).get_gluers()
+        return self
 
 
 class SkelAgent:
@@ -112,9 +132,11 @@ class PreMesher(SkelAgent):
                 'MRS unit not meshable, bad contacts'
             )
 
-        return PreMesh(
-            self.skel, self.make_premesh()
+        prem = PreMesh(
+            self.skel, self.make_premesh(), {}
         )
+
+        return prem.with_holes().with_gluers()
 
     @property
     def is_meshable(self):
@@ -218,3 +240,99 @@ class EdgesMerger:
         return np.vstack(
             [gluer, voids.T]
         )
+
+
+class HolesFetcher:
+    """Fetches holes from the mesh.
+    """
+
+    def __init__(self, mesh):
+        self.loops = self.fetch_loops(mesh)
+
+    def fetch_loops(self, mesh):
+        return mesh.meshedge().getloops()
+
+    def get_holes(self):
+
+        loopsitr = itr.compress(
+            self.loops, self.get_loops_filter()
+        )
+
+        holes = list(loopsitr)
+
+        return [
+            hole.nodnums1 for hole in holes
+        ]
+
+    def get_loops_filter(self):
+
+        loops_areas = self.get_loops_areas()
+
+        return [
+            abs(area) < 1e-10 for area in loops_areas
+        ]
+
+    def get_loops_areas(self):
+        return [
+            _loop_area(loop.nodes_complex) for loop in self.loops
+        ]
+
+
+class GluersFetcher:
+    """Fetcher of gluers.
+    """
+
+    def __init__(self, premesh):
+        self.prem = premesh
+
+    def get_gluers(self):
+
+        table = self.make_table()
+        table = self.filter_table(table)
+
+        return _filter_twins(table)
+
+    def make_table(self):
+
+        numbers = self.prem.getgluers()
+        triangs = self.prem.mesh.triangs
+
+        return triangs[numbers, 0:2].copy('C')
+
+    def filter_table(self, table):
+
+        mask = np.isin(
+            table, self.holes_flat, invert=True
+        )
+
+        mask = np.all(mask, axis=1)
+        return table[mask, :].copy('C')
+
+    @property
+    def holes_flat(self):
+        return np.hstack(
+            self.prem.holes
+        )
+
+
+def _loop_area(nodes):
+
+    int_x = np.sum(nodes.imag[:-1] * np.diff(nodes.real))
+    int_y = np.sum(nodes.real[:-1] * np.diff(nodes.imag))
+
+    return np.abs(
+        int_x - int_y
+    )
+
+
+def _filter_twins(table):
+
+    codes = utils.pairs.sympaired(
+        table[:, 0], table[:, 1]
+    )
+
+    data = np.vstack(
+        utils.pairs.szuunpaired(np.unique(codes))
+    )
+
+    return data.T.astype(int)
