@@ -1,4 +1,3 @@
-
 # <img src="./docs/configs/logo.png" width="30" height="30"> triellipt
 
 An adaptive finite-element solver for elliptic and parabolic PDEs.
@@ -12,7 +11,7 @@ An adaptive finite-element solver for elliptic and parabolic PDEs.
 
 - Has an interface to read GMSH meshes  
 - Supports [*conforming*](#conforming-mesh) and [*non-conforming*](#non-conforming-mesh) triangle meshes
-- Enables [*macroelement formulation*](#mesh-with-macroelements) on a background mesh
+- Supports using [*macroelements*](#mesh-with-macroelements) on a background mesh
 - Provides a flexible framework for mesh [*adaptation*](#adaptive-mesh)
 
 **Discretization:**
@@ -49,20 +48,21 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 
 ### Conforming mesh
 
-<img src="./docs/images/conforming-mesh.png" width="470">
+<img src="./docs/images/conforming-mesh.png" width="500">
 
 ### Non-conforming mesh
 
-<img src="./docs/images/non-conforming-mesh.png" width="470">
+<img src="./docs/images/non-conforming-mesh.png" width="500">
 
 ### Mesh with macroelements
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="./docs/images/mrs-mesh.png" width="390">
 
 ### Adaptive mesh
 
-&nbsp;&nbsp;&nbsp;&nbsp;<img src="docs/images/circ-amr.gif" alt="Demo GIF" width="400"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="docs/images/circ-amr.gif" alt="Demo GIF" width="400"/>
 
 ### Pin-to-plate mesh
 
