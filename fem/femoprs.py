@@ -149,6 +149,20 @@ class MeshGeom:
     def sides(self):
         return self.data['sides']
 
+    @property
+    def sides_filtered(self):
+        return self.sides[self.sides > 0]
+
+    def minside(self):
+        return np.amin(
+            self.sides_filtered
+        )
+
+    def maxside(self):
+        return np.amax(
+            self.sides_filtered
+        )
+
 
 class MeshAgent:
     """Operator on a trimesh.

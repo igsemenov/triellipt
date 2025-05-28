@@ -343,3 +343,31 @@ Filters the front by the orientation angles.
 <pre class="py-sign">TriFront.<b>filter_by_scale</b>(<em>self</em>, minval, maxval)</pre>
 
 Filters the front by the scales.
+
+## join_meshes()
+
+<pre class="py-sign">triellipt.amr.<b>join_meshes</b>(mesh1, mesh2)</pre>
+
+Join two meshes along common boundary, if any.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>mesh1</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  1-st input mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>mesh2</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  2-nd input mesh.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TriMesh | None</em></span></p>
+
+<dl><dd>
+  New mesh or <i>None</i>, if failed.
+</dd></dl>

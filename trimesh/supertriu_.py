@@ -203,11 +203,13 @@ class SuperTriu(SuperData):
         cleaner = superoprs.SupDetach.from_suptriu(self)
         return cleaner.cleaned()
 
-    def reduce(self, iterate=True):
+    def reduce(self, seed=0, iterate=True):
         """Extracts a compact super-triangulation, if possible.
 
         Parameters
         ----------
+        seed : int = 0
+            Number of the seed supertriangle.
         iterate : bool = True
             Triggers cleaning and retry in case of failure (i).
 

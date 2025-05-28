@@ -12,6 +12,7 @@ class SupAgent(ABC):
 
     def __init__(self, suptri=None):
         self.suptri = suptri
+        self.cache = {}
 
     @classmethod
     def from_suptriu(cls, suptri):
@@ -141,10 +142,11 @@ class SupCompress(SupAgent):
 
     MIN_SUPTRI_SIZE = 4
 
-    def compress(self):
+    def compress(self, seed=0):
 
         if self.suptri.size == 0:
             return None
+        self.cache['seed'] = seed
 
         edgesgraph = self.make_edges_graph()
         newsuptriu = self.from_edges_graph(edgesgraph)
@@ -172,7 +174,7 @@ class SupCompress(SupAgent):
 
     def make_bfs_tree(self, graph):
 
-        seed = 0
+        seed = self.cache['seed']
 
         nums = sp.csgraph.breadth_first_order(
             graph, seed, directed=False, return_predecessors=False
@@ -214,14 +216,14 @@ class SupReduce(SupCompress):
     """Reducer of a super-triangulation.
     """
 
-    def reduce(self):
+    def reduce(self, seed=0):
 
         while True:
 
             if self.suptri.size == 0:
                 return None
 
-            suptri_compressed = self.trial_reduce()
+            suptri_compressed = self.trial_reduce(seed)
 
             if suptri_compressed is not None:
                 return suptri_compressed
@@ -230,8 +232,8 @@ class SupReduce(SupCompress):
 
         return None
 
-    def trial_reduce(self):
-        return self.compress()
+    def trial_reduce(self, seed):
+        return self.compress(seed)
 
     def clean_suptri(self):
         self.suptri = self.suptri.strip()

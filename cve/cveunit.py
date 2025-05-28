@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Public HPS unit.
+"""Public CVE unit.
 """
-from triellipt.hps import hpsmesher
+from triellipt.cve import cvemesher
 
 
-class HPSData:
-    """Parent HPS unit.
+def getunit(mesh):
+    return CVEUnit.from_mesh(mesh)
+
+
+class CVEData:
+    """Parent CVE unit.
     """
 
     def __init__(self, mesh=None, meta=None):
@@ -15,7 +19,7 @@ class HPSData:
     @classmethod
     def from_mesh(cls, inputmesh):
 
-        mesh = hpsmesher.gethpsmesh(inputmesh)
+        mesh = cvemesher.getcvemesh(inputmesh)
 
         meta = {
             'parentmesh': inputmesh,
@@ -32,6 +36,6 @@ class HPSData:
         return self.meta['parentmesh']
 
 
-class HPSUnit(HPSData):
-    """HPS computing unit.
+class CVEUnit(CVEData):
+    """CVE computing unit.
     """

@@ -3,3 +3,4 @@
 """
 from .amr_ import getunit, AMRUnit
 from .trifronts import TriFront
+from .meshgluer import join_meshes

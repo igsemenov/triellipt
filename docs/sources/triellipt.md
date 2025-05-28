@@ -93,6 +93,7 @@ Module                   | Description
                     <li><a href="triellipt.amr.md#filter_by_scale">filter_by_scale()</a></li>
                 </ul>
             </li>
+            <li><a href="triellipt.amr.md#join_meshes">join_meshes()</a></li>
         </ul>
     </li>
 </ul>

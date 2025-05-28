@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-"""HPS mesh maker.
+"""CVE mesh maker.
 """
 import numpy as np
 from triellipt.utils import tables
 
 
-def gethpsmesh(mesh):
-    maker = HPSMeshMaker.from_mesh(mesh)
-    return maker.make_hpsmesh()
+def getcvemesh(mesh):
+    maker = CVEMeshMaker.from_mesh(mesh)
+    return maker.make_cvemesh()
 
 
-class HPSMeshMaker:
-    """Maker of the HPS mesh.
+class CVEMeshMaker:
+    """Maker of the CVE mesh.
     """
 
     def __init__(self, mesh=None):
@@ -22,42 +22,39 @@ class HPSMeshMaker:
     def from_mesh(cls, mesh):
         return cls(mesh)
 
-    def make_hpsmesh(self):
+    def make_cvemesh(self):
 
-        _ = self.make_hpsmesh_data()
-        _ = self.push_hpsmesh()
+        _ = self.make_cvemesh_data()
+        _ = self.push_cvemesh()
 
         return _
 
-    def make_hpsmesh_data(self):
+    def make_cvemesh_data(self):
 
-        triangs = self.make_hps_triangs()
-        points = self.make_hps_points()
+        _ = self.make_cve_triangs()
+        _ = self.make_cve_points()
 
-        return (triangs, points)
+        return True
 
-    def push_hpsmesh(self):
+    def push_cvemesh(self):
 
-        hpsmesh = self.mesh.from_data(
-            self.cache['hps-points'],  self.cache['hps-triangs']
+        cvemesh = self.mesh.from_data(
+            self.cache['cve-points'],  self.cache['cve-triangs']
         )
 
-        hpsmesh.meta['edgescodes'] = self.cache['edgespaired'].copy()
+        cvemesh.meta['edgescodes'] = self.cache['edgespaired'].copy()
+        return cvemesh
 
-        self.cache['hps-mesh'] = hpsmesh
-        return hpsmesh
-
-    def make_hps_triangs(self):
+    def make_cve_triangs(self):
 
         edges = self.mesh.edges_paired()
-        triangs = tables.norm_table(edges)
 
         self.cache['edgespaired'] = edges
-        self.cache['hps-triangs'] = triangs
+        self.cache['cve-triangs'] = tables.norm_table(edges)
 
-        return triangs
+        return True
 
-    def make_hps_points(self):
+    def make_cve_points(self):
 
         _ = self.make_edgesnodes()
         _ = self.flat_edgesnodes()
@@ -71,19 +68,21 @@ class HPSMeshMaker:
         )
 
         self.cache['edges-nodes'] = edges
-        return edges
+        return True
 
     def flat_edgesnodes(self):
 
         points = np.zeros(
-            np.amax(self.cache['hps-triangs']) + 1, dtype=complex
+            np.amax(self.cache['cve-triangs']) + 1, dtype=complex
         )
 
         nodes = self.cache['edges-nodes']
-        triangs = self.cache['hps-triangs']
+        triangs = self.cache['cve-triangs']
 
         points[triangs.flat] = nodes.flat
-        self.cache['hps-points'] = points.copy()
+        self.cache['cve-points'] = points.copy()
+
+        return True
 
     @property
     def trinodes1(self):

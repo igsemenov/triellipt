@@ -586,11 +586,17 @@ Removes super-triangles touching the background mesh edge.
 
 ### reduce()
 
-<pre class="py-sign">SuperTriu.<b>reduce</b>(<em>self</em>, iterate=<span>True</span>)</pre>
+<pre class="py-sign">SuperTriu.<b>reduce</b>(<em>self</em>, seed=0, iterate=<span>True</span>)</pre>
 
 Extracts a compact super-triangulation, if possible.
 
 <b>Parameters</b>
+
+<p><span class="vardef"><code>seed</code> : <em>int = 0</em></span></p>
+
+<dl><dd>
+  Number of the seed supertriangle.
+</dd></dl>
 
 <p><span class="vardef"><code>iterate</code> : <em>bool = True</em></span></p>
 

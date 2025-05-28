@@ -58,6 +58,7 @@
                                 <li><a href="#filter_by_scale">filter_by_scale()</a></li>
                             </ul>
                         </li>
+                        <li><a href="#join_meshes">join_meshes()</a></li>
                     </ul>
                 </li>
             </ul>
@@ -438,6 +439,34 @@
 <pre class="py-sign">TriFront.<b>filter_by_scale</b>(<em>self</em>, minval, maxval)</pre>
 
 <p>Filters the front by the scales.</p>
+
+<div class="toc-anchor"></div><h2>join_meshes()</h2>
+
+<pre class="py-sign">triellipt.amr.<b>join_meshes</b>(mesh1, mesh2)</pre>
+
+<p>Join two meshes along common boundary, if any.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh1</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  1-st input mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>mesh2</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  2-nd input mesh.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>TriMesh | None</em></span></p>
+
+<dl><dd>
+  New mesh or <i>None</i>, if failed.
+</dd></dl>
 
 <hr>
         </div>
