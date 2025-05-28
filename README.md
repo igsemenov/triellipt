@@ -6,6 +6,8 @@ A lightweight finite-element solver for elliptic and parabolic PDEs.
 - Capable of solving steady-state and transient convection-diffusion problems.
 - Suitable for basic elliptic problems, such as electrostatics and Helmholtz-type equations.
 
+Explore features and [examples](#examples) below.
+
 ## Features
 
 **Meshes:**
@@ -110,7 +112,7 @@ $$
 L[u] = \rho
 $$
 
-with the operator
+in the domain $[-0.5, 0.5]^2$ with the operator
 
 $$
 L = 1 + \frac{\partial}{\partial x} + \frac{\partial}{\partial y} + \frac{\partial^2}{\partial x^2} + \frac{\partial^2}{\partial y^2}
@@ -122,5 +124,5 @@ $$
 u = \cos(\pi x) \cos(\pi y)
 $$
 
-<img src="./docs/images/rect-mesh-view.png" width="350">
+<img src="./docs/images/rect-mesh-view.png" width="320">
 <img src="./docs/images/rect-mesh-errs.png" width="320">
