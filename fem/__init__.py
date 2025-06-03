@@ -8,3 +8,4 @@ from .femmatrix import MatrixFEM
 from .femvector import VectorFEM
 from .femoprs import mesh_metric
 from .femoprs import mesh_geom
+from .transp import gettransp, TranspUnit

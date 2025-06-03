@@ -52,7 +52,8 @@ class StreamOprs(SkelAgent):
             'diff_1x': self.get_stream_diff_1x(),
             'diff_1y': self.get_stream_diff_1y(),
             'diff_2x': self.get_stream_diff_2x(),
-            'diff_2y': self.get_stream_diff_2y()
+            'diff_2y': self.get_stream_diff_2y(),
+            'grad_1y': self.get_stream_grad_1y()
         }
 
         streams = {
@@ -72,6 +73,9 @@ class StreamOprs(SkelAgent):
 
     def get_stream_diff_1y(self):
         return self.stream_flux.with_opr(self.diff_1y)
+
+    def get_stream_grad_1y(self):
+        return self.stream_mass.with_opr(self.grad_1y)
 
     def get_stream_diff_2x(self):
         return self.stream_flux.with_opr(self.diff_2x)
@@ -102,6 +106,10 @@ class StreamOprs(SkelAgent):
     @property
     def diff_1y(self):
         return self.meta['fem-oprs']['diff_1y']
+
+    @property
+    def grad_1y(self):
+        return self.meta['fem-oprs']['grad_1y']
 
     @property
     def diff_2x(self):

@@ -67,8 +67,9 @@ pre {
   font-size: 14px;
   line-height: 1.3em;
   border-radius: 5px;
-  white-space: pre-wrap;
   background-color: #f2f2f2;
+  overflow-x: auto;
+  white-space: pre;
 }
 
 pre code {
@@ -104,6 +105,7 @@ em {
   color: var(--em-color);
 }
 
+/*
 mark {
   font-size: 16px;
   font-style: normal;
@@ -111,12 +113,13 @@ mark {
   color: var(--mark-color);
   background-color: white;
 }
+*/
 
 p code,
 dd code,
 .md-list code {
+  padding: 0.1em;
   border-radius: 3px;
-  padding: 0.2em 0.3em;
   background-color: #f2f2f2;
 }
 
@@ -162,6 +165,7 @@ ul {
 .md-list,
 .md-list ul {
   margin-left: 2em;
+  line-height: 1.5em;
 }
 
 .md-list li {
@@ -481,6 +485,10 @@ dd {
 }
 
 dd i {
+  color: var(--mark-color);
+}
+
+dd em {
   color: var(--ibm-blue);
 }
 

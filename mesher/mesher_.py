@@ -27,11 +27,13 @@ def trigrid(xsize, ysize, slopes):
 
     (i) Triangulation in terms of grid cell division:
 
-    - "west-slope" — by west diagonals
-    - "east-slope" — by east diagonals
-    - "west-snake" — snake-like, starting from the west slope
-    - "east-snake" — snake-like, starting from the east slope
-    - "cross-wise" — by both diagonals
+    Key           | Description
+    --------------|----------------------------------------------
+    "west-slope"  | By west diagonals
+    "east-slope"  | By east diagonals
+    "cross-wise"  | By both diagonals
+    "west-snake"  | Snake-like, starting from the west slope
+    "east-snake"  | Snake-like, starting from the east slope
 
     """
     return trigrids.getgrid(

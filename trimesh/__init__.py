@@ -6,3 +6,4 @@ from .meshedge_ import MeshEdge, EdgeLoop
 from .edgesmap_ import EdgesMap
 from .nodesmap_ import NodesMap
 from .supertriu_ import SuperTriu
+from .trireduce import merge_mesh

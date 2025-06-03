@@ -115,6 +115,30 @@ class MeshReduce(MeshAgent):
         return False
 
 
+def merge_mesh(omesh, imesh):
+    """Merges a mesh from an outer part and an inner parts.
+
+    Parameters
+    ----------
+    omesh : TriMesh
+        Outer mesh.
+    imesh : TriMesh
+        Inner mesh.
+
+    Returns
+    -------
+    TriMesh | None
+        New mesh or None, if failed.
+
+    Notes
+    -----
+
+    Parts must be from the same point set.
+
+    """
+    return MeshMerge(imesh, omesh).mesh_merge().delghosts().twin()
+
+
 MeshMergeError = type(
     'MeshMergeError', (Exception,), {}
 )

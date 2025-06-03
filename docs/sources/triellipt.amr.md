@@ -69,7 +69,7 @@ Performs a static mesh refinement.
 <p><span class="vardef"><code>trinums</code> : <em>Iterable = None</em></span></p>
 
 <dl><dd>
-  Numbers of triangles to refine, if <i>None</i> takes all triangles.
+  Numbers of triangles to refine, if <em>None</em> takes all triangles.
 </dd></dl>
 
 <b>Returns</b>
@@ -156,7 +156,7 @@ Finds a convex subset of a mesh.
 <p><span class="vardef"><code>remove_heads</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
-  Removes single-paired triangles, if <i>True</i>.
+  Removes single-paired triangles, if <em>True</em>.
 </dd></dl>
 
 <b>Returns</b>
@@ -224,7 +224,7 @@ Generates a unit data item from a given function.
 <p><span class="vardef"><code>constrained</code> : <em>bool = True</em></span></p>
 
 <dl><dd>
-  Constrains the new data item on the mesh, if <i>True</i>.
+  Constrains the new data item on the mesh, if <em>True</em>.
 </dd></dl>
 
 <b>Returns</b>
@@ -346,9 +346,9 @@ Filters the front by the scales.
 
 ## join_meshes()
 
-<pre class="py-sign">triellipt.amr.<b>join_meshes</b>(mesh1, mesh2)</pre>
+<pre class="py-sign">triellipt.amr.<b>join_meshes</b>(mesh1, mesh2, tol=<span>None</span>)</pre>
 
-Join two meshes along common boundary, if any.
+Join the meshes along a shared boundary, if available.
 
 <b>Parameters</b>
 
@@ -364,10 +364,16 @@ Join two meshes along common boundary, if any.
   2-nd input mesh.
 </dd></dl>
 
+<p><span class="vardef"><code>tol</code> : <em>int = None</em></span></p>
+
+<dl><dd>
+  Optional absolute tolerance for detecting nearby points.
+</dd></dl>
+
 <b>Returns</b>
 
 <p><span class="vardef"><em>TriMesh | None</em></span></p>
 
 <dl><dd>
-  New mesh or <i>None</i>, if failed.
+  New mesh or <em>None</em>, if failed.
 </dd></dl>

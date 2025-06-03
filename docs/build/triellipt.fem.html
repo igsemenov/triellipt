@@ -68,6 +68,16 @@
                         </li>
                         <li><a href="#mesh_metric">mesh_metric()</a></li>
                         <li><a href="#mesh_geom">mesh_geom()</a></li>
+                        <li><a href="#gettransp">gettransp()</a></li>
+                        <li><a href="#transpunit">TranspUnit</a>
+                            <ul>
+                                <li><a href="#constr">constr()</a></li>
+                                <li><a href="#transp">transp()</a></li>
+                                <li><a href="#source">source()</a></li>
+                                <li><a href="#newdata">newdata()</a></li>
+                                <li><a href="#newcoeff">newcoeff()</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -109,7 +119,7 @@
 <p><span class="vardef"><code>mode</code> : <em>str = None</em></span></p>
 
 <dl><dd>
-  Solver mode — <mark>&quot;fvm&quot;</mark> or <mark>&quot;fem&quot;</mark> (default).
+  Solver mode — <i>&quot;fvm&quot;</i> or <i>&quot;fem&quot;</i> (default).
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -297,13 +307,13 @@
 <p><span class="vardef"><code>is_lumped</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Creates a lumped mass operator, if <i>True</i>.
+  Creates a lumped mass operator, if <em>True</em>.
 </dd></dl>
 
 <p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Adds constraints, if <i>True</i>.
+  Adds constraints, if <em>True</em>.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -372,7 +382,7 @@
 <p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Constraints are included in the matrix, if <i>True</i>.
+  Constraints are included in the matrix, if <em>True</em>.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -587,6 +597,193 @@
 
 <dl><dd>
   Object with the geometric properties of triangles.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>gettransp()</h2>
+
+<pre class="py-sign">triellipt.fem.<b>gettransp</b>(mesh, geom=<span>None</span>)</pre>
+
+<p>Creates an explicit transport unit.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Input triangle mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>geom</code> : <em>str</em></span></p>
+
+<dl><dd>
+  Geometry mode — <i>&quot;ax&quot;</i> for cylindrical, <i>&quot;2d&quot;</i> for planar (default).
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>TranspUnit</em></span></p>
+
+<dl><dd>
+  Explicit transport unit.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>TranspUnit</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>TranspUnit</b>(mesh=<span>None</span>, meta=<span>None</span>, geom=<span>None</span>)</pre>
+
+<p>Explicit transport unit.</p>
+
+<p><b>Properties</b></p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>mass</code></td>
+        <td>Node-based mass vector</td>
+    </tr>
+</table>
+
+<div class="toc-anchor"></div><h3>constr()</h3>
+
+<pre class="py-sign">TranspUnit.<b>constr</b>(<em>self</em>, data)</pre>
+
+<p>Constrains node-based data on hanging nodes.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Node-based data to constrain.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Constrained data.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>transp()</h3>
+
+<pre class="py-sign">TranspUnit.<b>transp</b>(<em>self</em>, data, v_x, v_y, d_x, d_y, stab)</pre>
+
+<p>Computes the transport operator.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Node-based transported field.
+</dd></dl>
+
+<p><span class="vardef"><code>v_x</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Triangle-based x-velocity.
+</dd></dl>
+
+<p><span class="vardef"><code>v_y</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Triangle-based y-velocity.
+</dd></dl>
+
+<p><span class="vardef"><code>d_x</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Triangle-based x-diffusion coefficient.
+</dd></dl>
+
+<p><span class="vardef"><code>d_y</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Triangle-based y-diffusion coefficient.
+</dd></dl>
+
+<p><span class="vardef"><code>stab</code> : <em>Callable</em></span></p>
+
+<dl><dd>
+  Stream upwind stabilizator.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Node-based transport operator.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>source()</h3>
+
+<pre class="py-sign">TranspUnit.<b>source</b>(<em>self</em>, field)</pre>
+
+<p>Computes the source term.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>field</code> : <em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Triangle-based source field.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Node-based source term.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>newdata()</h3>
+
+<pre class="py-sign">TranspUnit.<b>newdata</b>(<em>self</em>, value_or_func)</pre>
+
+<p>Creates a new node-based field.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>value_or_func</code> : <em>float-or-callable</em></span></p>
+
+<dl><dd>
+  Coefficient value or function <code>(x, y)</code> on mesh nodes.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Node-based coefficient.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>newcoeff()</h3>
+
+<pre class="py-sign">TranspUnit.<b>newcoeff</b>(<em>self</em>, value_or_func)</pre>
+
+<p>Creates a new triangle-based coefficient.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>value_or_func</code> : <em>float-or-callable</em></span></p>
+
+<dl><dd>
+  Coefficient value or function <code>(x, y)</code> on triangle centroids.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Triangle-based coefficient.
 </dd></dl>
 
 <hr>

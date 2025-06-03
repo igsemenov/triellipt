@@ -147,7 +147,7 @@
 <p><span class="vardef"><code>trinums</code> : <em>Iterable = None</em></span></p>
 
 <dl><dd>
-  Numbers of triangles to refine, if <i>None</i> takes all triangles.
+  Numbers of triangles to refine, if <em>None</em> takes all triangles.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -242,7 +242,7 @@
 <p><span class="vardef"><code>remove_heads</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
-  Removes single-paired triangles, if <i>True</i>.
+  Removes single-paired triangles, if <em>True</em>.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -310,7 +310,7 @@
 <p><span class="vardef"><code>constrained</code> : <em>bool = True</em></span></p>
 
 <dl><dd>
-  Constrains the new data item on the mesh, if <i>True</i>.
+  Constrains the new data item on the mesh, if <em>True</em>.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -442,9 +442,9 @@
 
 <div class="toc-anchor"></div><h2>join_meshes()</h2>
 
-<pre class="py-sign">triellipt.amr.<b>join_meshes</b>(mesh1, mesh2)</pre>
+<pre class="py-sign">triellipt.amr.<b>join_meshes</b>(mesh1, mesh2, tol=<span>None</span>)</pre>
 
-<p>Join two meshes along common boundary, if any.</p>
+<p>Join the meshes along a shared boundary, if available.</p>
 
 <p><b>Parameters</b></p>
 
@@ -460,12 +460,18 @@
   2-nd input mesh.
 </dd></dl>
 
+<p><span class="vardef"><code>tol</code> : <em>int = None</em></span></p>
+
+<dl><dd>
+  Optional absolute tolerance for detecting nearby points.
+</dd></dl>
+
 <p><b>Returns</b></p>
 
 <p><span class="vardef"><em>TriMesh | None</em></span></p>
 
 <dl><dd>
-  New mesh or <i>None</i>, if failed.
+  New mesh or <em>None</em>, if failed.
 </dd></dl>
 
 <hr>

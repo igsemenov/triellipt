@@ -28,17 +28,19 @@ def make_base_partition(unit):
     """Makes the edge-core unit partition.
     """
 
-    meta = {
-        'name': 'base',
-        'dirichlet-sides': (1,)
-    }
-
     loops = [
         loop.nodnums_unique for loop in unit.loops
     ]
 
+    meta = {
+        'name': 'base',
+        'dirichlet-sides': [
+            i + 1 for i in range(len(loops))
+        ]
+    }
+
     edges = {
-        1: np.hstack(loops)
+        i + 1: loop for (i, loop) in enumerate(loops)
     }
 
     return FEMPartt(

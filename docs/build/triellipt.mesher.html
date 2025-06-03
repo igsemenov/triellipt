@@ -92,15 +92,32 @@
 
 <p>(i) Triangulation in terms of grid cell division:</p>
 
-<p>
-<ul class="md-list">
-    <li><mark>&quot;west-slope&quot;</mark> — by west diagonals</li>
-    <li><mark>&quot;east-slope&quot;</mark> — by east diagonals</li>
-    <li><mark>&quot;west-snake&quot;</mark> — snake-like, starting from the west slope</li>
-    <li><mark>&quot;east-snake&quot;</mark> — snake-like, starting from the east slope</li>
-    <li><mark>&quot;cross-wise&quot;</mark> — by both diagonals</li>
-</ul>
-</p>
+<table>
+    <tr>
+        <th>Key</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><i>&quot;west-slope&quot;</i></td>
+        <td>By west diagonals</td>
+    </tr>
+    <tr>
+        <td><i>&quot;east-slope&quot;</i></td>
+        <td>By east diagonals</td>
+    </tr>
+    <tr>
+        <td><i>&quot;cross-wise&quot;</i></td>
+        <td>By both diagonals</td>
+    </tr>
+    <tr>
+        <td><i>&quot;west-snake&quot;</i></td>
+        <td>Snake-like, starting from the west slope</td>
+    </tr>
+    <tr>
+        <td><i>&quot;east-snake&quot;</i></td>
+        <td>Snake-like, starting from the east slope</td>
+    </tr>
+</table>
 
 <div class="toc-anchor"></div><h2>trilattice()</h2>
 
@@ -125,7 +142,7 @@
 <p><span class="vardef"><code>close</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
-  Closes the lattice sides, if <i>True</i>.
+  Closes the lattice sides, if <em>True</em>.
 </dd></dl>
 
 <p><b>Returns</b></p>

@@ -10,7 +10,8 @@ FEMOPRS = [
     'diff_1x',
     'diff_1y',
     'diff_2x',
-    'diff_2y'
+    'diff_2y',
+    'grad_1y'
 ]
 
 
@@ -294,6 +295,9 @@ class OprsMaker(MetricAgent):
     def diff_1y(self):
         return self.diff_1d('ccoeffs')
 
+    def grad_1y(self):
+        return self.grad_1d('ccoeffs')
+
     def diff_2x(self):
         return self.diff_2d('bcoeffs')
 
@@ -317,6 +321,14 @@ class OprsMaker(MetricAgent):
         return 0.25 * (
             diff_2d * self.areas1d_inv
         )
+
+    def grad_1d(self, coeffs_key):
+
+        grad_1d = _solo_matrix(
+            self.metric[coeffs_key]
+        )
+
+        return grad_1d / 6
 
     def massmat(self):
 
@@ -462,6 +474,10 @@ class TriGrad:
 
 def _mono_matrix(data1d):
     return np.repeat(data1d, 3, axis=1)
+
+
+def _solo_matrix(data1d):
+    return np.tile(data1d, (1, 3))
 
 
 def _diad_matrix(data1d):

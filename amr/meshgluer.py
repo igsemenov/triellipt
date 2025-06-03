@@ -5,7 +5,7 @@ import numpy as np
 
 
 def join_meshes(mesh1, mesh2, tol=None):
-    """Join two meshes along common boundary, if any.
+    """Join the meshes along a shared boundary, if available.
 
     Parameters
     ----------

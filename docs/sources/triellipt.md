@@ -58,6 +58,16 @@ Module                   | Description
             </li>
             <li><a href="triellipt.fem.md#mesh_metric">mesh_metric()</a></li>
             <li><a href="triellipt.fem.md#mesh_geom">mesh_geom()</a></li>
+            <li><a href="triellipt.fem.md#gettransp">gettransp()</a></li>
+            <li><a href="triellipt.fem.md#transpunit">TranspUnit</a>
+                <ul>
+                    <li><a href="triellipt.fem.md#constr">constr()</a></li>
+                    <li><a href="triellipt.fem.md#transp">transp()</a></li>
+                    <li><a href="triellipt.fem.md#source">source()</a></li>
+                    <li><a href="triellipt.fem.md#newdata">newdata()</a></li>
+                    <li><a href="triellipt.fem.md#newcoeff">newcoeff()</a></li>
+                </ul>
+            </li>
         </ul>
     </li>
 </ul>
@@ -213,6 +223,7 @@ Module                   | Description
                     <li><a href="triellipt.trimesh.md#reduce">reduce()</a></li>
                 </ul>
             </li>
+            <li><a href="triellipt.trimesh.md#merge_mesh">merge_mesh()</a></li>
         </ul>
     </li>
 </ul>

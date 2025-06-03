@@ -32,7 +32,7 @@ Creates a FEM computing unit.
 <p><span class="vardef"><code>mode</code> : <em>str = None</em></span></p>
 
 <dl><dd>
-  Solver mode — <mark>&quot;fvm&quot;</mark> or <mark>&quot;fem&quot;</mark> (default).
+  Solver mode — <i>&quot;fvm&quot;</i> or <i>&quot;fem&quot;</i> (default).
 </dd></dl>
 
 <b>Returns</b>
@@ -176,13 +176,13 @@ Creates the mass operator from the base partition.
 <p><span class="vardef"><code>is_lumped</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Creates a lumped mass operator, if <i>True</i>.
+  Creates a lumped mass operator, if <em>True</em>.
 </dd></dl>
 
 <p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Adds constraints, if <i>True</i>.
+  Adds constraints, if <em>True</em>.
 </dd></dl>
 
 <b>Returns</b>
@@ -238,7 +238,7 @@ Creates a new FEM matrix.
 <p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
 
 <dl><dd>
-  Constraints are included in the matrix, if <i>True</i>.
+  Constraints are included in the matrix, if <em>True</em>.
 </dd></dl>
 
 <b>Returns</b>
@@ -453,4 +453,184 @@ Returns the mesh geometric properties.
 
 <dl><dd>
   Object with the geometric properties of triangles.
+</dd></dl>
+
+## gettransp()
+
+<pre class="py-sign">triellipt.fem.<b>gettransp</b>(mesh, geom=<span>None</span>)</pre>
+
+Creates an explicit transport unit.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Input triangle mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>geom</code> : <em>str</em></span></p>
+
+<dl><dd>
+  Geometry mode — <i>&quot;ax&quot;</i> for cylindrical, <i>&quot;2d&quot;</i> for planar (default).
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TranspUnit</em></span></p>
+
+<dl><dd>
+  Explicit transport unit.
+</dd></dl>
+
+## TranspUnit
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>TranspUnit</b>(mesh=<span>None</span>, meta=<span>None</span>, geom=<span>None</span>)</pre>
+
+Explicit transport unit.
+
+<b>Properties</b>
+
+Name      | Description
+----------|--------------------------
+`mass`    | Node-based mass vector
+
+### constr()
+
+<pre class="py-sign">TranspUnit.<b>constr</b>(<em>self</em>, data)</pre>
+
+Constrains node-based data on hanging nodes.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Node-based data to constrain.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Constrained data.
+</dd></dl>
+
+### transp()
+
+<pre class="py-sign">TranspUnit.<b>transp</b>(<em>self</em>, data, v_x, v_y, d_x, d_y, stab)</pre>
+
+Computes the transport operator.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Node-based transported field.
+</dd></dl>
+
+<p><span class="vardef"><code>v_x</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Triangle-based x-velocity.
+</dd></dl>
+
+<p><span class="vardef"><code>v_y</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Triangle-based y-velocity.
+</dd></dl>
+
+<p><span class="vardef"><code>d_x</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Triangle-based x-diffusion coefficient.
+</dd></dl>
+
+<p><span class="vardef"><code>d_y</code> : <em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Triangle-based y-diffusion coefficient.
+</dd></dl>
+
+<p><span class="vardef"><code>stab</code> : <em>Callable</em></span></p>
+
+<dl><dd>
+  Stream upwind stabilizator.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>flat-float-array</em></span></p>
+
+<dl><dd>
+  Node-based transport operator.
+</dd></dl>
+
+### source()
+
+<pre class="py-sign">TranspUnit.<b>source</b>(<em>self</em>, field)</pre>
+
+Computes the source term.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>field</code> : <em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Triangle-based source field.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Node-based source term.
+</dd></dl>
+
+### newdata()
+
+<pre class="py-sign">TranspUnit.<b>newdata</b>(<em>self</em>, value_or_func)</pre>
+
+Creates a new node-based field.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>value_or_func</code> : <em>float-or-callable</em></span></p>
+
+<dl><dd>
+  Coefficient value or function <code>(x, y)</code> on mesh nodes.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Node-based coefficient.
+</dd></dl>
+
+### newcoeff()
+
+<pre class="py-sign">TranspUnit.<b>newcoeff</b>(<em>self</em>, value_or_func)</pre>
+
+Creates a new triangle-based coefficient.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>value_or_func</code> : <em>float-or-callable</em></span></p>
+
+<dl><dd>
+  Coefficient value or function <code>(x, y)</code> on triangle centroids.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Triangle-based coefficient.
 </dd></dl>

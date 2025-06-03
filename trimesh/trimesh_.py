@@ -157,6 +157,12 @@ class _TriMesh(TriData):
         _ = renumer.AlignVoids.from_mesh(self)
         return _.aligned()
 
+    def downvoids(self):
+        """Puts void triangles to the end of the triangulation table. 
+        """
+        _ = renumer.DownVoids.from_mesh(self)
+        return _.shuffled()
+
     def delmouths(self):
         """Removes mouths from the mesh.
 

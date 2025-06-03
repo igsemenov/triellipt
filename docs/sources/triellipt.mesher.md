@@ -47,11 +47,13 @@ Creates a triangle grid.
 
 (i) Triangulation in terms of grid cell division:
 
-- "west-slope" — by west diagonals
-- "east-slope" — by east diagonals
-- "west-snake" — snake-like, starting from the west slope
-- "east-snake" — snake-like, starting from the east slope
-- "cross-wise" — by both diagonals
+Key           | Description
+--------------|----------------------------------------------
+"west-slope"  | By west diagonals
+"east-slope"  | By east diagonals
+"cross-wise"  | By both diagonals
+"west-snake"  | Snake-like, starting from the west slope
+"east-snake"  | Snake-like, starting from the east slope
 
 ## trilattice()
 
@@ -76,7 +78,7 @@ Creates a lattice of equilateral triangles.
 <p><span class="vardef"><code>close</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
-  Closes the lattice sides, if <i>True</i>.
+  Closes the lattice sides, if <em>True</em>.
 </dd></dl>
 
 <b>Returns</b>

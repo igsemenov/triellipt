@@ -81,6 +81,7 @@
                                 <li><a href="#reduce">reduce()</a></li>
                             </ul>
                         </li>
+                        <li><a href="#merge_mesh">merge_mesh()</a></li>
                     </ul>
                 </li>
             </ul>
@@ -253,7 +254,7 @@
 <p><span class="vardef"><em>TriMesh | None</em></span></p>
 
 <dl><dd>
-  New mesh, or <i>None</i> if the mesh boundary can not be fetched.
+  New mesh, or <em>None</em> if the mesh boundary can not be fetched.
 </dd></dl>
 
 <div class="toc-anchor"></div><h3>renumed()</h3>
@@ -373,7 +374,7 @@
 <p><span class="vardef"><code>detach</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
-  Runs the edge detachment before compression, if <i>True</i>.
+  Runs the edge detachment before compression, if <em>True</em>.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -604,10 +605,10 @@
 
 <p>
 <ul class="md-list">
-    <li><mark>&quot;heads&quot;</mark> — 1 pair</li>
-    <li><mark>&quot;links&quot;</mark> — 2 pairs</li>
-    <li><mark>&quot;cores&quot;</mark> — 3 pairs</li>
-    <li><mark>&quot;spots&quot;</mark> — 0 pairs</li>
+    <li><i>&quot;heads&quot;</i> — 1 pair</li>
+    <li><i>&quot;links&quot;</i> — 2 pairs</li>
+    <li><i>&quot;cores&quot;</i> — 3 pairs</li>
+    <li><i>&quot;spots&quot;</i> — 0 pairs</li>
 </ul>
 </p>
 
@@ -829,7 +830,7 @@
 <p><span class="vardef"><code>iterate</code> : <em>bool = True</em></span></p>
 
 <dl><dd>
-  Runs smoothing until possible, if <i>True</i>.
+  Runs smoothing until possible, if <em>True</em>.
 </dd></dl>
 
 <p><b>Notes</b></p>
@@ -867,12 +868,44 @@
 <p><span class="vardef"><em>SuperTriu | None</em></span></p>
 
 <dl><dd>
-  Compact super-triangulation or <i>None</i>, if failed.
+  Compact super-triangulation or <em>None</em>, if failed.
 </dd></dl>
 
 <p><b>Notes</b></p>
 
 <p>(i) Cleaning is a strip-and-smooth action.</p>
+
+<div class="toc-anchor"></div><h2>merge_mesh()</h2>
+
+<pre class="py-sign">triellipt.trimesh.<b>merge_mesh</b>(omesh, imesh)</pre>
+
+<p>Merges a mesh from an outer part and an inner parts.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>omesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Outer mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>imesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Inner mesh.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>TriMesh | None</em></span></p>
+
+<dl><dd>
+  New mesh or <em>None</em>, if failed.
+</dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>Parts must be from the same point set.</p>
 
 <hr>
         </div>

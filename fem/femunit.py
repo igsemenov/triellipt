@@ -47,7 +47,7 @@ class FEMData:
         self.cache = {}
 
     @classmethod
-    def from_mesh(cls, mesh, anchors=None, mode='fvm'):
+    def from_mesh(cls, mesh, anchors=None, mode="fem"):
 
         unit_data = FEMUnitMaker().get_unit_data(mesh, anchors, mode)
 
@@ -112,6 +112,24 @@ class FEMData:
 
         return self
 
+    @property
+    def femoprs(self):
+        return self.meta['v-streams']
+
+    @property
+    def ij_stream(self):
+        return self.meta['ij-stream']
+
+    @property
+    def ij_tuple(self):
+        return (
+            self.ij_stream.rownums, self.ij_stream.colnums
+        )
+
+    @property
+    def ij_t(self):
+        return self.ij_stream.trinums
+
 
 class FEMRoot(FEMData):
     """Root of the FEM unit.
@@ -134,6 +152,10 @@ class FEMRoot(FEMData):
         return - self.femoprs['diff_1y'].data
 
     @property
+    def grad_1y(self):
+        return + self.femoprs['grad_1y'].data
+
+    @property
     def diff_2x(self):
         return - self.femoprs['diff_2x'].data
 
@@ -144,24 +166,6 @@ class FEMRoot(FEMData):
     @property
     def radius(self):
         return self.mesh.centrs_complex.imag[self.ij_t]
-
-    @property
-    def femoprs(self):
-        return self.meta['v-streams']
-
-    @property
-    def ij_stream(self):
-        return self.meta['ij-stream']
-
-    @property
-    def ij_tuple(self):
-        return (
-            self.ij_stream.rownums, self.ij_stream.colnums
-        )
-
-    @property
-    def ij_t(self):
-        return self.ij_stream.trinums
 
     @property
     def grad(self):
@@ -407,7 +411,7 @@ class FEMUnitMaker:
     def __init__(self):
         self.cache = {}
 
-    def get_unit_data(self, mesh, anchors=None, mode='fvm'):
+    def get_unit_data(self, mesh, anchors=None, mode='fem'):
 
         _ = self.make_mesh_aligned(mesh, anchors)
         _ = self.make_skeleton()
@@ -421,7 +425,9 @@ class FEMUnitMaker:
 
         mesh0 = mesh
         mesh1 = mesh0.alignnodes(*anchors)
-        mesh2 = mesh1.alignvoids()
+
+        mesh2 = mesh1.downvoids()
+        mesh2 = mesh2.alignvoids()
 
         self.cache['meshes'] = {
             'root': mesh0,
@@ -450,7 +456,8 @@ class FEMUnitMaker:
         meta = {
             'ij-stream': ij_v['ij-stream'],
             'v-streams': ij_v['v-streams'],
-            'mesh2unit': perm
+            'mesh2unit': perm,
+            'unit-mode': mode
         }
 
         return {

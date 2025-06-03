@@ -20,6 +20,10 @@ class MeshAgent:
         return np.arange(self.mesh.npoints)
 
     @property
+    def triangs_range(self):
+        return np.arange(self.mesh.ntriangs)
+
+    @property
     def pivotsnums(self):
         return self.mesh.triangs[self.voidsnums, 2]
 
@@ -230,3 +234,32 @@ class AlignVoids(MeshAgent):
         return mesh.add_meta(
             {'nodes-permuter': np.arange(mesh.npoints)}
         )
+
+
+class DownVoids(MeshAgent):
+    """Puts void triangles at the end of triangulation table.
+    """
+
+    def shuffled(self):
+
+        if not self.hasvoids:
+            return self.mesh
+
+        permuter = self.make_permuter()
+        new_mesh = self.from_permuter(permuter)
+
+        return new_mesh
+
+    def make_permuter(self):
+
+        voids = self.voidsnums
+        triangs = self.triangs_range
+
+        numbers = [
+            np.delete(triangs, voids), voids
+        ]
+
+        return np.hstack(numbers)
+
+    def from_permuter(self, permuter):
+        return self.mesh.shuffled(permuter)

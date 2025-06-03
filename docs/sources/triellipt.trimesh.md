@@ -142,7 +142,7 @@ Performs the edge-core ordering of the mesh nodes.
 <p><span class="vardef"><em>TriMesh | None</em></span></p>
 
 <dl><dd>
-  New mesh, or <i>None</i> if the mesh boundary can not be fetched.
+  New mesh, or <em>None</em> if the mesh boundary can not be fetched.
 </dd></dl>
 
 ### renumed()
@@ -262,7 +262,7 @@ Tries to compress the mesh.
 <p><span class="vardef"><code>detach</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
-  Runs the edge detachment before compression, if <i>True</i>.
+  Runs the edge detachment before compression, if <em>True</em>.
 </dd></dl>
 
 <b>Returns</b>
@@ -571,7 +571,7 @@ Removes heads and spots from a super-triangulation.
 <p><span class="vardef"><code>iterate</code> : <em>bool = True</em></span></p>
 
 <dl><dd>
-  Runs smoothing until possible, if <i>True</i>.
+  Runs smoothing until possible, if <em>True</em>.
 </dd></dl>
 
 <b>Notes</b>
@@ -609,9 +609,41 @@ Extracts a compact super-triangulation, if possible.
 <p><span class="vardef"><em>SuperTriu | None</em></span></p>
 
 <dl><dd>
-  Compact super-triangulation or <i>None</i>, if failed.
+  Compact super-triangulation or <em>None</em>, if failed.
 </dd></dl>
 
 <b>Notes</b>
 
 (i) Cleaning is a strip-and-smooth action.
+
+## merge_mesh()
+
+<pre class="py-sign">triellipt.trimesh.<b>merge_mesh</b>(omesh, imesh)</pre>
+
+Merges a mesh from an outer part and an inner parts.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>omesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Outer mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>imesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Inner mesh.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TriMesh | None</em></span></p>
+
+<dl><dd>
+  New mesh or <em>None</em>, if failed.
+</dd></dl>
+
+<b>Notes</b>
+
+Parts must be from the same point set.
