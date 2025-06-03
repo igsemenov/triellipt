@@ -51,12 +51,12 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 
 ### Conforming mesh
 
-&nbsp;&nbsp;&nbsp;
-<img src="./docs/images/conforming-mesh.png" width="350">
+&nbsp;&nbsp;
+<img src="./docs/images/conforming-mesh.png" width="345">
 
 ### Non-conforming mesh
 
-&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;
 <img src="./docs/images/non-conforming-mesh.png" width="350">
 
 ### Adaptive mesh
@@ -65,32 +65,26 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 
 ### Structured meshes
 
-<img src="./docs/images/suite_grids.png" width="750">
+<img src="./docs/images/suite_grids.png" width="600">
 
 ## Examples
 
 ### Zernike modes
 
-&nbsp;&nbsp;
 <img src="./docs/images/zernike-modes.png" width="700">
-
-<img src="./docs/images/zernike_1d.png" width="700">
 
 ### Pin-to-plane field
 
 This is the standard electrostatic problem for the pin-to-plane configuration, as considered, for example, in [Celestin et al., *J. Phys. D: Appl. Phys.*, 42(6), 065203 (2009)](https://doi.org/10.1088/0022-3727/42/6/065203).
 
-<img src="./docs/images/field_pin_to_plane_2d.png" width="600">
-<img src="./docs/images/field_pin_to_plane_1d.png" width="530">
+<img src="./docs/images/field_pin_to_plane_2d.png" width="400">
 
 ### Ionization wave
 
 This example shows the evolution of an ionization wave in nitrogen, based on the test case from [Bessières et al., *J. Phys. D: Appl. Phys.*, 40(21), 6559 (2007)](https://doi.org/10.1088/0022-3727/40/21/016). It illustrates the spatial distribution of the electric field within the wave.
 
-<img src="./docs/images/streamer.gif" width="700">
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="./docs/images/streamer_field_1d.png" width="550">
+<img src="./docs/images/streamer.gif" width="450">
+<img src="./docs/images/streamer_field_1d.png" width="400">
 
 ### Mass conservation test
 
@@ -132,5 +126,5 @@ $$
 u = \cos(\pi x) \cos(\pi y)
 $$
 
-<img src="./docs/images/rect-mesh-view.png" width="330">
-<img src="./docs/images/rect-mesh-errs.png" width="330">
+<img src="./docs/images/rect-mesh-view.png" width="300">
+<img src="./docs/images/rect-mesh-errs.png" width="300">
