@@ -63,7 +63,7 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 
 ### Structured meshes
 
-<img src="./docs/images/suite_grids.png" width="600">
+<img src="./docs/images/suite_grids.png" width="500">
 
 ## Examples
 
@@ -95,7 +95,7 @@ Two limiting configurations are shown, with the mesh adapted cyclically between 
 - Algorithm is exact for constant and linear functions.
 - Total nodal mass is preserved for any mesh-defined function, up to numerical error¹.
 
-¹ Stays around machine precision for up to a hundred adaptation cycles
+¹ Stays around machine precision for up to a hundred adaptation cycles.
 
 ### Convergence tests
 
