@@ -4,7 +4,7 @@
 A lightweight and flexible finite element solver for elliptic and parabolic PDEs.
 
 - Supports steady-state and transient convection–diffusion problems.  
-- Suitable for standard elliptic equations, such as electrostatics and Helmholtz-type problems 
+- Suitable for standard elliptic equations, such as electrostatics and Helmholtz-type problems.
 - Designed with *domain decomposition* and *boundary condition transfer* techniques in mind.
 
 Explore [features](#features) and [examples](#examples) below.
@@ -13,23 +13,23 @@ Explore [features](#features) and [examples](#examples) below.
 
 **Meshes:**
 
-- Has an interface to read Gmsh meshes  
-- Supports [*conforming*](#conforming-mesh) and [*non-conforming*](#non-conforming-mesh) triangle meshes
-- Includes a suite of [*structured*](#structured-meshes) mesh generators
-- Provides a flexible framework for mesh [*adaptation*](#adaptive-mesh)
+- Has an interface to read Gmsh meshes.
+- Supports [*conforming*](#conforming-mesh) and [*non-conforming*](#non-conforming-mesh) triangle meshes.
+- Includes a suite of [*structured*](#structured-meshes) mesh generators.
+- Provides a flexible framework for mesh [*adaptation*](#adaptive-mesh).
 
 **Discretization:**
 
 *Methods*
 
-- Continuous Galerkin finite-element method 
+- Continuous Galerkin finite-element method
 - Node-centered control-volume finite-element method
 
 🧩 Future development: Edge-centered control-volume finite-element method
 
 *Features*
 
-- Supports conservative reinterpolation of solution fields across adaptive meshes (see details [here](#mass-conservation-test))
+- Supports conservative reinterpolation of solution fields across adaptive meshes (see details [here](#mass-conservation-test)).
 
 ## Funding
 
@@ -92,8 +92,8 @@ This is an example of a standard mass conservation test used to validate the cod
 
 Two limiting configurations are shown, with the mesh adapted cyclically between them, as demonstrated [here](#adaptive-mesh). A conservative reinterpolation algorithm is used to update the field function defined on the mesh. Details of the algorithm will be provided in a forthcoming paper. The basic features are as follows:
 
-- Algorithm is exact for constant and linear functions
-- Total nodal mass is preserved for any mesh-defined function, up to numerical error¹
+- Algorithm is exact for constant and linear functions.
+- Total nodal mass is preserved for any mesh-defined function, up to numerical error¹.
 
 ¹ Stays around machine precision for up to a hundred adaptation cycles
 
