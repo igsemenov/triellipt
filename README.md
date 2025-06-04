@@ -1,10 +1,10 @@
 
 # <img src="./docs/configs/logo.png" width="30" height="30"> triellipt
 
-A lightweight finite element solver for elliptic and parabolic PDEs.
+A lightweight and flexible finite element solver for elliptic and parabolic PDEs.
 
-- Solves steady-state and transient convection–diffusion problems.  
-- Suitable for basic elliptic equations such as electrostatics and Helmholtz-type problems.  
+- Supports steady-state and transient convection–diffusion problems.  
+- Suitable for standard elliptic equations, such as electrostatics and Helmholtz-type problems 
 - Designed with *domain decomposition* and *boundary condition transfer* techniques in mind.
 
 Explore [features](#features) and [examples](#examples) below.
@@ -15,7 +15,7 @@ Explore [features](#features) and [examples](#examples) below.
 
 - Has an interface to read Gmsh meshes  
 - Supports [*conforming*](#conforming-mesh) and [*non-conforming*](#non-conforming-mesh) triangle meshes
-- Includes a suite of [*structured*](#structured-meshes) mesh generation techniques 
+- Includes a suite of [*structured*](#structured-meshes) mesh generators
 - Provides a flexible framework for mesh [*adaptation*](#adaptive-mesh)
 
 **Discretization:**
@@ -25,11 +25,11 @@ Explore [features](#features) and [examples](#examples) below.
 - Continuous Galerkin finite-element method 
 - Node-centered control-volume finite-element method
 
-🧩 Planned extension: Edge-centered control-volume finite-element method
+🧩 Future development: Edge-centered control-volume finite-element method
 
 *Features*
 
-- Supports conservative reinterpolation of data across adaptive meshes (see details [here](#mass-conservation-test))
+- Supports conservative reinterpolation of solution fields across adaptive meshes (see details [here](#mass-conservation-test))
 
 ## Funding
 
@@ -51,17 +51,15 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 
 ### Conforming mesh
 
-&nbsp;&nbsp;
-<img src="./docs/images/conforming-mesh.png" width="345">
+<img src="./docs/images/conforming-mesh.png" width="300">
 
 ### Non-conforming mesh
 
-&nbsp;&nbsp;
-<img src="./docs/images/non-conforming-mesh.png" width="350">
+<img src="./docs/images/non-conforming-mesh.png" width="300">
 
 ### Adaptive mesh
 
-<img src="docs/images/circ-amr.gif" alt="Demo GIF" width="370"/>
+<img src="docs/images/circ-amr.gif" width="300"/>
 
 ### Structured meshes
 
@@ -77,7 +75,7 @@ project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?langua
 
 This is the standard electrostatic problem for the pin-to-plane configuration, as considered, for example, in [Celestin et al., *J. Phys. D: Appl. Phys.*, 42(6), 065203 (2009)](https://doi.org/10.1088/0022-3727/42/6/065203).
 
-<img src="./docs/images/field_pin_to_plane_2d.png" width="400">
+<img src="./docs/images/field_pin_to_plane.png" width="400">
 
 ### Ionization wave
 
@@ -126,5 +124,5 @@ $$
 u = \cos(\pi x) \cos(\pi y)
 $$
 
-<img src="./docs/images/rect-mesh-view.png" width="300">
-<img src="./docs/images/rect-mesh-errs.png" width="300">
+<img src="./docs/images/rect-mesh-view.png" width="270">
+<img src="./docs/images/rect-mesh-errs.png" width="270">
