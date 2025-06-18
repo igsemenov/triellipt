@@ -259,7 +259,7 @@ class TranspUnit(TranspRoot):
         Parameters
         ----------
         data : flat-float-array
-            Node-based transported field.
+            Node-based solution field.
         v_x : flat-float-array
             Triangle-based x-velocity.
         v_y : flat-float-array
@@ -269,7 +269,7 @@ class TranspUnit(TranspRoot):
         d_y : flat-float-array
             Triangle-based y-diffusion coefficient.
         stab : Callable
-            Stream upwind stabilizator.
+            Stream upwind stabilizator called on velocity arrays.
 
         Returns
         -------

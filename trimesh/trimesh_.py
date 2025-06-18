@@ -444,7 +444,7 @@ class TriMesh(_TriMesh):
         """
         return supertriu_.SuperTriu.from_mesh(self)
 
-    def reduced(self, shrink=None, detach=False):
+    def reduced(self, shrink=None, detach=False, seed=None):
         """Tries to compress the mesh.
 
         Parameters
@@ -453,6 +453,8 @@ class TriMesh(_TriMesh):
             Controls shrinking of super-triangulations (i).
         detach : bool = False
             Runs the edge detachment before compression, if True.
+        seed : (float, float) = None
+            Seed point to start reduction.
 
         Returns
         -------
@@ -466,7 +468,7 @@ class TriMesh(_TriMesh):
 
         """
         _ = trireduce.MeshReduce.from_mesh(self)
-        return _.reduced(shrink, detach)
+        return _.reduced(shrink, detach, seed)
 
     def split(self):
         """Splits the mesh into homogeneous parts.

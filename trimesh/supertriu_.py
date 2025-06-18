@@ -108,6 +108,24 @@ class SuperData:
             np.compress(to_delete, self.data, axis=1)
         )
 
+    def find_seed(self, seed):
+        """Find super-triangle closest to the seed.
+
+        Parameters
+        ----------
+        seed : (float, float)
+            Seed point to find.
+
+        """
+
+        centrs = self.supmesh.centrs_complex
+
+        number = np.argmin(
+            np.abs(centrs - (seed[0] + seed[1] * 1j))
+        )
+
+        return number
+
 
 class SuperTriu(SuperData):
     """Super triangulation.
@@ -203,15 +221,15 @@ class SuperTriu(SuperData):
         cleaner = superoprs.SupDetach.from_suptriu(self)
         return cleaner.cleaned()
 
-    def reduce(self, seed=0, iterate=True):
+    def reduce(self, seed=None, iterate=True):
         """Extracts a compact super-triangulation, if possible.
 
         Parameters
         ----------
-        seed : int = 0
-            Number of the seed supertriangle.
+        seed : (float, float) = None
+            Seed point to start reduction (b).
         iterate : bool = True
-            Triggers cleaning and retry in case of failure (i).
+            Triggers cleaning and retry in case of failure (a).
 
         Returns
         -------
@@ -221,7 +239,9 @@ class SuperTriu(SuperData):
         Notes
         -----
 
-        (i) Cleaning is a strip-and-smooth action.
+        (a) Cleaning is a strip-and-smooth action.
+
+        (b) First super-triangle is used by default.
 
         """
 
@@ -231,8 +251,8 @@ class SuperTriu(SuperData):
         reducer = superoprs.SupReduce.from_suptriu(self)
 
         if iterate is False:
-            return reducer.compress()
-        return reducer.reduce()
+            return reducer.compress(seed)
+        return reducer.reduce(seed)
 
 
 class Triangler:

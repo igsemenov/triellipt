@@ -142,7 +142,7 @@ class SupCompress(SupAgent):
 
     MIN_SUPTRI_SIZE = 4
 
-    def compress(self, seed=0):
+    def compress(self, seed=None):
 
         if self.suptri.size == 0:
             return None
@@ -151,11 +151,7 @@ class SupCompress(SupAgent):
         edgesgraph = self.make_edges_graph()
         newsuptriu = self.from_edges_graph(edgesgraph)
 
-        if newsuptriu is None:
-            return None
-        if newsuptriu.is_compact():
-            return newsuptriu
-        return None
+        return newsuptriu
 
     def make_edges_graph(self):
         return self.supedgesgraph()
@@ -174,7 +170,7 @@ class SupCompress(SupAgent):
 
     def make_bfs_tree(self, graph):
 
-        seed = self.cache['seed']
+        seed = self.get_bfs_seed()
 
         nums = sp.csgraph.breadth_first_order(
             graph, seed, directed=False, return_predecessors=False
@@ -211,12 +207,20 @@ class SupCompress(SupAgent):
             "super edges graph is not in canonical format"
         )
 
+    def get_bfs_seed(self):
+
+        seed = self.cache['seed']
+
+        if seed is None:
+            return 0
+        return self.suptri.find_seed(seed)
+
 
 class SupReduce(SupCompress):
     """Reducer of a super-triangulation.
     """
 
-    def reduce(self, seed=0):
+    def reduce(self, seed=None):
 
         while True:
 
@@ -233,7 +237,15 @@ class SupReduce(SupCompress):
         return None
 
     def trial_reduce(self, seed):
-        return self.compress(seed)
+
+        compressed = self.compress(seed)
+
+        if compressed is None:
+            return None
+        if not compressed.is_compact():
+            return None
+
+        return compressed
 
     def clean_suptri(self):
         self.suptri = self.suptri.strip()

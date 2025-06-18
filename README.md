@@ -1,7 +1,7 @@
 
 # <img src="./docs/configs/logo.png" width="30" height="30"> triellipt
 
-A lightweight and flexible finite element solver for elliptic and parabolic PDEs.
+A lightweight 2D finite element solver for elliptic and parabolic PDEs.
 
 - Supports steady-state and transient convection–diffusion problems.  
 - Suitable for standard elliptic equations, such as electrostatics and Helmholtz-type problems.
@@ -11,12 +11,14 @@ Explore [features](#features) and [examples](#examples) below.
 
 ## Features
 
+Pure Python implementation using only NumPy and SciPy.
+
 **Meshes:**
 
 - Has an interface to read Gmsh meshes.
 - Supports [*conforming*](#conforming-mesh) and [*non-conforming*](#non-conforming-mesh) triangle meshes.
-- Includes a suite of [*structured*](#structured-meshes) mesh generators.
 - Provides a flexible framework for mesh [*adaptation*](#adaptive-mesh).
+- Includes a suite of [*structured*](#structured-meshes) mesh generators.
 
 **Discretization:**
 
@@ -24,8 +26,6 @@ Explore [features](#features) and [examples](#examples) below.
 
 - Continuous Galerkin finite-element method
 - Node-centered control-volume finite-element method
-
-🧩 Future development: Edge-centered control-volume finite-element method
 
 *Features*
 
@@ -35,11 +35,6 @@ Explore [features](#features) and [examples](#examples) below.
 
 **Funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) —
 project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?language=en)**
-
-## Status
-
-- Undergoing usability testing.
-- Work on the user guide is in progress.
 
 ## Documentation
 
@@ -90,18 +85,14 @@ This is an example of a standard mass conservation test used to validate the cod
 
 <img src="./docs/images/amr-meshes.png" width="600">
 
-Two limiting configurations are shown, with the mesh adapted cyclically between them, as demonstrated [here](#adaptive-mesh). A conservative reinterpolation algorithm is used to update the field function defined on the mesh. Details of the algorithm will be provided in a forthcoming paper. The basic features are as follows:
+Two limiting configurations are shown, with the mesh adapted cyclically between them, as demonstrated [here](#adaptive-mesh). A conservative reinterpolation algorithm is used to update the field function defined on the mesh. The basic features are as follows:
 
 - Algorithm is exact for constant and linear functions.
-- Total nodal mass is preserved for any mesh-defined function, up to numerical error¹.
-
-¹ Stays around machine precision for up to a hundred adaptation cycles.
+- Total nodal mass is preserved for any mesh-defined function, up to numerical error.
 
 ### Convergence tests
 
-This is an example of a standard convergence test used to validate the code.
-
-Test features:
+This example demonstrates a standard convergence test used to validate the code.
 
 - Uses the method of manufactured solutions for verification.
 - Applies red-green refinement to a non-conforming mesh.
@@ -112,16 +103,16 @@ $$
 L[u] = \rho
 $$
 
-in the domain $[-0.5, 0.5]^2$ with the operator
+in the domain $[-0.5, 0.5]^2$, where the operator is given by
 
 $$
-L = 1 + \frac{\partial}{\partial x} + \frac{\partial}{\partial y} + \frac{\partial^2}{\partial x^2} + \frac{\partial^2}{\partial y^2}
-$$
+L = 1 + \frac{\partial}{\partial x} + \frac{\partial}{\partial y} + \frac{\partial^2}{\partial x^2} + \frac{\partial^2}{\partial y^2},
+$$  
 
-and the exact solution 
+and the exact solution is given by  
 
 $$
-u = \cos(\pi x) \cos(\pi y)
+u(x, y) = \cos(\pi x) \cos(\pi y).
 $$
 
 <img src="./docs/images/rect-mesh-view.png" width="270">

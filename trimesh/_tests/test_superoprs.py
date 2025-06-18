@@ -31,8 +31,8 @@ class TestSupOprs(unittest.TestCase):
         assert self.TRIU.smooth(False).size == 10
 
     def test_reduce(self):
-        assert self.TRIU.reduce(True).size == 8
-        assert self.TRIU.reduce(False).size == 8
+        assert self.TRIU.reduce(iterate=True).size == 8
+        assert self.TRIU.reduce(iterate=False).size == 8
 
 
 if __name__ == '__main__':

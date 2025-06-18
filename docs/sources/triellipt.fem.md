@@ -411,11 +411,11 @@ Defines the vector section.
   Data that defines the vector section.
 </dd></dl>
 
-## mesh_metric()
+## mesh_grad()
 
-<pre class="py-sign">triellipt.fem.<b>mesh_metric</b>(mesh)</pre>
+<pre class="py-sign">triellipt.fem.<b>mesh_grad</b>(mesh)</pre>
 
-Returns the mesh metric properties.
+Returns the mesh gradient operator.
 
 <b>Parameters</b>
 
@@ -427,10 +427,10 @@ Returns the mesh metric properties.
 
 <b>Returns</b>
 
-<p><span class="vardef"><em>MeshMetric</em></span></p>
+<p><span class="vardef"><em>TriGrad</em></span></p>
 
 <dl><dd>
-  Object with the metric properties of triangles.
+  Gradient operator on the mesh.
 </dd></dl>
 
 ## mesh_geom()
@@ -453,6 +453,28 @@ Returns the mesh geometric properties.
 
 <dl><dd>
   Object with the geometric properties of triangles.
+</dd></dl>
+
+## mesh_metric()
+
+<pre class="py-sign">triellipt.fem.<b>mesh_metric</b>(mesh)</pre>
+
+Returns the mesh metric properties.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Triangular mesh.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>MeshMetric</em></span></p>
+
+<dl><dd>
+  Object with the metric properties of triangles.
 </dd></dl>
 
 ## gettransp()
@@ -528,7 +550,7 @@ Computes the transport operator.
 <p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Node-based transported field.
+  Node-based solution field.
 </dd></dl>
 
 <p><span class="vardef"><code>v_x</code> : <em>flat-float-array</em></span></p>
@@ -558,7 +580,7 @@ Computes the transport operator.
 <p><span class="vardef"><code>stab</code> : <em>Callable</em></span></p>
 
 <dl><dd>
-  Stream upwind stabilizator.
+  Stream upwind stabilizator called on velocity arrays.
 </dd></dl>
 
 <b>Returns</b>

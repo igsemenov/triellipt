@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Vertical DtN unit.
+"""DtN unit.
 """
 from triellipt import fem
 

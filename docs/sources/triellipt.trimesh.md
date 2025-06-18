@@ -247,7 +247,7 @@ Creates a super triangulation.
 
 ### reduced()
 
-<pre class="py-sign">TriMesh.<b>reduced</b>(<em>self</em>, shrink=<span>None</span>, detach=<span>False</span>)</pre>
+<pre class="py-sign">TriMesh.<b>reduced</b>(<em>self</em>, shrink=<span>None</span>, detach=<span>False</span>, seed=<span>None</span>)</pre>
 
 Tries to compress the mesh.
 
@@ -263,6 +263,12 @@ Tries to compress the mesh.
 
 <dl><dd>
   Runs the edge detachment before compression, if <em>True</em>.
+</dd></dl>
+
+<p><span class="vardef"><code>seed</code> : <em>(float, float) = None</em></span></p>
+
+<dl><dd>
+  Seed point to start reduction.
 </dd></dl>
 
 <b>Returns</b>
@@ -586,22 +592,22 @@ Removes super-triangles touching the background mesh edge.
 
 ### reduce()
 
-<pre class="py-sign">SuperTriu.<b>reduce</b>(<em>self</em>, seed=0, iterate=<span>True</span>)</pre>
+<pre class="py-sign">SuperTriu.<b>reduce</b>(<em>self</em>, seed=<span>None</span>, iterate=<span>True</span>)</pre>
 
 Extracts a compact super-triangulation, if possible.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>seed</code> : <em>int = 0</em></span></p>
+<p><span class="vardef"><code>seed</code> : <em>(float, float) = None</em></span></p>
 
 <dl><dd>
-  Number of the seed supertriangle.
+  Seed point to start reduction (b).
 </dd></dl>
 
 <p><span class="vardef"><code>iterate</code> : <em>bool = True</em></span></p>
 
 <dl><dd>
-  Triggers cleaning and retry in case of failure (i).
+  Triggers cleaning and retry in case of failure (a).
 </dd></dl>
 
 <b>Returns</b>
@@ -614,7 +620,9 @@ Extracts a compact super-triangulation, if possible.
 
 <b>Notes</b>
 
-(i) Cleaning is a strip-and-smooth action.
+(a) Cleaning is a strip-and-smooth action.
+
+(b) First super-triangle is used by default.
 
 ## merge_mesh()
 

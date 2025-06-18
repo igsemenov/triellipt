@@ -26,6 +26,23 @@ def getoprs(mesh) -> dict:
     }
 
 
+def mesh_grad(mesh):
+    """Returns the mesh gradient operator.
+
+    Parameters
+    ----------
+    mesh : TriMesh
+        Triangular mesh.
+
+    Returns
+    -------
+    TriGrad
+        Gradient operator on the mesh.
+
+    """
+    return getgrad(mesh)
+
+
 def getgrad(mesh):
     """Makes a gradient operator.
     """

@@ -10,6 +10,7 @@ class MeshAgent:
 
     def __init__(self, mesh=None):
         self.mesh = mesh
+        self.cache = {}
 
     @classmethod
     def from_mesh(cls, mesh):
@@ -23,12 +24,28 @@ class MeshAgent:
     def mesh_suptriu(self):
         return self.mesh.supertriu()
 
+    @property
+    def mesh_suptriu_detached(self):
+        return self.mesh_suptriu.detach()
+
+    @property
+    def supt_reduced(self):
+        return self.mesh_suptriu.reduce(self.seed, iterate=True)
+
+    @property
+    def supt_detached_reduced(self):
+        return self.mesh_suptriu_detached.reduce(self.seed, iterate=True)
+
+    @property
+    def seed(self):
+        return self.cache['seed']
+
 
 class MeshReduce(MeshAgent):
     """Performs a mesh-reduction event.
     """
 
-    def reduced(self, shrink=None, detach=False):
+    def reduced(self, shrink=None, detach=False, seed=None):
         """Tries to compress a triangle mesh.
 
         Parameters
@@ -37,6 +54,8 @@ class MeshReduce(MeshAgent):
             Controls shrinking of supertriu after compression.
         detach : bool = False
             Runs the edge detachment before compression, if True.
+        seed : (float, float) = None:
+            Seed point to start reduction.
 
         Returns
         -------
@@ -46,6 +65,7 @@ class MeshReduce(MeshAgent):
         """
 
         niters = shrink or 0
+        self.cache['seed'] = seed
 
         suptriu = self.make_suptriu(niters, detach)
         trimesh = self.from_suptriu(suptriu)
@@ -60,12 +80,9 @@ class MeshReduce(MeshAgent):
         return suptriu
 
     def get_suptriu_primary(self, detach):
-
-        suptri = self.mesh_suptriu
-
         if not detach:
-            return suptri.reduce()
-        return suptri.detach().reduce()
+            return self.supt_reduced
+        return self.supt_detached_reduced
 
     def get_suptriu_shrinked(self, suptriu, niters):
 

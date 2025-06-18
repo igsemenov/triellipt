@@ -66,8 +66,9 @@
                                 <li><a href="#setsection">setsection()</a></li>
                             </ul>
                         </li>
-                        <li><a href="#mesh_metric">mesh_metric()</a></li>
+                        <li><a href="#mesh_grad">mesh_grad()</a></li>
                         <li><a href="#mesh_geom">mesh_geom()</a></li>
+                        <li><a href="#mesh_metric">mesh_metric()</a></li>
                         <li><a href="#gettransp">gettransp()</a></li>
                         <li><a href="#transpunit">TranspUnit</a>
                             <ul>
@@ -555,11 +556,11 @@
   Data that defines the vector section.
 </dd></dl>
 
-<div class="toc-anchor"></div><h2>mesh_metric()</h2>
+<div class="toc-anchor"></div><h2>mesh_grad()</h2>
 
-<pre class="py-sign">triellipt.fem.<b>mesh_metric</b>(mesh)</pre>
+<pre class="py-sign">triellipt.fem.<b>mesh_grad</b>(mesh)</pre>
 
-<p>Returns the mesh metric properties.</p>
+<p>Returns the mesh gradient operator.</p>
 
 <p><b>Parameters</b></p>
 
@@ -571,10 +572,10 @@
 
 <p><b>Returns</b></p>
 
-<p><span class="vardef"><em>MeshMetric</em></span></p>
+<p><span class="vardef"><em>TriGrad</em></span></p>
 
 <dl><dd>
-  Object with the metric properties of triangles.
+  Gradient operator on the mesh.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>mesh_geom()</h2>
@@ -597,6 +598,28 @@
 
 <dl><dd>
   Object with the geometric properties of triangles.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>mesh_metric()</h2>
+
+<pre class="py-sign">triellipt.fem.<b>mesh_metric</b>(mesh)</pre>
+
+<p>Returns the mesh metric properties.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Triangular mesh.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>MeshMetric</em></span></p>
+
+<dl><dd>
+  Object with the metric properties of triangles.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>gettransp()</h2>
@@ -679,7 +702,7 @@
 <p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
 
 <dl><dd>
-  Node-based transported field.
+  Node-based solution field.
 </dd></dl>
 
 <p><span class="vardef"><code>v_x</code> : <em>flat-float-array</em></span></p>
@@ -709,7 +732,7 @@
 <p><span class="vardef"><code>stab</code> : <em>Callable</em></span></p>
 
 <dl><dd>
-  Stream upwind stabilizator.
+  Stream upwind stabilizator called on velocity arrays.
 </dd></dl>
 
 <p><b>Returns</b></p>

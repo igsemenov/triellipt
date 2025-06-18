@@ -56,8 +56,9 @@ Module                   | Description
                     <li><a href="triellipt.fem.md#setsection">setsection()</a></li>
                 </ul>
             </li>
-            <li><a href="triellipt.fem.md#mesh_metric">mesh_metric()</a></li>
+            <li><a href="triellipt.fem.md#mesh_grad">mesh_grad()</a></li>
             <li><a href="triellipt.fem.md#mesh_geom">mesh_geom()</a></li>
+            <li><a href="triellipt.fem.md#mesh_metric">mesh_metric()</a></li>
             <li><a href="triellipt.fem.md#gettransp">gettransp()</a></li>
             <li><a href="triellipt.fem.md#transpunit">TranspUnit</a>
                 <ul>

@@ -359,7 +359,7 @@
 
 <div class="toc-anchor"></div><h3>reduced()</h3>
 
-<pre class="py-sign">TriMesh.<b>reduced</b>(<em>self</em>, shrink=<span>None</span>, detach=<span>False</span>)</pre>
+<pre class="py-sign">TriMesh.<b>reduced</b>(<em>self</em>, shrink=<span>None</span>, detach=<span>False</span>, seed=<span>None</span>)</pre>
 
 <p>Tries to compress the mesh.</p>
 
@@ -375,6 +375,12 @@
 
 <dl><dd>
   Runs the edge detachment before compression, if <em>True</em>.
+</dd></dl>
+
+<p><span class="vardef"><code>seed</code> : <em>(float, float) = None</em></span></p>
+
+<dl><dd>
+  Seed point to start reduction.
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -845,22 +851,22 @@
 
 <div class="toc-anchor"></div><h3>reduce()</h3>
 
-<pre class="py-sign">SuperTriu.<b>reduce</b>(<em>self</em>, seed=0, iterate=<span>True</span>)</pre>
+<pre class="py-sign">SuperTriu.<b>reduce</b>(<em>self</em>, seed=<span>None</span>, iterate=<span>True</span>)</pre>
 
 <p>Extracts a compact super-triangulation, if possible.</p>
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>seed</code> : <em>int = 0</em></span></p>
+<p><span class="vardef"><code>seed</code> : <em>(float, float) = None</em></span></p>
 
 <dl><dd>
-  Number of the seed supertriangle.
+  Seed point to start reduction (b).
 </dd></dl>
 
 <p><span class="vardef"><code>iterate</code> : <em>bool = True</em></span></p>
 
 <dl><dd>
-  Triggers cleaning and retry in case of failure (i).
+  Triggers cleaning and retry in case of failure (a).
 </dd></dl>
 
 <p><b>Returns</b></p>
@@ -873,7 +879,9 @@
 
 <p><b>Notes</b></p>
 
-<p>(i) Cleaning is a strip-and-smooth action.</p>
+<p>(a) Cleaning is a strip-and-smooth action.</p>
+
+<p>(b) First super-triangle is used by default.</p>
 
 <div class="toc-anchor"></div><h2>merge_mesh()</h2>
 
