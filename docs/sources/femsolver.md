@@ -32,7 +32,7 @@ There are a couple of methods to create a mesh:
 Once the mesh is ready, the next step is to create a FEM computing unit:
 
 ```python
-unit = tri.fem.getunit(mesh, anchors=(0,))
+unit = tri.fem.getunit(mesh)
 ```
 
 The mesh is *preprocessed* when creating a unit:
@@ -43,8 +43,8 @@ The mesh is *preprocessed* when creating a unit:
 Facts to know:
 
 - The actual unit mesh is available as `unit.mesh`.
-- The permutation between the input mesh and the actual mesh is available as `unit.perm`.
 - The original mesh is still available as `unit.perm.mesh`. 
+- The permutation between the input mesh and the actual mesh is available as `unit.perm`.
 
 For more details, refer to [triellipt.fem.FEMUnit](triellipt.fem.md#femunit).
 

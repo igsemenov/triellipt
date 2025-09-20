@@ -93,7 +93,7 @@
 
 <p>Once the mesh is ready, the next step is to create a FEM computing unit:</p>
 
-<pre><span class="lang-name">Python</span><code class="language-python">unit = tri.fem.getunit(mesh, anchors=(0,))</code></pre>
+<pre><span class="lang-name">Python</span><code class="language-python">unit = tri.fem.getunit(mesh)</code></pre>
 
 <p>The mesh is <em>preprocessed</em> when creating a unit:</p>
 
@@ -109,8 +109,8 @@
 <p>
 <ul class="md-list">
     <li>The actual unit mesh is available as <code>unit.mesh</code>.</li>
-    <li>The permutation between the input mesh and the actual mesh is available as <code>unit.perm</code>.</li>
     <li>The original mesh is still available as <code>unit.perm.mesh</code>.</li>
+    <li>The permutation between the input mesh and the actual mesh is available as <code>unit.perm</code>.</li>
 </ul>
 </p>
 

@@ -87,6 +87,12 @@ class UnitDtN:
         )
 
     @property
+    def massmat(self):
+        return self.dtn.new_matrix(
+            self.unit.massmat, add_constr=False
+        )
+
+    @property
     def massdiag_rad(self):
         return self.dtn.new_matrix(
             self.unit.radius * self.unit.massdiag, add_constr=False
