@@ -201,38 +201,48 @@ Finds a front of coarse triangles.
 
 Finds a front of fine triangles.
 
-### makedata()
+### from_func()
 
-<pre class="py-sign">AMRUnit.<b>makedata</b>(<em>self</em>, key, func, constrained=<span>True</span>)</pre>
+<pre class="py-sign">AMRUnit.<b>from_func</b>(<em>self</em>, func)</pre>
 
-Generates a unit data item from a given function.
+Creates data from a function.
 
 <b>Parameters</b>
-
-<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
-
-<dl><dd>
-  Key of the unit data item.
-</dd></dl>
 
 <p><span class="vardef"><code>func</code> : <em>Callable</em></span></p>
 
 <dl><dd>
-  The item-source function <code>(x, y)</code> on the mesh nodes.
-</dd></dl>
-
-<p><span class="vardef"><code>constrained</code> : <em>bool = True</em></span></p>
-
-<dl><dd>
-  Constrains the new data item on the mesh, if <em>True</em>.
+  Function to create data.
 </dd></dl>
 
 <b>Returns</b>
 
-<p><span class="vardef"><em>self</em></span></p>
+<p><span class="vardef"><em>flat-float-array</em></span></p>
 
 <dl><dd>
-  The unit with the new data item.
+  Data defined on mesh nodes.
+</dd></dl>
+
+### constrain()
+
+<pre class="py-sign">AMRUnit.<b>constrain</b>(<em>self</em>, data)</pre>
+
+Constrains data on hanging nodes.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>data</code> : <em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Input data defined on mesh nodes.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Constrained data.
 </dd></dl>
 
 ### getinterp()
@@ -262,6 +272,15 @@ Creates an interpolator on a mesh.
 <dl><dd>
   Callable interpolator.
 </dd></dl>
+
+<b>Notes</b>
+
+`TriInterp` object has the following attributes:
+
+- `xnodes` contains interpolation x-nodes
+- `xnodes` contains interpolation y-nodes
+
+`TriInterp()` takes nodes-data and returns interpolated one.
 
 ## TriFront
 
@@ -367,7 +386,7 @@ Join the meshes along a shared boundary, if available.
 <p><span class="vardef"><code>tol</code> : <em>int = None</em></span></p>
 
 <dl><dd>
-  Optional absolute tolerance for detecting nearby points.
+  Absolute tolerance in decimal places for detecting nearby points.
 </dd></dl>
 
 <b>Returns</b>

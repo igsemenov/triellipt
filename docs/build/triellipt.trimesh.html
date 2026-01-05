@@ -42,12 +42,12 @@
                                 <li><a href="#getvoids">getvoids()</a></li>
                                 <li><a href="#alignnodes">alignnodes()</a></li>
                                 <li><a href="#renumed">renumed()</a></li>
-                                <li><a href="#shuffled">shuffled()</a></li>
                                 <li><a href="#meshedge">meshedge()</a></li>
                                 <li><a href="#edgesmap">edgesmap()</a></li>
                                 <li><a href="#nodesmap">nodesmap()</a></li>
                                 <li><a href="#supertriu">supertriu()</a></li>
                                 <li><a href="#reduced">reduced()</a></li>
+                                <li><a href="#scaled">scaled()</a></li>
                                 <li><a href="#split">split()</a></li>
                             </ul>
                         </li>
@@ -81,7 +81,6 @@
                                 <li><a href="#reduce">reduce()</a></li>
                             </ul>
                         </li>
-                        <li><a href="#merge_mesh">merge_mesh()</a></li>
                     </ul>
                 </li>
             </ul>
@@ -276,29 +275,7 @@
 <p><span class="vardef"><em>TriMesh</em></span></p>
 
 <dl><dd>
-  Mesh with the nodes renumbered.
-</dd></dl>
-
-<div class="toc-anchor"></div><h3>shuffled()</h3>
-
-<pre class="py-sign">TriMesh.<b>shuffled</b>(<em>self</em>, permuter)</pre>
-
-<p>Shuffles the mesh triangles.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>permuter</code> : <em>flat-int-array</em></span></p>
-
-<dl><dd>
-  Permutation of mesh triangles.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>TriMesh</em></span></p>
-
-<dl><dd>
-  Mesh with the triangles permuted.
+  New mesh with the nodes renumbered.
 </dd></dl>
 
 <div class="toc-anchor"></div><h3>meshedge()</h3>
@@ -394,6 +371,34 @@
 <p><b>Notes</b></p>
 
 <p>(i) Number of shrinking steps after one compression event.</p>
+
+<div class="toc-anchor"></div><h3>scaled()</h3>
+
+<pre class="py-sign">TriMesh.<b>scaled</b>(<em>self</em>, xcoeff, ycoeff)</pre>
+
+<p>Scales the mesh points by the specified parameters.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>xcoeff</code> : <em>float</em></span></p>
+
+<dl><dd>
+  Scale factor for the x-coordinate.
+</dd></dl>
+
+<p><span class="vardef"><code>ycoeff</code> : <em>float</em></span></p>
+
+<dl><dd>
+  Scale factor for the y-coordinate.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>TriMesh</em></span></p>
+
+<dl><dd>
+  New mesh with the nodes scaled.
+</dd></dl>
 
 <div class="toc-anchor"></div><h3>split()</h3>
 
@@ -882,38 +887,6 @@
 <p>(a) Cleaning is a strip-and-smooth action.</p>
 
 <p>(b) First super-triangle is used by default.</p>
-
-<div class="toc-anchor"></div><h2>merge_mesh()</h2>
-
-<pre class="py-sign">triellipt.trimesh.<b>merge_mesh</b>(omesh, imesh)</pre>
-
-<p>Merges a mesh from an outer part and an inner parts.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>omesh</code> : <em>TriMesh</em></span></p>
-
-<dl><dd>
-  Outer mesh.
-</dd></dl>
-
-<p><span class="vardef"><code>imesh</code> : <em>TriMesh</em></span></p>
-
-<dl><dd>
-  Inner mesh.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>TriMesh | None</em></span></p>
-
-<dl><dd>
-  New mesh or <em>None</em>, if failed.
-</dd></dl>
-
-<p><b>Notes</b></p>
-
-<p>Parts must be from the same point set.</p>
 
 <hr>
         </div>

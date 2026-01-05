@@ -138,10 +138,9 @@ class EllipArc(Curve):
     """Elliptic arc.
     """
 
-    def __init__(self, center, axes, phis, tilt=0):
+    def __init__(self, o_xy, axes, phis, tilt=0):
 
-        self.center: complex = center
-
+        self.o_xy: tuple = o_xy  # center point
         self.axes: tuple = axes  # major-minor-axes
         self.phis: tuple = phis  # start-end-arc-angles
         self.tilt: float = tilt  # arc-rotation-angle
@@ -166,12 +165,66 @@ class EllipArc(Curve):
         return (1. - args) * self.phis[0] + args * self.phis[1]
 
     @property
+    def center(self):
+        return self.o_xy[0] + self.o_xy[1] * 1j
+
+    @property
     def startpoint(self):
         return self.getpath(0.)
 
     @property
     def endpoint(self):
         return self.getpath(1.)
+
+
+class Hyperb(Curve):
+    """Hyperbolic curve.
+    """
+
+    def __init__(self, axes, ksis, etas):
+        self.axes = axes
+        self.ksis = ksis
+        self.etas = etas
+
+    def _getpath(self, args):
+
+        alfa = self.alfa
+
+        ksis = self.ksis[0] + args * (self.ksis[1] - self.ksis[0])
+        etas = self.etas[0] + args * (self.etas[1] - self.etas[0])
+
+        ksis = ksis * self.ksi0
+
+        xpos = alfa * ksis * np.sqrt(1 + etas * etas)
+        ypos = alfa * etas * np.sqrt(1 - ksis * ksis)
+
+        return xpos + 1j * ypos
+
+    @property
+    def aval(self):
+        return self.axes[0]
+
+    @property
+    def bval(self):
+        return self.axes[1]
+
+    @property
+    def ksi0(self):
+        return self.aval / self.alfa
+
+    @property
+    def alfa(self):
+        return np.sqrt(
+            self.aval * self.aval + self.bval * self.bval
+        )
+
+    @property
+    def startpoint(self):
+        return self.getpath(0.).item()
+
+    @property
+    def endpoint(self):
+        return self.getpath(1.).item()
 
 
 class Bezier(Curve):

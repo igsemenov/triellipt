@@ -110,22 +110,6 @@ class CycPath:
 
         return self.split_at_corners(corners)
 
-    def split(self, bins):
-        """Splits the cycle based on bins.
-
-        Parameters
-        ----------
-        bins : flat-int-array-like
-            Seed values of splitting bins.
-
-        Returns
-        -------
-        PathMap
-            Partition of a cycle.
-
-        """
-        return self.split_at_corners(np.add.accumulate(bins))
-
     def split_at_corners(self, corners):
 
         if corners.size == 0:

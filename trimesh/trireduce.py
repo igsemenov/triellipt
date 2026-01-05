@@ -133,7 +133,7 @@ class MeshReduce(MeshAgent):
 
 
 def merge_mesh(omesh, imesh):
-    """Merges a mesh from an outer part and an inner parts.
+    """Merges a mesh from an outer part and an inner part.
 
     Parameters
     ----------

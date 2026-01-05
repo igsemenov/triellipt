@@ -19,11 +19,11 @@ class Tester(unittest.TestCase):
     @property
     def massdiag_lu(self):
 
-        lu = sp.linalg.splu(
+        l_u = sp.linalg.splu(
             self.massdiag_amr.body.tocsc()
         )
 
-        return lu.solve
+        return l_u.solve
 
     @property
     def massdiag_inv(self):

@@ -11,8 +11,8 @@ class FEMFactory:
 
     Attributes
     ----------
-    mesh : TriMesh
-        Parent mesh.
+    unit : FEMUnit
+        Parent unit.
     body : sparse-matrix
         FEM-matrix pattern.
     meta : dict

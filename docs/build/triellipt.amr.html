@@ -44,7 +44,8 @@
                                 <li><a href="#find_masked">find_masked()</a></li>
                                 <li><a href="#front_coarse">front_coarse()</a></li>
                                 <li><a href="#front_fine">front_fine()</a></li>
-                                <li><a href="#makedata">makedata()</a></li>
+                                <li><a href="#from_func">from_func()</a></li>
+                                <li><a href="#constrain">constrain()</a></li>
                                 <li><a href="#getinterp">getinterp()</a></li>
                             </ul>
                         </li>
@@ -287,38 +288,48 @@
 
 <p>Finds a front of fine triangles.</p>
 
-<div class="toc-anchor"></div><h3>makedata()</h3>
+<div class="toc-anchor"></div><h3>from_func()</h3>
 
-<pre class="py-sign">AMRUnit.<b>makedata</b>(<em>self</em>, key, func, constrained=<span>True</span>)</pre>
+<pre class="py-sign">AMRUnit.<b>from_func</b>(<em>self</em>, func)</pre>
 
-<p>Generates a unit data item from a given function.</p>
+<p>Creates data from a function.</p>
 
 <p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>key</code> : <em>str-or-int</em></span></p>
-
-<dl><dd>
-  Key of the unit data item.
-</dd></dl>
 
 <p><span class="vardef"><code>func</code> : <em>Callable</em></span></p>
 
 <dl><dd>
-  The item-source function <code>(x, y)</code> on the mesh nodes.
-</dd></dl>
-
-<p><span class="vardef"><code>constrained</code> : <em>bool = True</em></span></p>
-
-<dl><dd>
-  Constrains the new data item on the mesh, if <em>True</em>.
+  Function to create data.
 </dd></dl>
 
 <p><b>Returns</b></p>
 
-<p><span class="vardef"><em>self</em></span></p>
+<p><span class="vardef"><em>flat-float-array</em></span></p>
 
 <dl><dd>
-  The unit with the new data item.
+  Data defined on mesh nodes.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>constrain()</h3>
+
+<pre class="py-sign">AMRUnit.<b>constrain</b>(<em>self</em>, data)</pre>
+
+<p>Constrains data on hanging nodes.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>data</code> : <em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Input data defined on mesh nodes.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Constrained data.
 </dd></dl>
 
 <div class="toc-anchor"></div><h3>getinterp()</h3>
@@ -348,6 +359,19 @@
 <dl><dd>
   Callable interpolator.
 </dd></dl>
+
+<p><b>Notes</b></p>
+
+<p><code>TriInterp</code> object has the following attributes:</p>
+
+<p>
+<ul class="md-list">
+    <li><code>xnodes</code> contains interpolation x-nodes</li>
+    <li><code>xnodes</code> contains interpolation y-nodes</li>
+</ul>
+</p>
+
+<p><code>TriInterp()</code> takes nodes-data and returns interpolated one.</p>
 
 <div class="toc-anchor"></div><h2>TriFront</h2>
 
@@ -463,7 +487,7 @@
 <p><span class="vardef"><code>tol</code> : <em>int = None</em></span></p>
 
 <dl><dd>
-  Optional absolute tolerance for detecting nearby points.
+  Absolute tolerance in decimal places for detecting nearby points.
 </dd></dl>
 
 <p><b>Returns</b></p>

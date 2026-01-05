@@ -7,7 +7,7 @@
 
 # triellipt.fem
 
-Finite-element solver.
+FEM (P1) solver.
 
 ## getunit()
 
@@ -43,6 +43,44 @@ Creates a FEM computing unit.
   FEM computing unit.
 </dd></dl>
 
+## getdtn()
+
+<pre class="py-sign">triellipt.fem.<b>getdtn</b>(mesh, anchors, mode=<span>None</span>)</pre>
+
+Creates a FEM-DtN unit.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Input triangle mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>anchors</code> : <em>Iterable</em></span></p>
+
+<dl><dd>
+  Provides <code>(float, float)</code> points to partition the mesh boundary.
+</dd></dl>
+
+<p><span class="vardef"><code>mode</code> : <em>str = None</em></span></p>
+
+<dl><dd>
+  Solver mode — <i>&quot;fvm&quot;</i> or <i>&quot;fem&quot;</i> (default).
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>FEMDtN</em></span></p>
+
+<dl><dd>
+  FEM-DtN computing unit.
+</dd></dl>
+
+<b>Notes</b>
+
+FEM-DtN units are only supported for simply-connected meshes.
+
 ## FEMUnit
 
 <pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMUnit</b>(mesh=<span>None</span>, meta=<span>None</span>)</pre>
@@ -51,27 +89,39 @@ FEM computing unit.
 
 <b>Properties</b>
 
-FEM operators as data-streams:
+Basic FEM operators as data-streams:
 
 Name        | Description
 ------------|----------------------
 `massmat`   | Mass-matrix
-`massdiag`  | Mass-matrix lumped
-`diff_1y`   | 1st y-derivative
-`diff_1x`   | 1st x-derivative
-`diff_2y`   | 2nd y-derivative
-`diff_2x`   | 2nd x-derivative
+`massdig`   | Mass-matrix lumped
+`diff_1y`   | 1st y-derivative (weak)
+`diff_1x`   | 1st x-derivative (weak)
+`grad_1y`   | 1st y-derivative (strong)
+`grad_1x`   | 1st x-derivative (strong)
+`diff_2y`   | 2nd y-derivative (weak)
+`diff_2x`   | 2nd x-derivative (weak)
+`diff_yx`   | 2nd yx-derivative (weak)
+`diff_xy`   | 2nd xy-derivative (weak)
 
 General properties:
 
 Name      | Description
 ----------|-------------------------------
-`grad`    | Gradient operator.
-`trigeo`  | Geometric properties.
-`perm`    | Mesh-to-unit permutation.
-`base`    | Base edge-core partition.
+`grad`    | Gradient operator (a).
+`geom`    | Geometric properties (b).
+`perm`    | Mesh-to-unit permutation (c).
+`base`    | Basic edge-core partition.
 `loops`   | List of the mesh loops.
 `partts`  | Map of the unit partitions.
+
+<b>Notes</b>
+
+- (a) `TriGrad` as returned by `mesh_grad()`
+- (b) `MeshGeom` as returned by `mesh_geom()`
+- (c) `DataPerm` object with the attributes:
+    - `mesh` is the parent mesh
+    - `perm` is the permutation from the parent mesh
 
 ### add_partition()
 
@@ -117,20 +167,6 @@ Fetches the unit partition.
   Desired unit partition.
 </dd></dl>
 
-### set_partition()
-
-<pre class="py-sign">FEMUnit.<b>set_partition</b>(<em>self</em>, partt) → <em>None</em></pre>
-
-Assigns the partition to the unit.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>partt</code> : <em>FEMPartt</em></span></p>
-
-<dl><dd>
-  Input unit partition.
-</dd></dl>
-
 ### del_partition()
 
 <pre class="py-sign">FEMUnit.<b>del_partition</b>(<em>self</em>, name) → <em>None</em></pre>
@@ -165,6 +201,15 @@ Creates an interpolator on a mesh.
   Callable interpolator.
 </dd></dl>
 
+<b>Notes</b>
+
+`TriInterp` object has the following attributes:
+
+- `xnodes` contains interpolation x-nodes
+- `xnodes` contains interpolation y-nodes
+
+`TriInterp()` takes nodes-data and returns interpolated one.
+
 ### massopr()
 
 <pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, is_lumped, add_constr)</pre>
@@ -191,6 +236,69 @@ Creates the mass operator from the base partition.
 
 <dl><dd>
   Mass operator as a matrix.
+</dd></dl>
+
+### average()
+
+<pre class="py-sign">FEMUnit.<b>average</b>(<em>self</em>, data)</pre>
+
+Converts node-based data to triangle-averaged values.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>data</code> : <em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Node-based data.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Triangle-averaged values.
+</dd></dl>
+
+## FEMDtN
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMDtN</b>(unit=<span>None</span>)</pre>
+
+FEM-DtN computing unit.
+
+<b>Properties</b>
+
+Name        | Description
+------------|----------------------
+`fem`       | Parent FEM unit.
+`dtn`       | DtN partition.
+
+### dirich_sides()
+
+<pre class="py-sign">FEMDtN.<b>dirich_sides</b>(<em>self</em>) → <em>list</em></pre>
+
+Returns a list of Dirichlet sides.
+
+### switch_side()
+
+<pre class="py-sign">FEMDtN.<b>switch_side</b>(<em>self</em>, key)</pre>
+
+Switches the DtN state of the boundary part.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>key</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Index of the boundary part.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>self</em></span></p>
+
+<dl><dd>
+  Unit itself.
 </dd></dl>
 
 ## FEMPartt
@@ -223,7 +331,7 @@ Creates a new FEM vector.
 
 ### new_matrix()
 
-<pre class="py-sign">FEMPartt.<b>new_matrix</b>(<em>self</em>, operator, add_constr)</pre>
+<pre class="py-sign">FEMPartt.<b>new_matrix</b>(<em>self</em>, operator, add_constr=<span>False</span>)</pre>
 
 Creates a new FEM matrix.
 
@@ -235,7 +343,7 @@ Creates a new FEM matrix.
   Linear combination of the basic FEM operators.
 </dd></dl>
 
-<p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
+<p><span class="vardef"><code>add_constr</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
   Constraints are included in the matrix, if <em>True</em>.
@@ -270,6 +378,10 @@ Retrieves the points of the partition section.
 <dl><dd>
   Points of the partition section stacked horizontally.
 </dd></dl>
+
+<b>Notes</b>
+
+This method is also available as `nodes2d(key)`.
 
 ## MatrixFEM
 
@@ -433,6 +545,13 @@ Returns the mesh gradient operator.
   Gradient operator on the mesh.
 </dd></dl>
 
+<b>Notes</b>
+
+- `TriGrad` operates on nodes-based data
+- `TriGrad.diff_1x()` returns x-grad over triangles
+- `TriGrad.diff_1y()` returns y-grad over triangles
+- `TriGrad()` returns xy-grad over triangles
+
 ## mesh_geom()
 
 <pre class="py-sign">triellipt.fem.<b>mesh_geom</b>(mesh)</pre>
@@ -454,6 +573,13 @@ Returns the mesh geometric properties.
 <dl><dd>
   Object with the geometric properties of triangles.
 </dd></dl>
+
+<b>Notes</b>
+
+`MeshGeom` object has the following attributes:
+
+- `areas` is a flat-array of triangle areas
+- `sides` is a 3col-table of triangle sides
 
 ## mesh_metric()
 
@@ -477,182 +603,10 @@ Returns the mesh metric properties.
   Object with the metric properties of triangles.
 </dd></dl>
 
-## gettransp()
+<b>Notes</b>
 
-<pre class="py-sign">triellipt.fem.<b>gettransp</b>(mesh, geom=<span>None</span>)</pre>
+`MeshMetric` object has the following attributes:
 
-Creates an explicit transport unit.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
-
-<dl><dd>
-  Input triangle mesh.
-</dd></dl>
-
-<p><span class="vardef"><code>geom</code> : <em>str</em></span></p>
-
-<dl><dd>
-  Geometry mode — <i>&quot;ax&quot;</i> for cylindrical, <i>&quot;2d&quot;</i> for planar (default).
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>TranspUnit</em></span></p>
-
-<dl><dd>
-  Explicit transport unit.
-</dd></dl>
-
-## TranspUnit
-
-<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>TranspUnit</b>(mesh=<span>None</span>, meta=<span>None</span>, geom=<span>None</span>)</pre>
-
-Explicit transport unit.
-
-<b>Properties</b>
-
-Name      | Description
-----------|--------------------------
-`mass`    | Node-based mass vector
-
-### constr()
-
-<pre class="py-sign">TranspUnit.<b>constr</b>(<em>self</em>, data)</pre>
-
-Constrains node-based data on hanging nodes.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Node-based data to constrain.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Constrained data.
-</dd></dl>
-
-### transp()
-
-<pre class="py-sign">TranspUnit.<b>transp</b>(<em>self</em>, data, v_x, v_y, d_x, d_y, stab)</pre>
-
-Computes the transport operator.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Node-based solution field.
-</dd></dl>
-
-<p><span class="vardef"><code>v_x</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Triangle-based x-velocity.
-</dd></dl>
-
-<p><span class="vardef"><code>v_y</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Triangle-based y-velocity.
-</dd></dl>
-
-<p><span class="vardef"><code>d_x</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Triangle-based x-diffusion coefficient.
-</dd></dl>
-
-<p><span class="vardef"><code>d_y</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Triangle-based y-diffusion coefficient.
-</dd></dl>
-
-<p><span class="vardef"><code>stab</code> : <em>Callable</em></span></p>
-
-<dl><dd>
-  Stream upwind stabilizator called on velocity arrays.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Node-based transport operator.
-</dd></dl>
-
-### source()
-
-<pre class="py-sign">TranspUnit.<b>source</b>(<em>self</em>, field)</pre>
-
-Computes the source term.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>field</code> : <em>float-flat-array</em></span></p>
-
-<dl><dd>
-  Triangle-based source field.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>float-flat-array</em></span></p>
-
-<dl><dd>
-  Node-based source term.
-</dd></dl>
-
-### newdata()
-
-<pre class="py-sign">TranspUnit.<b>newdata</b>(<em>self</em>, value_or_func)</pre>
-
-Creates a new node-based field.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>value_or_func</code> : <em>float-or-callable</em></span></p>
-
-<dl><dd>
-  Coefficient value or function <code>(x, y)</code> on mesh nodes.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>float-flat-array</em></span></p>
-
-<dl><dd>
-  Node-based coefficient.
-</dd></dl>
-
-### newcoeff()
-
-<pre class="py-sign">TranspUnit.<b>newcoeff</b>(<em>self</em>, value_or_func)</pre>
-
-Creates a new triangle-based coefficient.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>value_or_func</code> : <em>float-or-callable</em></span></p>
-
-<dl><dd>
-  Coefficient value or function <code>(x, y)</code> on triangle centroids.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>float-flat-array</em></span></p>
-
-<dl><dd>
-  Triangle-based coefficient.
-</dd></dl>
+- `bcoeffs` is a 3col-table of b-coefficients.
+- `ccoeffs` is a 3col-table of c-coefficients.
+- `jacobis` is a flat-array of Jacobians.

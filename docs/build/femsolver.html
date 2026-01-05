@@ -34,7 +34,7 @@
         <div id="local-toc-box__text" class="toc-box__textbox">
             <p>
             <ul>
-                <li><a href="#how-to-solve-pdes">How to Solve PDEs</a>
+                <li><a href="#using-the-fem-solver">Using the FEM Solver</a>
                     <ul>
                         <li><a href="#creating-a-mesh">Creating a Mesh</a></li>
                         <li><a href="#creating-a-fem-unit">Creating a FEM Unit</a></li>
@@ -42,6 +42,7 @@
                             <ul>
                                 <li><a href="#boundary-partition">Boundary partition</a></li>
                                 <li><a href="#section-numbering">Section numbering</a></li>
+                                <li><a href="#automatic-partition">Automatic partition</a></li>
                             </ul>
                         </li>
                         <li><a href="#creating-a-matrix">Creating a Matrix</a>
@@ -66,11 +67,11 @@
             <hr>
         </div>
         <div id="doc-box">
-<div class="toc-anchor"></div><h2>How to Solve PDEs</h2>
+<div class="toc-anchor"></div><h2>Using the FEM Solver</h2>
 
 <p>This page guides you through the process of solving PDEs with <b>triellipt</b>.</p>
 
-<p>In what follows, we assume the following import with an alias is used:</p>
+<p>In what follows, we assume the following import is used:</p>
 
 <pre><span class="lang-name">Python</span><code class="language-python">import triellipt as tri</code></pre>
 
@@ -87,15 +88,28 @@
 </ul>
 </p>
 
+<p>Refer to <a href="meshing.html">Meshing</a> for more details.</p>
+
 <hr>
 
 <div class="toc-anchor"></div><h3>Creating a FEM Unit</h3>
 
-<p>Once the mesh is ready, the next step is to create a FEM computing unit:</p>
+<p>The next step is to create a FEM computing unit:</p>
 
 <pre><span class="lang-name">Python</span><code class="language-python">unit = tri.fem.getunit(mesh)</code></pre>
 
-<p>The mesh is <em>preprocessed</em> when creating a unit:</p>
+<p>For more details, refer to <a href="triellipt.fem.html#getunit">triellipt.fem.getunit()</a>.</p>
+
+<p>Two solver modes are available:</p>
+
+<p>
+<ul class="md-list">
+    <li><i>&quot;fvm&quot;</i> corresponds to the control-volume finite-element method (CVFEM) with linear (P1) elements.</li>
+    <li><i>&quot;fem&quot;</i> corresponds to the Galerkin finite-element method (FEM) with linear (P1) elements.</li>
+</ul>
+</p>
+
+<p>The mesh is preprocessed when creating a unit:</p>
 
 <p>
 <ul class="md-list">
@@ -109,8 +123,16 @@
 <p>
 <ul class="md-list">
     <li>The actual unit mesh is available as <code>unit.mesh</code>.</li>
-    <li>The original mesh is still available as <code>unit.perm.mesh</code>.</li>
-    <li>The permutation between the input mesh and the actual mesh is available as <code>unit.perm</code>.</li>
+    <li>The permutation between the input mesh and the actual mesh is available as <code>unit.perm</code> (a).</li>
+</ul>
+</p>
+
+<p>(a) The permutation is the <code>DataPerm</code> object with the attributes:</p>
+
+<p>
+<ul class="md-list">
+    <li><code>mesh</code> is the parent mesh</li>
+    <li><code>perm</code> is the permutation from the parent mesh</li>
 </ul>
 </p>
 
@@ -120,7 +142,7 @@
 
 <div class="toc-anchor"></div><h3>Creating a Partition</h3>
 
-<p>After creating the FEM unit, you must partition the mesh boundary to define the <em>boundary conditions (BCs)</em>.</p>
+<p>After creating the FEM unit, you must partition the mesh boundary.</p>
 
 <p>Two steps are needed:</p>
 
@@ -193,6 +215,23 @@
 
 <p>The <em>core section</em> includes all mesh nodes except those on Dirichlet sides.</p>
 
+<div class="toc-anchor"></div><h4>Automatic partition</h4>
+
+<p>Boundary partitioning can be automated using <a href="triellipt.fem.html#femdtn">triellipt.fem.FEMDtN</a>.</p>
+
+<p>This option is only available for simply-connected meshes. The anchor points are still used to split the boundary, but they are kept separately as corners in the partition.</p>
+
+<p>The section numerng is as follows:</p>
+
+<p>
+<ul class="md-list">
+    <li>Odd numbers (1, 3, ...) represent the anchor points themselves.</li>
+    <li>Even numbers (2, 4, ...) represent the edges between anchor points.</li>
+</ul>
+</p>
+
+<p>See also <a href="triellipt.fem.html#getdtn">triellipt.fem.getdtn()</a>.</p>
+
 <div class="toc-anchor"></div><h3>Creating a Matrix</h3>
 
 <p>FEM matrices are generated from a partition of the FEM unit — see <a href="triellipt.fem.html#new_matrix">triellipt.fem.FEMPartt.new_matrix()</a>.</p>
@@ -202,9 +241,11 @@
 <p>
 <ul class="md-list">
     <li>Define a FEM operator as a linear combination of basic operators.</li>
-    <li>Decide if constraints should be included in the matrix (for non-conformal meshes only).</li>
+    <li>Decide if constraints for hanging nodes should be included in the matrix (a).</li>
 </ul>
 </p>
+
+<p>(a) Applies only to non-conformal meshes.</p>
 
 <p>The matrix is then generated as follows:</p>
 
@@ -216,47 +257,9 @@
 
 <p><em>Basic operators</em></p>
 
-<p>Basic FEM operators are available as properties of the FEM unit:</p>
+<p>Basic FEM operators are available as properties of <a href="triellipt.fem.html#femunit">triellipt.fem.FEMUnit</a>.</p>
 
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td><code>massmat</code></td>
-        <td>Mass-matrix</td>
-    </tr>
-    <tr>
-        <td><code>massdiag</code></td>
-        <td>Mass-matrix lumped</td>
-    </tr>
-    <tr>
-        <td><code>diff_1y</code></td>
-        <td>1st y-derivative</td>
-    </tr>
-    <tr>
-        <td><code>diff_1x</code></td>
-        <td>1st x-derivative</td>
-    </tr>
-    <tr>
-        <td><code>diff_2y</code></td>
-        <td>2nd y-derivative</td>
-    </tr>
-    <tr>
-        <td><code>diff_2x</code></td>
-        <td>2nd x-derivative</td>
-    </tr>
-</table>
-
-<p>Facts to know:</p>
-
-<p>
-<ul class="md-list">
-    <li>All basic operators are flat arrays representing a special data structure — <em>matrix data stream</em>.</li>
-    <li>Understanding of matrix data streams is not necessary for using the package.</li>
-</ul>
-</p>
+<p>All basic operators are flat arrays representing a special data structure — <em>matrix data stream</em>.</p>
 
 <p>Here is an example of constructing a Laplace operator:</p>
 
@@ -264,9 +267,11 @@
 
 <p><em>Coefficients</em></p>
 
-<p>Operators can be multiplied by coefficients defined on the mesh triangles.</p>
+<p>Operators can be scaled by coefficients defined on a matrix data stream.
+To support this, the FEM unit exposes three properties — <code>unit.ij_r</code>, <code>unit.ij_c</code> and <code>unit.ij_t</code> —
+to specify the row, column, and triangle indices for each matrix value.</p>
 
-<p>Assume we define a coefficient as</p>
+<p>Assume we define a triangle-based coefficient as</p>
 
 <pre><span class="lang-name">Python</span><code class="language-python">coeff = some_func(*unit.mesh.centrs2d)</code></pre>
 
@@ -282,8 +287,6 @@
 <p>Then the scaled Laplace operator can be defined as</p>
 
 <pre><span class="lang-name">Python</span><code class="language-python">operator = coeff[unit.ij_t] * (unit.diff_2x + unit.diff_2y)</code></pre>
-
-<p>where we use <code>unit.ij_t</code> — indexer that maps triangle-based data to a matrix data stream.</p>
 
 <div class="toc-anchor"></div><h4>Add constraints</h4>
 

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Examples — Pulsating mesh — triellipt documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+    <link rel="stylesheet" href="docpage.css">
+    <link rel="stylesheet" href="default.min.css">
+    <script src="docpage.js"></script>
+    <script src="highlight.min.js"></script>
+</head>
+
+<body>
+
+    <div id="top-panel">
+        <div id="page-logo"></div>
+        <div id="top-panel-tool-bar">
+            <div id="global-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="local-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="home-page-btn" class="top-panel-btn" onclick="gotoHomePage()"></div>
+        </div>
+    </div>
+
+    <div id="global-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>Contents</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="global-toc-box__text" class="toc-box__textbox"></div>
+    </div>
+    <div id="local-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>On this page</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="local-toc-box__text" class="toc-box__textbox">
+            <p>
+            <ul>
+                <li><a href="#pulsating-mesh">Pulsating mesh</a>
+                    <ul>
+                        <li><a href="#creating-a-mesh">Creating a mesh</a></li>
+                        <li><a href="#creating-an-amr-unit">Creating an AMR unit</a></li>
+                        <li><a href="#refinement-step">Refinement step</a></li>
+                        <li><a href="#coarsening-step">Coarsening step</a></li>
+                    </ul>
+                </li>
+            </ul>
+            </p>
+        </div>
+    </div>
+
+    <div id="content-box">
+        <div id="title-box">
+            <h1 id="title-box__title">triellipt — Examples: Pulsating mesh</h1>
+            <h2 id="title-box__annotation"></h2>
+            <hr>
+        </div>
+        <div id="doc-box">
+<div class="toc-anchor"></div><h2>Pulsating mesh</h2>
+
+<p>This example demonstrates the use of refinement and coarsening procedures in <b>triellipt</b>.</p>
+
+<p>In what follows, we assume the following import is used:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">import triellipt as tri</code></pre>
+
+<div class="toc-anchor"></div><h3>Creating a mesh</h3>
+
+<p>The background mesh is created using Gmsh with the following <code>.geo</code> file:</p>
+
+<pre class="docstring">R_0 = 1.00;  // Radius
+S_0 = 0.02;  // Mesh size
+
+Point(0) = {0, 0, 0};
+
+Point(1) = {+ R_0, + 0.0, 0, S_0};
+Point(2) = {+ 0.0, + R_0, 0, S_0};
+Point(3) = {- R_0, + 0.0, 0, S_0};
+Point(4) = {- 0.0, - R_0, 0, S_0};
+
+Circle(1) = {1, 0, 2};
+Circle(2) = {2, 0, 3};
+Circle(3) = {3, 0, 4};
+Circle(4) = {4, 0, 1};
+
+Line Loop(1) = {1, 2, 3, 4};
+
+Plane Surface(1) = {1};
+
+Mesh.Algorithm = 6;</pre>
+
+<p>The mesh is saved as <code>circ-gmsh.msh</code> in the <code>mesh</code> subfolder. The mesh is then read as follows:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">mesh = tri.mshread.getreader(&#x27;mesh&#x27;).read_mesh(&#x27;circ-gmsh.msh&#x27;)</code></pre>
+
+<p>The mesh is coarsened in the central region as follows:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">mesh = mesh.reduced(shrink=2, detach=True)
+mesh = mesh.reduced(shrink=3)
+mesh = mesh.delmouths()</code></pre>
+
+<div class="toc-anchor"></div><h3>Creating an AMR unit</h3>
+
+<p>The next step is to create an AMR unit:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">unit = tri.amr.getunit(mesh)</code></pre>
+
+<p>The unit can be provided with a data field.</p>
+
+<p>For this we first create the node-based data as follows:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">data = unit.from_func(func)</code></pre>
+
+<p>where <code>func</code> is a callable that defines the data field.</p>
+
+<p>The data field can be constrained on hanging nodes:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">data = unit.constrain(data)</code></pre>
+
+<p>Finally, we assign the data field to the unit:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">unit.data[0] = data</code></pre>
+
+<div class="toc-anchor"></div><h3>Refinement step</h3>
+
+<p>The unit can be refined in a frontal manner:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">for _ in range(COUNT):
+    unit = unit.refine(
+       unit.front_coarse().trinums
+    )</code></pre>
+
+<p>where <code>COUNT</code> is the number of refinement steps.</p>
+
+<p>Here <code>unit.front_coarse()</code> returns a <code>TriFront</code> object that contains the numbers of triangles to refine.</p>
+
+<p>The data field assigned to the unit is refined automatically during refinement.</p>
+
+<div class="toc-anchor"></div><h3>Coarsening step</h3>
+
+<p>Coarsening can be performed after refinement as follows:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">for _ in range(COUNT):
+    unit = unit.coarsen(
+        unit.front_fine().trinums
+    )</code></pre>
+
+<p>Here <code>unit.front_fine()</code> returns a <code>TriFront</code> object that contains the coarsening front.
+In this case, <code>.trinums</code> provide central triangles of super-triangles to coarsen.</p>
+
+<p>The data field assigned to the unit is automatically interpolated during coarsening.</p>
+
+<hr>
+        </div>
+        <p id="footnote">Copyright &copy; 2023, Igor Semenov.</p>
+    </div>
+
+    <footer></footer>
+
+    <script>
+        setDocPage();
+        hljs.highlightAll();
+    </script>
+
+</body>
+
+</html>

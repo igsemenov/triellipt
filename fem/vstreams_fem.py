@@ -31,7 +31,7 @@ class SkelAgent:
         return self.skel.hasvoids
 
 
-class StreamOprs(SkelAgent):
+class _StreamOprs(SkelAgent):
     """Collects streams of FEM opeators.
     """
 
@@ -43,60 +43,13 @@ class StreamOprs(SkelAgent):
     def fetch_fem_oprs(self):
         return femoprs.getoprs(self.skel.mesh)
 
-    def get_streams(self):
-
-        streams = {
-            'massmat': self.get_stream_massmat(),
-            'massdiag': self.get_stream_massdiag(),
-            'diff_1x': self.get_stream_diff_1x(),
-            'diff_1y': self.get_stream_diff_1y(),
-            'diff_2x': self.get_stream_diff_2x(),
-            'diff_2y': self.get_stream_diff_2y(),
-            'grad_1y': self.get_stream_grad_1y()
-        }
-
-        streams = {
-            k: v.get_stream() for k, v, in streams.items()
-        }
-
-        return streams
-
-    def get_stream_massmat(self):
-        return self.stream_mass.with_opr(self.massmat)
-
-    def get_stream_massdiag(self):
-        return self.stream_mass.with_opr(self.massdiag)
-
-    def get_stream_diff_1x(self):
-        return self.stream_flux.with_opr(self.diff_1x)
-
-    def get_stream_diff_1y(self):
-        return self.stream_flux.with_opr(self.diff_1y)
-
-    def get_stream_grad_1y(self):
-        return self.stream_mass.with_opr(self.grad_1y)
-
-    def get_stream_diff_2x(self):
-        return self.stream_flux.with_opr(self.diff_2x)
-
-    def get_stream_diff_2y(self):
-        return self.stream_flux.with_opr(self.diff_2y)
-
-    @property
-    def stream_mass(self):
-        return StreamOpr.from_skel(self.skel)
-
-    @property
-    def stream_flux(self):
-        return StreamOpr.from_skel(self.skel)
-
     @property
     def massmat(self):
         return self.meta['fem-oprs']['massmat']
 
     @property
-    def massdiag(self):
-        return self.meta['fem-oprs']['massdiag']
+    def massdig(self):
+        return self.meta['fem-oprs']['massdig']
 
     @property
     def diff_1x(self):
@@ -111,12 +64,84 @@ class StreamOprs(SkelAgent):
         return self.meta['fem-oprs']['grad_1y']
 
     @property
+    def grad_1x(self):
+        return self.meta['fem-oprs']['grad_1x']
+
+    @property
     def diff_2x(self):
         return self.meta['fem-oprs']['diff_2x']
 
     @property
     def diff_2y(self):
         return self.meta['fem-oprs']['diff_2y']
+
+    @property
+    def diff_xy(self):
+        return self.meta['fem-oprs']['diff_xy']
+
+    @property
+    def diff_yx(self):
+        return self.meta['fem-oprs']['diff_yx']
+
+
+class StreamOprs(_StreamOprs):
+    """Collects streams of FEM opeators.
+    """
+
+    def get_streams(self):
+
+        streams = {
+            'massmat': self.get_stream_massmat(),
+            'massdig': self.get_stream_massdig(),
+            'diff_1x': self.get_stream_diff_1x(),
+            'diff_1y': self.get_stream_diff_1y(),
+            'diff_2x': self.get_stream_diff_2x(),
+            'diff_2y': self.get_stream_diff_2y(),
+            'diff_xy': self.get_stream_diff_xy(),
+            'diff_yx': self.get_stream_diff_yx(),
+            'grad_1y': self.get_stream_grad_1y(),
+            'grad_1x': self.get_stream_grad_1x()
+        }
+
+        streams = {
+            k: v.get_stream() for k, v, in streams.items()
+        }
+
+        return streams
+
+    def get_stream_massmat(self):
+        return self.stream_opr.with_opr(self.massmat)
+
+    def get_stream_massdig(self):
+        return self.stream_opr.with_opr(self.massdig)
+
+    def get_stream_diff_1x(self):
+        return self.stream_opr.with_opr(self.diff_1x)
+
+    def get_stream_diff_1y(self):
+        return self.stream_opr.with_opr(self.diff_1y)
+
+    def get_stream_grad_1y(self):
+        return self.stream_opr.with_opr(self.grad_1y)
+
+    def get_stream_grad_1x(self):
+        return self.stream_opr.with_opr(self.grad_1x)
+
+    def get_stream_diff_2x(self):
+        return self.stream_opr.with_opr(self.diff_2x)
+
+    def get_stream_diff_2y(self):
+        return self.stream_opr.with_opr(self.diff_2y)
+
+    def get_stream_diff_xy(self):
+        return self.stream_opr.with_opr(self.diff_xy)
+
+    def get_stream_diff_yx(self):
+        return self.stream_opr.with_opr(self.diff_yx)
+
+    @property
+    def stream_opr(self):
+        return StreamOpr.from_skel(self.skel)
 
 
 class StreamOpr(SkelAgent):
@@ -147,24 +172,6 @@ class StreamOpr(SkelAgent):
     def get_stream_from_nodes(self):
         return self.stream_from_map(self.nodesmap)
 
-    def stream_from_map(self, srcmap):
-
-        from_node_self = self.opr.flat[
-            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums
-        ]
-
-        from_node_ccw1 = self.opr.flat[
-            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums1
-        ]
-
-        from_node_ccw2 = self.opr.flat[
-            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums2
-        ]
-
-        return VStream.from_data_train(
-            from_node_self, from_node_ccw1, from_node_ccw2
-        )
-
     def get_stream_from_voids(self):
 
         self.set_voids_submaps()
@@ -174,9 +181,6 @@ class StreamOpr(SkelAgent):
 
         stream = VStream.from_data_train(west.data, east.data)
         return stream
-
-    def set_voids_submaps(self):
-        self.cache |= self.skel.voids_submaps()
 
     def stream_west(self):
 
@@ -198,9 +202,26 @@ class StreamOpr(SkelAgent):
             0.5 * west.data, 0.5 * core.data, 0.5 * east.data
         )
 
-    @property
-    def nodesmap(self):
-        return self.skel.nodesmap
+    def stream_from_map(self, srcmap):
+
+        from_node_self = self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums
+        ]
+
+        from_node_ccw1 = self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums1
+        ]
+
+        from_node_ccw2 = self.opr.flat[
+            9 * srcmap.trinums + 3 * srcmap.locnums + srcmap.locnums2
+        ]
+
+        return VStream.from_data_train(
+            from_node_self, from_node_ccw1, from_node_ccw2
+        )
+
+    def set_voids_submaps(self):
+        self.cache |= self.skel.voids_submaps()
 
     @property
     def westmap(self):
@@ -213,6 +234,10 @@ class StreamOpr(SkelAgent):
     @property
     def eastmap(self):
         return self.cache['eastmap']
+
+    @property
+    def nodesmap(self):
+        return self.skel.nodesmap
 
 
 class VStream:

@@ -243,35 +243,39 @@ class AMRUnit(AMRData):
         """
         return trifronts.TriFrontFine.from_unit(self)
 
-    def makedata(self, key, func, constrained=True):
-        """Generates a unit data item from a given function.
+    def from_func(self, func):
+        """Creates data from a function.
 
         Parameters
         ----------
-        key : str-or-int
-            Key of the unit data item.
         func : Callable
-            The item-source function `(x, y)` on the mesh nodes.
-        constrained : bool = True
-            Constrains the new data item on the mesh, if True.
+            Function to create data.
 
         Returns
         -------
-        self
-            The unit with the new data item.
+        flat-float-array
+            Data defined on mesh nodes.
 
         """
-
-        data = func(
+        return func(
             *self.mesh.points2d
         )
 
-        if constrained is False:
-            self.data[key] = data
-            return self
+    def constrain(self, data):
+        """Constrains data on hanging nodes.
 
-        self.data[key] = trirefine.constr_data(self.mesh, data)
-        return self
+        Parameters
+        ----------
+        data : float-flat-array
+            Input data defined on mesh nodes.
+
+        Returns
+        -------
+        float-flat-array
+            Constrained data.
+
+        """
+        return trirefine.constr_data(self.mesh, data)
 
     def getinterp(self, xnodes, ynodes):
         """Creates an interpolator on a mesh.
@@ -287,6 +291,16 @@ class AMRUnit(AMRData):
         -------
         TriInterp
             Callable interpolator.
+
+        Notes
+        -----
+
+        `TriInterp` object has the following attributes:
+
+        - `xnodes` contains interpolation x-nodes
+        - `xnodes` contains interpolation y-nodes
+
+        `TriInterp()` takes nodes-data and returns interpolated one.
 
         """
         return trinterp.getinterp(

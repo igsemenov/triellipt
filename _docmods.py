@@ -7,8 +7,8 @@ import triellipt
 DOCPATH = 'docs/sources'
 
 MODULES = [
-    triellipt.fem,
     triellipt.amr,
+    triellipt.fem,
     triellipt.geom,
     triellipt.mesher,
     triellipt.trimesh,

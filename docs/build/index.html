@@ -33,6 +33,7 @@
             <p>
             <ul>
                 <li><a href="#contents">Contents</a></li>
+                <li><a href="#overview">Overview</a></li>
             </ul>
             </p>
         </div>
@@ -45,25 +46,60 @@
             <hr>
         </div>
         <div id="doc-box">
-<div class="toc-anchor"></div><h2>Contents</h2>
+<div class="toc-anchor"></div><h3>Contents</h3>
 
 <p>
 <ul class="ref-list" id="index-toc">
     <li><a href="usage.html">Usage</a>
         <ul>
+            <li><a href="meshing.html">Meshing</a></li>
             <li><a href="femsolver.html">FEM Solver</a></li>
+        </ul>
+    </li>
+    <li><a href="examples.html">Examples</a>
+        <ul>
+            <li><a href="zernike.html">Zernike modes</a></li>
+            <li><a href="layer.html">Boundary layer</a></li>
+            <li><a href="pulsemesh.html">Pulsating mesh</a></li>
         </ul>
     </li>
     <li><a href="triellipt.html">Modules</a>
         <ul>
-            <li><a href="triellipt.fem.html">fem</a></li>
             <li><a href="triellipt.amr.html">amr</a></li>
+            <li><a href="triellipt.fem.html">fem</a></li>
             <li><a href="triellipt.geom.html">geom</a></li>
             <li><a href="triellipt.mesher.html">mesher</a></li>
             <li><a href="triellipt.trimesh.html">trimesh</a></li>
             <li><a href="triellipt.mshread.html">mshread</a></li>
         </ul>
     </li>
+</ul>
+</p>
+
+<div class="toc-anchor"></div><h3>Overview</h3>
+
+<p>A lightweight 2D FEM solver for elliptic PDEs.</p>
+
+<p>Basic Features:</p>
+
+<p>
+<ul class="md-list">
+    <li>Pure Python implementation using NumPy and SciPy.</li>
+    <li>Provides a simple interface for reading Gmsh meshes.</li>
+    <li>Supports both conforming and nonconforming triangular meshes.</li>
+</ul>
+</p>
+
+<p>Additional Details:</p>
+
+<p>
+<ul class="md-list">
+    <li>Implements the control-volume finite-element method (CVFEM) with linear (P1) elements.</li>
+    <li>Implements the Galerkin finite-element method (FEM) with linear (P1) elements.</li>
+    <li>Provides a simple framework for generating nonconforming triangular meshes.</li>
+    <li>Supports mesh refinement and coarsening.</li>
+    <li>Supports conservative interpolation during mesh refinement/coarsening.</li>
+    <li>Supports construction of discrete Dirichlet-to-Neumann operators.</li>
 </ul>
 </p>
 

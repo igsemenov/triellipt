@@ -32,8 +32,24 @@ def getunit(mesh, anchors=None, mode=None):
         FEM computing unit.
 
     """
+
+    if mode is None:
+        return getunit_fem(mesh, anchors)
+
+    if mode == "fvm":
+        return getunit_fvm(mesh, anchors)
+    return getunit_fem(mesh, anchors)
+
+
+def getunit_fem(mesh, anchors=None):
     return FEMUnit.from_mesh(
-        mesh, anchors, mode or "fem"
+        mesh, anchors, mode="fem"
+    )
+
+
+def getunit_fvm(mesh, anchors=None):
+    return FEMUnit.from_mesh(
+        mesh, anchors, mode="fvm"
     )
 
 
@@ -66,6 +82,14 @@ class FEMData:
         """Number of mesh nodes.
         """
         return self.mesh.npoints
+
+    @property
+    def mesh_points(self):
+        return self.mesh.points2d
+
+    @property
+    def mesh_export(self):
+        return self.mesh
 
     @property
     def voids_count(self):
@@ -130,6 +154,14 @@ class FEMData:
     def ij_t(self):
         return self.ij_stream.trinums
 
+    @property
+    def ij_r(self):
+        return self.ij_stream.rownums
+
+    @property
+    def ij_c(self):
+        return self.ij_stream.colnums
+
 
 class FEMRoot(FEMData):
     """Root of the FEM unit.
@@ -140,28 +172,40 @@ class FEMRoot(FEMData):
         return self.femoprs['massmat'].data
 
     @property
-    def massdiag(self):
-        return self.femoprs['massdiag'].data
+    def massdig(self):
+        return self.femoprs['massdig'].data
 
     @property
     def diff_1x(self):
-        return - self.femoprs['diff_1x'].data
+        return self.femoprs['diff_1x'].data
 
     @property
     def diff_1y(self):
-        return - self.femoprs['diff_1y'].data
+        return self.femoprs['diff_1y'].data
 
     @property
     def grad_1y(self):
-        return + self.femoprs['grad_1y'].data
+        return self.femoprs['grad_1y'].data
+
+    @property
+    def grad_1x(self):
+        return self.femoprs['grad_1x'].data
 
     @property
     def diff_2x(self):
-        return - self.femoprs['diff_2x'].data
+        return self.femoprs['diff_2x'].data
 
     @property
     def diff_2y(self):
-        return - self.femoprs['diff_2y'].data
+        return self.femoprs['diff_2y'].data
+
+    @property
+    def diff_xy(self):
+        return self.femoprs['diff_xy'].data
+
+    @property
+    def diff_yx(self):
+        return self.femoprs['diff_yx'].data
 
     @property
     def radius(self):
@@ -179,15 +223,15 @@ class FEMRoot(FEMData):
         return self.grad
 
     @property
-    def trigeo(self):
+    def geom(self):
         """Dictionary with the geometric properties of triangles.
         """
 
-        if 'trigeo' in self.cache:
-            return self.cache['trigeo']
+        if 'geom' in self.cache:
+            return self.cache['geom']
 
-        self.cache['trigeo'] = femoprs.mesh_geom(self.mesh)
-        return self.trigeo
+        self.cache['geom'] = femoprs.mesh_geom(self.mesh)
+        return self.geom
 
     @property
     def perm(self):
@@ -245,6 +289,7 @@ class FEMRoot(FEMData):
 
         _ = self.fem_factory(add_constr=False)
         self.cache['factory-free'] = _
+
         return self.factory_free
 
     @property
@@ -257,6 +302,7 @@ class FEMRoot(FEMData):
 
         _ = self.fem_factory(add_constr=True)
         self.cache['factory-full'] = _
+
         return self.factory_full
 
 
@@ -266,27 +312,40 @@ class FEMUnit(FEMRoot):
     Properties
     ----------
 
-    FEM operators as data-streams:
+    Basic FEM operators as data-streams:
 
     Name        | Description
     ------------|----------------------
     `massmat`   | Mass-matrix
-    `massdiag`  | Mass-matrix lumped
-    `diff_1y`   | 1st y-derivative
-    `diff_1x`   | 1st x-derivative
-    `diff_2y`   | 2nd y-derivative
-    `diff_2x`   | 2nd x-derivative
+    `massdig`   | Mass-matrix lumped
+    `diff_1y`   | 1st y-derivative (weak)
+    `diff_1x`   | 1st x-derivative (weak)
+    `grad_1y`   | 1st y-derivative (strong)
+    `grad_1x`   | 1st x-derivative (strong)
+    `diff_2y`   | 2nd y-derivative (weak)
+    `diff_2x`   | 2nd x-derivative (weak)
+    `diff_yx`   | 2nd yx-derivative (weak)
+    `diff_xy`   | 2nd xy-derivative (weak)
 
     General properties:
 
     Name      | Description
     ----------|-------------------------------
-    `grad`    | Gradient operator.
-    `trigeo`  | Geometric properties.
-    `perm`    | Mesh-to-unit permutation.
-    `base`    | Base edge-core partition.
+    `grad`    | Gradient operator (a).
+    `geom`    | Geometric properties (b).
+    `perm`    | Mesh-to-unit permutation (c).
+    `base`    | Basic edge-core partition.
     `loops`   | List of the mesh loops.
     `partts`  | Map of the unit partitions.
+
+    Notes
+    -----
+
+    - (a) `TriGrad` as returned by `mesh_grad()`
+    - (b) `MeshGeom` as returned by `mesh_geom()`
+    - (c) `DataPerm` object with the attributes:
+        - `mesh` is the parent mesh
+        - `perm` is the permutation from the parent mesh
 
     """
 
@@ -330,14 +389,6 @@ class FEMUnit(FEMRoot):
         return self.partts[partt_name]
 
     def set_partition(self, partt) -> None:
-        """Assigns the partition to the unit.
-
-        Parameters
-        ----------
-        partt : FEMPartt
-            Input unit partition.
-
-        """
 
         if partt.unit is not self:
             raise ValueError(
@@ -368,6 +419,16 @@ class FEMUnit(FEMRoot):
         TriInterp
             Callable interpolator.
 
+        Notes
+        -----
+
+        `TriInterp` object has the following attributes:
+
+        - `xnodes` contains interpolation x-nodes
+        - `xnodes` contains interpolation y-nodes
+
+        `TriInterp()` takes nodes-data and returns interpolated one.
+
         """
         return trinterp.getinterp(
             self.mesh, xnodes, ynodes
@@ -394,14 +455,33 @@ class FEMUnit(FEMRoot):
         return self.massopr_full(add_constr)
 
     def massopr_full(self, add_constr):
-        return self.base.new_matrix(self.massmat, add_constr)
+        matrix = self.base.new_matrix(self.massmat, add_constr)
+        return matrix
 
     def massopr_lumped(self, add_constr):
-        matrix = self.base.new_matrix(self.massdiag, add_constr)
+        matrix = self.base.new_matrix(self.massdig, add_constr)
         return matrix.with_no_zeros()
 
     def constrproj(self):
         return femfactory.get_constr_proj(self)
+
+    def average(self, data):
+        """Converts node-based data to triangle-averaged values.
+
+        Parameters
+        ----------
+        data : float-flat-array
+            Node-based data.
+
+        Returns
+        -------
+        float-flat-array
+            Triangle-averaged values.
+
+        """
+        return (1./3.) * np.sum(
+            data[self.mesh.triangs], axis=1
+        )
 
 
 class FEMUnitMaker:
@@ -444,7 +524,7 @@ class FEMUnitMaker:
         )
 
         self.cache['skel'] = skel
-        return skel
+        return True
 
     def make_data(self, mode):
 
@@ -507,12 +587,12 @@ class FEMUnitMaker:
 
 
 class DataPermuter:
-    """Data permutator.
+    """Data permutator from the parent mesh.
 
     Attributes
     ----------
     mesh : TriMesh
-        Source triangle mesh.
+        Parent triangle mesh.
     meta : dict
         Permutation metadata.
 

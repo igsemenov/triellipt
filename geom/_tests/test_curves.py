@@ -29,9 +29,9 @@ class TestCurve(unittest.TestCase):
         """
         return [
             geom.line(0j, 1j),
-            geom.elliparc(0j, (1, 1), (0, 2)),
             geom.bezier2(0j, 1j, 2j),
-            geom.bezier3(0j, 1j, 2j, 3j)
+            geom.bezier3(0j, 1j, 2j, 3j),
+            geom.elliparc((0, 0), (1, 1), (0, 2))
         ]
 
 

@@ -32,7 +32,7 @@ class SkelAgent(ABC):
         return self.skel.hasvoids
 
 
-class StreamOprs(SkelAgent):
+class _StreamOprs(SkelAgent):
     """Collects streams of FEM opeators.
     """
 
@@ -44,60 +44,13 @@ class StreamOprs(SkelAgent):
     def fetch_fem_oprs(self):
         return femoprs.getoprs(self.skel.mesh)
 
-    def get_streams(self):
-
-        streams = {
-            'massmat': self.get_stream_massmat(),
-            'massdiag': self.get_stream_massdiag(),
-            'diff_1x': self.get_stream_diff_1x(),
-            'diff_1y': self.get_stream_diff_1y(),
-            'diff_2x': self.get_stream_diff_2x(),
-            'diff_2y': self.get_stream_diff_2y(),
-            'grad_1y': self.get_stream_grad_1y()
-        }
-
-        streams = {
-            k: v.get_stream() for k, v, in streams.items()
-        }
-
-        return streams
-
-    def get_stream_massmat(self):
-        return self.stream_mass.with_opr(self.massmat)
-
-    def get_stream_massdiag(self):
-        return self.stream_mass.with_opr(self.massdiag)
-
-    def get_stream_diff_1x(self):
-        return self.stream_flux.with_opr(self.diff_1x)
-
-    def get_stream_diff_1y(self):
-        return self.stream_flux.with_opr(self.diff_1y)
-
-    def get_stream_grad_1y(self):
-        return self.stream_mass.with_opr(self.grad_1y)
-
-    def get_stream_diff_2x(self):
-        return self.stream_flux.with_opr(self.diff_2x)
-
-    def get_stream_diff_2y(self):
-        return self.stream_flux.with_opr(self.diff_2y)
-
-    @property
-    def stream_mass(self):
-        return StreamMass.from_skel(self.skel)
-
-    @property
-    def stream_flux(self):
-        return StreamFlux.from_skel(self.skel)
-
     @property
     def massmat(self):
         return self.meta['fem-oprs']['massmat']
 
     @property
-    def massdiag(self):
-        return self.meta['fem-oprs']['massdiag']
+    def massdig(self):
+        return self.meta['fem-oprs']['massdig']
 
     @property
     def diff_1x(self):
@@ -112,12 +65,97 @@ class StreamOprs(SkelAgent):
         return self.meta['fem-oprs']['grad_1y']
 
     @property
+    def grad_1x(self):
+        return self.meta['fem-oprs']['grad_1x']
+
+    @property
     def diff_2x(self):
         return self.meta['fem-oprs']['diff_2x']
 
     @property
     def diff_2y(self):
         return self.meta['fem-oprs']['diff_2y']
+
+    @property
+    def diff_xy(self):
+        return self.meta['fem-oprs']['diff_xy']
+
+    @property
+    def diff_yx(self):
+        return self.meta['fem-oprs']['diff_yx']
+
+
+class StreamOprs(_StreamOprs):
+    """Collects streams of FEM opeators.
+    """
+
+    def get_streams(self):
+
+        streams = self.get_streams_full()
+
+        streams = {
+            k: v.get_stream() for k, v, in streams.items()
+        }
+
+        return streams
+
+    def get_streams_mass(self):
+        return {
+            'massmat': self.get_stream_massmat(),
+            'massdig': self.get_stream_massdig()
+        }
+
+    def get_streams_full(self):
+        return {
+            'massmat': self.get_stream_massmat(),
+            'massdig': self.get_stream_massdig(),
+            'diff_1x': self.get_stream_diff_1x(),
+            'diff_1y': self.get_stream_diff_1y(),
+            'diff_2x': self.get_stream_diff_2x(),
+            'diff_2y': self.get_stream_diff_2y(),
+            'diff_xy': self.get_stream_diff_xy(),
+            'diff_yx': self.get_stream_diff_yx(),
+            'grad_1y': self.get_stream_grad_1y(),
+            'grad_1x': self.get_stream_grad_1x()
+        }
+
+    def get_stream_massmat(self):
+        return self.stream_mass.with_opr(self.massmat)
+
+    def get_stream_massdig(self):
+        return self.stream_mass.with_opr(self.massdig)
+
+    def get_stream_diff_1x(self):
+        return self.stream_flux.with_opr(self.diff_1x)
+
+    def get_stream_diff_1y(self):
+        return self.stream_flux.with_opr(self.diff_1y)
+
+    def get_stream_grad_1y(self):
+        return self.stream_mass.with_opr(self.grad_1y)
+
+    def get_stream_grad_1x(self):
+        return self.stream_mass.with_opr(self.grad_1x)
+
+    def get_stream_diff_2x(self):
+        return self.stream_flux.with_opr(self.diff_2x)
+
+    def get_stream_diff_2y(self):
+        return self.stream_flux.with_opr(self.diff_2y)
+
+    def get_stream_diff_xy(self):
+        return self.stream_flux.with_opr(self.diff_xy)
+
+    def get_stream_diff_yx(self):
+        return self.stream_flux.with_opr(self.diff_yx)
+
+    @property
+    def stream_mass(self):
+        return StreamMass.from_skel(self.skel)
+
+    @property
+    def stream_flux(self):
+        return StreamFlux.from_skel(self.skel)
 
 
 class StreamOpr(SkelAgent):

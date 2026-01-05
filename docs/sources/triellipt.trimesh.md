@@ -164,29 +164,7 @@ Renumbers the mesh nodes.
 <p><span class="vardef"><em>TriMesh</em></span></p>
 
 <dl><dd>
-  Mesh with the nodes renumbered.
-</dd></dl>
-
-### shuffled()
-
-<pre class="py-sign">TriMesh.<b>shuffled</b>(<em>self</em>, permuter)</pre>
-
-Shuffles the mesh triangles.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>permuter</code> : <em>flat-int-array</em></span></p>
-
-<dl><dd>
-  Permutation of mesh triangles.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>TriMesh</em></span></p>
-
-<dl><dd>
-  Mesh with the triangles permuted.
+  New mesh with the nodes renumbered.
 </dd></dl>
 
 ### meshedge()
@@ -282,6 +260,34 @@ Tries to compress the mesh.
 <b>Notes</b>
 
 (i) Number of shrinking steps after one compression event.
+
+### scaled()
+
+<pre class="py-sign">TriMesh.<b>scaled</b>(<em>self</em>, xcoeff, ycoeff)</pre>
+
+Scales the mesh points by the specified parameters.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>xcoeff</code> : <em>float</em></span></p>
+
+<dl><dd>
+  Scale factor for the x-coordinate.
+</dd></dl>
+
+<p><span class="vardef"><code>ycoeff</code> : <em>float</em></span></p>
+
+<dl><dd>
+  Scale factor for the y-coordinate.
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>TriMesh</em></span></p>
+
+<dl><dd>
+  New mesh with the nodes scaled.
+</dd></dl>
 
 ### split()
 
@@ -623,35 +629,3 @@ Extracts a compact super-triangulation, if possible.
 (a) Cleaning is a strip-and-smooth action.
 
 (b) First super-triangle is used by default.
-
-## merge_mesh()
-
-<pre class="py-sign">triellipt.trimesh.<b>merge_mesh</b>(omesh, imesh)</pre>
-
-Merges a mesh from an outer part and an inner parts.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>omesh</code> : <em>TriMesh</em></span></p>
-
-<dl><dd>
-  Outer mesh.
-</dd></dl>
-
-<p><span class="vardef"><code>imesh</code> : <em>TriMesh</em></span></p>
-
-<dl><dd>
-  Inner mesh.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>TriMesh | None</em></span></p>
-
-<dl><dd>
-  New mesh or <em>None</em>, if failed.
-</dd></dl>
-
-<b>Notes</b>
-
-Parts must be from the same point set.

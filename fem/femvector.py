@@ -99,7 +99,7 @@ class VectorFEM(VectorData):
         """
 
         self.body[:] = func(
-            *self.unit.mesh.points2d
+            *self.unit.mesh_points
         )
 
         return self.update_body(self.body_copy)
@@ -115,7 +115,7 @@ class VectorFEM(VectorData):
         """
 
         new_body = constr_data(
-            self.partt.unit.mesh, self.body
+            self.partt.unit.mesh_export, self.body
         )
 
         return self.update_body(new_body)

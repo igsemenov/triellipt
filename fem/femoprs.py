@@ -6,12 +6,15 @@ import numpy as np
 
 FEMOPRS = [
     'massmat',
-    'massdiag',
+    'massdig',
     'diff_1x',
     'diff_1y',
     'diff_2x',
     'diff_2y',
-    'grad_1y'
+    'diff_xy',
+    'diff_yx',
+    'grad_1y',
+    'grad_1x'
 ]
 
 
@@ -39,6 +42,14 @@ def mesh_grad(mesh):
     TriGrad
         Gradient operator on the mesh.
 
+    Notes
+    -----
+
+    - `TriGrad` operates on nodes-based data
+    - `TriGrad.diff_1x()` returns x-grad over triangles
+    - `TriGrad.diff_1y()` returns y-grad over triangles
+    - `TriGrad()` returns xy-grad over triangles
+
     """
     return getgrad(mesh)
 
@@ -63,6 +74,14 @@ def mesh_geom(mesh):
     MeshGeom
         Object with the geometric properties of triangles.
 
+    Notes
+    -----
+
+    `MeshGeom` object has the following attributes:
+
+    - `areas` is a flat-array of triangle areas
+    - `sides` is a 3col-table of triangle sides
+
     """
     maker = MeshGeomMaker.from_metric(mesh_metric(mesh))
     return maker.get_mesh_geom()
@@ -80,6 +99,15 @@ def mesh_metric(mesh):
     -------
     MeshMetric
         Object with the metric properties of triangles.
+
+    Notes
+    -----
+
+    `MeshMetric` object has the following attributes:
+
+    - `bcoeffs` is a 3col-table of b-coefficients.
+    - `ccoeffs` is a 3col-table of c-coefficients.
+    - `jacobis` is a flat-array of Jacobians.
 
     """
     _ = MetricMaker.from_mesh(mesh)
@@ -315,11 +343,20 @@ class OprsMaker(MetricAgent):
     def grad_1y(self):
         return self.grad_1d('ccoeffs')
 
+    def grad_1x(self):
+        return self.grad_1d('bcoeffs')
+
     def diff_2x(self):
-        return self.diff_2d('bcoeffs')
+        return self.diff_2d('bcoeffs', 'bcoeffs')
 
     def diff_2y(self):
-        return self.diff_2d('ccoeffs')
+        return self.diff_2d('ccoeffs', 'ccoeffs')
+
+    def diff_xy(self):
+        return self.diff_2d('bcoeffs', 'ccoeffs')
+
+    def diff_yx(self):
+        return self.diff_2d('ccoeffs', 'bcoeffs')
 
     def diff_1d(self, coeffs_key):
 
@@ -329,10 +366,10 @@ class OprsMaker(MetricAgent):
 
         return diff_1d / 6.
 
-    def diff_2d(self, coeffs_key):
+    def diff_2d(self, coeffs_key_1, coeffs_key_2):
 
         diff_2d = _diad_matrix(
-            self.metric[coeffs_key]
+            self.metric[coeffs_key_1], self.metric[coeffs_key_2]
         )
 
         return 0.25 * (
@@ -345,7 +382,7 @@ class OprsMaker(MetricAgent):
             self.metric[coeffs_key]
         )
 
-        return grad_1d / 6
+        return grad_1d / 6.
 
     def massmat(self):
 
@@ -357,12 +394,12 @@ class OprsMaker(MetricAgent):
 
         return proxy * (areas / 12.)
 
-    def massdiag(self):
+    def massdig(self):
 
         areas = self.areas1d
 
         proxy = np.tile(
-            self.massdiag_proxy.flat, areas.shape
+            self.massdig_proxy.flat, areas.shape
         )
 
         return proxy * areas
@@ -372,7 +409,7 @@ class OprsMaker(MetricAgent):
         return np.eye(3) + np.ones((3, 3))
 
     @property
-    def massdiag_proxy(self):
+    def massdig_proxy(self):
         return np.eye(3) / 3.
 
 
@@ -445,7 +482,7 @@ class MeshGeomMaker(MetricAgent):
 
 
 class TriGrad:
-    """Gradient operator.
+    """Gradient operator on the vertex-based data.
     """
 
     def __init__(self, mesh, data):
@@ -489,16 +526,16 @@ class TriGrad:
         )
 
 
-def _mono_matrix(data1d):
-    return np.repeat(data1d, 3, axis=1)
+def _mono_matrix(data):
+    return np.repeat(data, 3, axis=1)
 
 
-def _solo_matrix(data1d):
-    return np.tile(data1d, (1, 3))
+def _solo_matrix(data):
+    return np.tile(data, (1, 3))
 
 
-def _diad_matrix(data1d):
-    return np.repeat(data1d, 3, axis=1) * np.tile(data1d, (1, 3))
+def _diad_matrix(data1, data2):
+    return np.repeat(data1, 3, axis=1) * np.tile(data2, (1, 3))
 
 
 def _zero_at_rows(data2d, rowsnums):

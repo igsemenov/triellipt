@@ -37,6 +37,40 @@ Creates a line between two points.
   Line as a curve-like object.
 </dd></dl>
 
+## hyperb()
+
+<pre class="py-sign">triellipt.geom.<b>hyperb</b>(axes, ksis, etas)</pre>
+
+Creates a hyperbolic curve.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>axes</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Hyperbolic parameters <code>(a, b)</code>.
+</dd></dl>
+
+<p><span class="vardef"><code>ksis</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Interval of <code>ksi</code> parameter (in [-1, 1]).
+</dd></dl>
+
+<p><span class="vardef"><code>etas</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Interval of <code>eta</code> parameter (≥0).
+</dd></dl>
+
+<b>Returns</b>
+
+<p><span class="vardef"><em>Hyperb</em></span></p>
+
+<dl><dd>
+  Hyperbola as a curve-like object.
+</dd></dl>
+
 ## elliparc()
 
 <pre class="py-sign">triellipt.geom.<b>elliparc</b>(center, axes, phis, tilt=0)</pre>
@@ -45,7 +79,7 @@ Creates an elliptic arc.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>center</code> : <em>complex</em></span></p>
+<p><span class="vardef"><code>center</code> : <em>(float, float)</em></span></p>
 
 <dl><dd>
   Ellipse center.
@@ -181,7 +215,7 @@ Creates a rectangle as a loop.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>corner</code> : <em>complex</em></span></p>
+<p><span class="vardef"><code>corner</code> : <em>(float, float)</em></span></p>
 
 <dl><dd>
   South-west rectangle corner.
@@ -209,7 +243,7 @@ Creates a closed ellipse as a loop.
 
 <b>Parameters</b>
 
-<p><span class="vardef"><code>center</code> : <em>complex</em></span></p>
+<p><span class="vardef"><code>center</code> : <em>(float, float)</em></span></p>
 
 <dl><dd>
   Ellipse center.
@@ -415,10 +449,31 @@ Polygonal path with colored nodes.
 <b>Properties</b>
 
  Name      | Description
------------|-------------------
+-----------|------------------------------
 `colors`   | Nodes colors.
 `numbers`  | Nodes numbers.
-`points`   | Nodes positions.
+`points`   | Nodes positions (complex).
+`points2d` | Nodes positions (xy-rows).
+
+### togeo()
+
+<pre class="py-sign">PathMap.<b>togeo</b>(<em>self</em>, geopath, seeds) → <em>None</em></pre>
+
+Dumps path to the geo file.
+
+<b>Parameters</b>
+
+<p><span class="vardef"><code>geopath</code> : <em>str</em></span></p>
+
+<dl><dd>
+  Absolute path to the <code>.geo</code> file.
+</dd></dl>
+
+<p><span class="vardef"><code>seeds</code> : <em>dict</em></span></p>
+
+<dl><dd>
+  Maps colours to the seed mesh sizes.
+</dd></dl>
 
 ### atcolors()
 
@@ -460,20 +515,6 @@ Shifts the contact of two colors to the right by one node.
 
 Shifts the contact of two colors to the left by one node.
 
-### split()
-
-<pre class="py-sign">PathMap.<b>split</b>(<em>self</em>) → <em>list</em></pre>
-
-Splits the path into subpaths based on color.
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>list[PathMap]</em></span></p>
-
-<dl><dd>
-  List of unicoloured subpaths.
-</dd></dl>
-
 ## CycPath
 
 <pre class="py-sign"><b><em>class</em></b> triellipt.geom.<b>CycPath</b>(nodes=<span>None</span>)</pre>
@@ -513,28 +554,6 @@ Splits the cycle based on rotation angle.
 
 <dl><dd>
   Threshold angle for a node to become a corner.
-</dd></dl>
-
-<b>Returns</b>
-
-<p><span class="vardef"><em>PathMap</em></span></p>
-
-<dl><dd>
-  Partition of a cycle.
-</dd></dl>
-
-### split()
-
-<pre class="py-sign">CycPath.<b>split</b>(<em>self</em>, bins)</pre>
-
-Splits the cycle based on bins.
-
-<b>Parameters</b>
-
-<p><span class="vardef"><code>bins</code> : <em>flat-int-array-like</em></span></p>
-
-<dl><dd>
-  Seed values of splitting bins.
 </dd></dl>
 
 <b>Returns</b>

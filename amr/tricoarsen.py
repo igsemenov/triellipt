@@ -451,10 +451,9 @@ class MakerDataCollect(MeshSubAgent):
     def make_mass_unit(self):
 
         mesh = self.make_mass_mesh()
+        unit = femunit.getunit_fem(mesh)
 
-        unit = femunit.getunit(mesh)
         self.cache['mass-unit'] = unit
-
         return unit
 
     def make_mass_mesh(self):

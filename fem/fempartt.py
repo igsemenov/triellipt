@@ -235,14 +235,14 @@ class FEMPartt(DataPartt):
         """
         return femvector.getvector(self)
 
-    def new_matrix(self, operator, add_constr):
+    def new_matrix(self, operator, add_constr=False):
         """Creates a new FEM matrix.
 
         Parameters
         ----------
         operator : flat-float-array
             Linear combination of the basic FEM operators.
-        add_constr : bool
+        add_constr : bool = False
             Constraints are included in the matrix, if True.
 
         Returns
@@ -275,6 +275,11 @@ class FEMPartt(DataPartt):
         -------
         two-row-float-array
             Points of the partition section stacked horizontally.
+
+        Notes
+        -----
+
+        This method is also available as `nodes2d(key)`.
 
         """
         return self.unit.mesh.points2d[:, self[key]]

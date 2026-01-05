@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 import triellipt as tri
 
 META = {
-    'mode': 'fem',
     'grid': {
         'size': 81,
         'mode': 'east-slope'
@@ -91,7 +90,7 @@ class FEMFrame(FEMData):
 
     def get_fem_unit(self):
         return tri.fem.getunit(
-            self.make_grid(), anchors=((0, 0),), mode=self.meta['mode']
+            self.make_grid(), anchors=((0, 0),)
         )
 
     def get_massmat(self):
@@ -101,7 +100,7 @@ class FEMFrame(FEMData):
 
     def get_laplace(self):
         return self.unit.base.new_matrix(
-            self.unit.diff_2x + self.unit.diff_2y, add_constr=True
+            - self.unit.diff_2x - self.unit.diff_2y, add_constr=True
         )
 
     def solve(self):

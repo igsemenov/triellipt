@@ -3,6 +3,7 @@
 """
 import itertools as itr
 import numpy as np
+from triellipt.geom import dump
 
 CurvesLoopError = type(
     'CurvesLoopError', (Exception,), {}
@@ -151,10 +152,11 @@ class PathMap:
     ----------
 
      Name      | Description
-    -----------|-------------------
+    -----------|------------------------------
     `colors`   | Nodes colors.
     `numbers`  | Nodes numbers.
-    `points`   | Nodes positions.
+    `points`   | Nodes positions (complex).
+    `points2d` | Nodes positions (xy-rows).
 
     """
 
@@ -214,6 +216,19 @@ class PathMap:
     def getcopy(self):
         return self.__class__(np.copy(self.nodes))
 
+    def togeo(self, geopath, seeds) -> None:
+        """Dumps path to the geo file.
+
+        Parameters
+        ----------
+        geopath : str
+            Absolute path to the `.geo` file.
+        seeds : dict
+            Maps colours to the seed mesh sizes.
+
+        """
+        return dump.dump_path_map(self, geopath, seeds)
+
     def atcolors(self, *colors):
         """Fetches a subpath with the specified colors.
 
@@ -269,23 +284,6 @@ class PathMap:
 
         self.colors[loc1] = self.colors[loc2]
         return self.getcopy()
-
-    def split(self) -> list:
-        """Splits the path into subpaths based on color.
-
-        Returns
-        -------
-        list[PathMap]
-            List of unicoloured subpaths.
-
-        """
-        return list(
-            self.gensubpaths()
-        )
-
-    def gensubpaths(self):
-        for color in set(self.colors):
-            yield self.atcolors(color)
 
     def find_contact(self, color1, color2):
         return self.cyccolors.find_contact(color1, color2)

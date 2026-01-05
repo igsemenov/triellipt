@@ -19,7 +19,7 @@ def bessel_operator(unit):
     radius = unit.mesh.centrs_complex.imag[unit.ij_t]
 
     return radius * (
-        unit.diff_2x + unit.diff_2y + unit.massmat
+        - unit.diff_2x - unit.diff_2y + unit.massmat
     )
 
 

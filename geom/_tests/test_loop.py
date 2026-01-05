@@ -51,12 +51,12 @@ class TestMakeLoop(unittest.TestCase):
 
     def test_makerect(self):
         assert isinstance(
-            geom.makerect(0j, (1, 2)), loop.CurvesLoop
+            geom.makerect((0, 0), (1, 2)), loop.CurvesLoop
         )
 
     def test_makeellip(self):
         assert isinstance(
-            geom.makeellip(0j, (1, 2)), loop.CurvesLoop
+            geom.makeellip((0, 0), (1, 2)), loop.CurvesLoop
         )
 
 

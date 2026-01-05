@@ -127,15 +127,6 @@ class _TriMesh(TriData):
             self.points - value, self.triangs
         )
 
-    def scaled(self, xcoeff, ycoeff):
-
-        new_xpos = xcoeff * self.points.real
-        new_ypos = ycoeff * self.points.imag
-
-        return self.update_points(
-            new_xpos + new_ypos * 1j
-        )
-
     def hasghosts(self) -> bool:
         """Checks for ghosts.
         """
@@ -173,6 +164,23 @@ class _TriMesh(TriData):
 
         """
         return delmouths_.remove_mouths(self)
+
+    def shuffled(self, permuter):
+        """Shuffles the mesh triangles.
+
+        Parameters
+        ----------
+        permuter : flat-int-array
+            Permutation of mesh triangles.
+
+        Returns
+        -------
+        TriMesh
+            New mesh with the triangles permuted.
+
+        """
+        _ = renumer.Shuffler.from_mesh(self)
+        return _.shuffled(permuter)
 
     def save(self, file) -> None:
         """Saves the mesh to `.npz` file.
@@ -377,28 +385,11 @@ class TriMesh(_TriMesh):
         Returns
         -------
         TriMesh
-            Mesh with the nodes renumbered.
+            New mesh with the nodes renumbered.
 
         """
         _ = renumer.Renumer.from_mesh(self)
         return _.renumed(permuter)
-
-    def shuffled(self, permuter):
-        """Shuffles the mesh triangles.
-
-        Parameters
-        ----------
-        permuter : flat-int-array
-            Permutation of mesh triangles.
-
-        Returns
-        -------
-        TriMesh
-            Mesh with the triangles permuted.
-
-        """
-        _ = renumer.Shuffler.from_mesh(self)
-        return _.shuffled(permuter)
 
     def meshedge(self):
         """Extracts the mesh edge.
@@ -469,6 +460,30 @@ class TriMesh(_TriMesh):
         """
         _ = trireduce.MeshReduce.from_mesh(self)
         return _.reduced(shrink, detach, seed)
+
+    def scaled(self, xcoeff, ycoeff):
+        """Scales the mesh points by the specified parameters.
+
+        Parameters
+        ----------
+        xcoeff : float
+            Scale factor for the x-coordinate.
+        ycoeff : float
+            Scale factor for the y-coordinate.
+
+        Returns
+        -------
+        TriMesh
+            New mesh with the nodes scaled.
+
+        """
+
+        new_xpos = xcoeff * self.points.real
+        new_ypos = ycoeff * self.points.imag
+
+        return self.update_points(
+            new_xpos + new_ypos * 1j
+        )
 
     def split(self):
         """Splits the mesh into homogeneous parts.

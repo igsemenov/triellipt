@@ -6,11 +6,11 @@
 }
 -->
 
-## How to Solve PDEs
+## Using the FEM Solver
 
 This page guides you through the process of solving PDEs with **triellipt**.
 
-In what follows, we assume the following import with an alias is used:
+In what follows, we assume the following import is used:
 
 ```python
 import triellipt as tri
@@ -25,17 +25,26 @@ There are a couple of methods to create a mesh:
 - Read a Gmsh mesh using [triellipt.mshread](triellipt.mshread.md).
 - Create a structured mesh using [triellipt.mesher](triellipt.mesher.md).
 
+Refer to [Meshing](meshing.md) for more details.
+
 ***
 
 ### Creating a FEM Unit
 
-Once the mesh is ready, the next step is to create a FEM computing unit:
+The next step is to create a FEM computing unit:
 
 ```python
 unit = tri.fem.getunit(mesh)
 ```
 
-The mesh is *preprocessed* when creating a unit:
+For more details, refer to [triellipt.fem.getunit()](triellipt.fem.md#getunit).
+
+Two solver modes are available:
+
+- "fvm" corresponds to the control-volume finite-element method (CVFEM) with linear (P1) elements.
+- "fem" corresponds to the Galerkin finite-element method (FEM) with linear (P1) elements.
+
+The mesh is preprocessed when creating a unit:
 
 - Mesh nodes are aligned using [triellipt.trimesh.TriMesh.alignnodes()](triellipt.trimesh.md#alignnodes).
 - The void pivots are placed at the end of the node numbering.
@@ -43,8 +52,12 @@ The mesh is *preprocessed* when creating a unit:
 Facts to know:
 
 - The actual unit mesh is available as `unit.mesh`.
-- The original mesh is still available as `unit.perm.mesh`. 
-- The permutation between the input mesh and the actual mesh is available as `unit.perm`.
+- The permutation between the input mesh and the actual mesh is available as `unit.perm` (a).
+
+(a) The permutation is the `DataPerm` object with the attributes:
+
+- `mesh` is the parent mesh
+- `perm` is the permutation from the parent mesh
 
 For more details, refer to [triellipt.fem.FEMUnit](triellipt.fem.md#femunit).
 
@@ -52,7 +65,7 @@ For more details, refer to [triellipt.fem.FEMUnit](triellipt.fem.md#femunit).
 
 ### Creating a Partition
 
-After creating the FEM unit, you must partition the mesh boundary to define the *boundary conditions (BCs)*.
+After creating the FEM unit, you must partition the mesh boundary.
 
 Two steps are needed:
 
@@ -98,6 +111,19 @@ The numbering convention is as follows:
 
 The *core section* includes all mesh nodes except those on Dirichlet sides.
 
+#### Automatic partition
+
+Boundary partitioning can be automated using [triellipt.fem.FEMDtN](triellipt.fem.md#femdtn).
+
+This option is only available for simply-connected meshes. The anchor points are still used to split the boundary, but they are kept separately as corners in the partition.
+
+The section numerng is as follows:
+
+- Odd numbers (1, 3, ...) represent the anchor points themselves.
+- Even numbers (2, 4, ...) represent the edges between anchor points.
+
+See also [triellipt.fem.getdtn()](triellipt.fem.md#getdtn).
+
 ### Creating a Matrix
 
 FEM matrices are generated from a partition of the FEM unit — see [triellipt.fem.FEMPartt.new_matrix()](triellipt.fem.md#new_matrix).
@@ -105,7 +131,9 @@ FEM matrices are generated from a partition of the FEM unit — see [triellipt.f
 Two steps are needed:
 
 - Define a FEM operator as a linear combination of basic operators.
-- Decide if constraints should be included in the matrix (for non-conformal meshes only).
+- Decide if constraints for hanging nodes should be included in the matrix (a).
+
+(a) Applies only to non-conformal meshes.
 
 The matrix is then generated as follows:
 
@@ -119,21 +147,9 @@ A general FEM operator is a linear combination of basic FEM operators.
 
 *Basic operators*
 
-Basic FEM operators are available as properties of the FEM unit:
+Basic FEM operators are available as properties of [triellipt.fem.FEMUnit](triellipt.fem.md#femunit).
 
-Name        | Description
-------------|----------------------
-`massmat`   | Mass-matrix
-`massdiag`  | Mass-matrix lumped
-`diff_1y`   | 1st y-derivative
-`diff_1x`   | 1st x-derivative
-`diff_2y`   | 2nd y-derivative
-`diff_2x`   | 2nd x-derivative
-
-Facts to know:
-
-- All basic operators are flat arrays representing a special data structure — *matrix data stream*. 
-- Understanding of matrix data streams is not necessary for using the package.
+All basic operators are flat arrays representing a special data structure — *matrix data stream*.
 
 Here is an example of constructing a Laplace operator:
 
@@ -143,9 +159,11 @@ operator = unit.diff_2x + unit.diff_2y
 
 *Coefficients*
 
-Operators can be multiplied by coefficients defined on the mesh triangles.
+Operators can be scaled by coefficients defined on a matrix data stream.
+To support this, the FEM unit exposes three properties — `unit.ij_r`, `unit.ij_c` and `unit.ij_t` —
+to specify the row, column, and triangle indices for each matrix value.
 
-Assume we define a coefficient as
+Assume we define a triangle-based coefficient as
 
 ```python
 coeff = some_func(*unit.mesh.centrs2d)
@@ -161,8 +179,6 @@ Then the scaled Laplace operator can be defined as
 ```python
 operator = coeff[unit.ij_t] * (unit.diff_2x + unit.diff_2y)
 ```
-
-where we use `unit.ij_t` — indexer that maps triangle-based data to a matrix data stream.
 
 #### Add constraints
 

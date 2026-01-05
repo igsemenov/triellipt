@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Examples — Zernike modes — triellipt documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+    <link rel="stylesheet" href="docpage.css">
+    <link rel="stylesheet" href="default.min.css">
+    <script src="docpage.js"></script>
+    <script src="highlight.min.js"></script>
+</head>
+
+<body>
+
+    <div id="top-panel">
+        <div id="page-logo"></div>
+        <div id="top-panel-tool-bar">
+            <div id="global-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="local-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="home-page-btn" class="top-panel-btn" onclick="gotoHomePage()"></div>
+        </div>
+    </div>
+
+    <div id="global-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>Contents</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="global-toc-box__text" class="toc-box__textbox"></div>
+    </div>
+    <div id="local-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>On this page</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="local-toc-box__text" class="toc-box__textbox">
+            <p>
+            <ul>
+                <li><a href="#zernike-modes">Zernike modes</a>
+                    <ul>
+                        <li><a href="#creating-a-mesh">Creating a mesh</a></li>
+                        <li><a href="#creating-a-fem-unit.">Creating a FEM unit.</a></li>
+                        <li><a href="#creating-fem-data">Creating FEM data</a></li>
+                        <li><a href="#solving-the-problem">Solving the problem</a></li>
+                    </ul>
+                </li>
+            </ul>
+            </p>
+        </div>
+    </div>
+
+    <div id="content-box">
+        <div id="title-box">
+            <h1 id="title-box__title">triellipt — Examples: Zernike modes</h1>
+            <h2 id="title-box__annotation"></h2>
+            <hr>
+        </div>
+        <div id="doc-box">
+<div class="toc-anchor"></div><h2>Zernike modes</h2>
+
+<p>This example reproduces Zernike polynomials.</p>
+
+<p>The following equation is solved in the unit circle:</p>
+
+<pre class="docstring">∇ ∙ (1 - r²) ∇u = (m² - n(n+2))u,</pre>
+
+<p>where</p>
+
+<p>
+<ul class="md-list">
+    <li><code>r</code> is the absolute value of the position vector</li>
+    <li><code>m</code> is the azimuthal index of the Zernike polynomial</li>
+    <li><code>n</code> is the radial index of the Zernike polynomial</li>
+</ul>
+</p>
+
+<p>The problem is solved subject to Dirichlet boundary conditions.</p>
+
+<p>In what follows, we assume the following import is used:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">import numpy as np
+from scipy import sparse as sp
+import triellipt as tri</code></pre>
+
+<div class="toc-anchor"></div><h3>Creating a mesh</h3>
+
+<p>The mesh is created using Gmsh with the following <code>.geo</code> file:</p>
+
+<pre class="docstring">R_0 = 1.00;  // Radius
+S_0 = 0.02;  // Mesh size
+
+Point(0) = {0, 0, 0};
+
+Point(1) = {+ R_0, + 0.0, 0, S_0};
+Point(2) = {+ 0.0, + R_0, 0, S_0};
+Point(3) = {- R_0, + 0.0, 0, S_0};
+Point(4) = {- 0.0, - R_0, 0, S_0};
+
+Circle(1) = {1, 0, 2};
+Circle(2) = {2, 0, 3};
+Circle(3) = {3, 0, 4};
+Circle(4) = {4, 0, 1};
+
+Line Loop(1) = {1, 2, 3, 4};
+
+Plane Surface(1) = {1};
+
+Mesh.Algorithm = 6;</pre>
+
+<p>The mesh is saved as <code>circ-gmsh.msh</code> in the <code>mesh</code> subfolder. The mesh is then read as follows:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">mesh = tri.mshread.getreader(&#x27;mesh&#x27;).read_mesh(&#x27;circ-gmsh.msh&#x27;)</code></pre>
+
+<p>The mesh may be coarsened in the central region as follows:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">mesh = mesh.reduced(shrink=2)
+mesh = mesh.reduced(shrink=3)</code></pre>
+
+<p>In this case the resulting mesh is nonconforming.</p>
+
+<div class="toc-anchor"></div><h3>Creating a FEM unit.</h3>
+
+<p>With the mesh ready, we create a FEM computing unit:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">unit = tri.fem.getunit(mesh, mode=&#x27;fem&#x27;)</code></pre>
+
+<p>
+<ul class="md-list">
+    <li>The solver mode can be set to be <i>&quot;fvm&quot;</i> as well.</li>
+    <li>Anchor points are not used, since no synchronization of the boundary is needed.</li>
+    <li>In this example, the basic boundary partition is used.</li>
+</ul>
+</p>
+
+<p>In the basic partition we have two sections — core (0) and edge (1).</p>
+
+<div class="toc-anchor"></div><h3>Creating FEM data</h3>
+
+<p>We first create the distance function:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">
+# We compute the absolute value of the position vector.
+# We need triangle based data, so triangle centroids are used.
+
+dist = np.abs(
+    unit.mesh.centrs_complex
+)
+
+# We now format the distance as a matrix-data-stream.
+
+dist = dist[unit.ij_t]</code></pre>
+
+<p>Now the scaled Laplace operator is defined:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">lapl = (1.0 - dist ** 2) * (unit.diff_2x + unit.diff_2y)</code></pre>
+
+<p>The mass operator is taken as:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">mass = unit.massmat</code></pre>
+
+<p>We not create the FEM matrix:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">
+M = 3  # Angular index of the Zernike polynomial
+N = 5  # Radial index of the Zernike polynomial
+
+amat = unit.base.new_matrix(
+  diff + mass * (M * M - N * (N + 2)), add_constr=True
+)</code></pre>
+
+<p>The solution vector is created as follows:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">u = unit.base.new_vector().with_body(1)</code></pre>
+
+<div class="toc-anchor"></div><h3>Solving the problem</h3>
+
+<p>We now find the solution by solving the Dirichlet problem:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">u[0] = sp.linalg.spsolve(
+    amat(0, 0), - amat(0, 1) @ u[1]
+)</code></pre>
+
+<p>Here:</p>
+
+<p>
+<ul class="md-list">
+    <li><code>u[0]</code> is the solution vector in the core section 0.</li>
+    <li><code>amat(0, 0)</code> is the matrix block corresponding to the core section.</li>
+    <li><code>amat(0, 1) @ u[1]</code> is the RHS vector due to the Dirichlet BC on the edge section 1.</li>
+</ul>
+</p>
+
+<p>After solving the problem, the nodal soluton is available as <code>u.body</code>.</p>
+
+<hr>
+        </div>
+        <p id="footnote">Copyright &copy; 2023, Igor Semenov.</p>
+    </div>
+
+    <footer></footer>
+
+    <script>
+        setDocPage();
+        hljs.highlightAll();
+    </script>
+
+</body>
+
+</html>

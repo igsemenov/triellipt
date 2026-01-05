@@ -1,7 +1,22 @@
 
 # <img src="./docs/configs/logo.png" width="30" height="30"> triellipt
 
-This package presents research on an adaptive finite element solver for elliptic PDEs on triangular meshes, with a focus on hierarchically organized non-conforming triangulations. The discretization scheme is intentionally simple, using linear basis functions and constant PDE coefficients within each element. The study explores the connection between this finite element formulation and control-volume finite-volume discretizations, with particular emphasis on handling non-conforming interfaces. In addition, it introduces methods for adaptive mesh generation and develops conservative algorithms for reinterpolating solution fields. See [examples](./docs/examples/examples.md) for illustrations and further details.
+A lightweight 2D FEM solver for elliptic PDEs.
+
+Basic Features:
+
+- Pure Python implementation using NumPy and SciPy.
+- Provides a simple interface for reading Gmsh meshes.
+- Supports both conforming and nonconforming triangular meshes.
+
+Additional Details:
+
+- Implements the control-volume finite-element method (CVFEM) with linear (P1) elements.
+- Implements the Galerkin finite-element method (FEM) with linear (P1) elements.
+- Provides a simple framework for generating nonconforming triangular meshes.
+- Supports mesh refinement and coarsening.
+- Supports conservative interpolation during mesh refinement/coarsening.
+- Supports construction of discrete Dirichlet-to-Neumann operators.
 
 ## Documentation
 
@@ -9,8 +24,14 @@ This package presents research on an adaptive finite element solver for elliptic
 - 📄 Check the local documentation [here](docs/sources/index.md).
 - 💾 Offline HTML documentation is available by opening `docs/index.html`.
 
+## Installation
+
+The package is small enough to be used without pre-installation:
+
+- Download the package and add its location to `sys.path`.
+- After that import the package as usual — <code><b>import</b> triellipt</code>.
+
 ## Funding
 
 Funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) —
 project number [515939493](https://gepris.dfg.de/gepris/projekt/515939493?language=en)
-

@@ -2,6 +2,7 @@
 """Joiner of two meshes.
 """
 import numpy as np
+from triellipt.utils import pairs
 
 
 def join_meshes(mesh1, mesh2, tol=None):
@@ -14,7 +15,7 @@ def join_meshes(mesh1, mesh2, tol=None):
     mesh2 : TriMesh
         2-nd input mesh.
     tol : int = None
-        Optional absolute tolerance for detecting nearby points.
+        Absolute tolerance in decimal places for detecting nearby points.
 
     Returns
     -------
@@ -76,7 +77,13 @@ class DomainsGluer:
         data = self.make_data()
         mesh = self.push_mesh(data)
 
-        return mesh.delghosts()
+        mesh = mesh.delghosts()
+        mesh = self.mesh_with_voids(mesh)
+
+        return mesh
+
+    def mesh_with_voids(self, mesh):
+        return VoidsAdder(mesh).make_new_mesh(pow(10, - self.TOL))
 
     def push_mesh(self, data):
         return self.mesh1.from_data(
@@ -147,3 +154,117 @@ class DomainsGluer:
         }
 
         return state
+
+
+class MeshAgent:
+    """Opertor on a trimesh.
+    """
+
+    def __init__(self, mesh):
+        self.mesh = mesh
+        self.meta = self.fetch_meta(mesh)
+        self.cache = {}
+
+    @classmethod
+    def from_mesh(cls, mesh):
+        return cls(mesh)
+
+    def fetch_meta(self, mesh):
+        return {
+            'edge': mesh.meshedge()
+        }
+
+    @property
+    def edge(self):
+        return self.meta['edge']
+
+
+class VoidsAdder(MeshAgent):
+    """Finds the voids and adds them to the mesh.
+    """
+
+    def make_new_mesh(self, tol):
+
+        voids = self.make_voids(tol)
+        nodes = self.make_nodes(voids)
+
+        if nodes is None:
+            return self.mesh
+
+        return self.push_new_mesh(voids, nodes)
+
+    def push_new_mesh(self, voids, nodes):
+
+        twin = self.mesh
+
+        return twin.from_data(
+            nodes, twin.add_triangs(voids).triangs
+        )
+
+    def make_nodes(self, voids):
+
+        if voids is None:
+            return None
+
+        nodes = self.mesh.points.copy()
+
+        west = nodes[voids[:, 0]]
+        east = nodes[voids[:, 1]]
+
+        nodes[voids[:, 2]] = 0.5 * (west + east)
+        return nodes
+
+    def make_voids(self, tol):
+
+        matches = self.find_matches()
+
+        if matches.size == 0:
+            return None
+
+        west = self.mesh.points[matches[:, 0]]
+        east = self.mesh.points[matches[:, 1]]
+        hang = self.mesh.points[matches[:, 2]]
+
+        mask = np.abs(hang - 0.5 * (west + east)) < tol
+
+        matches = np.copy(
+            matches[mask, :], order='C'
+        )
+
+        return matches
+
+    def find_matches(self):
+
+        tripls = self.find_triplets()
+
+        codes_1 = pairs.szupaired(
+            tripls[2, :], tripls[0, :]
+        )
+
+        codes_2 = pairs.szupaired(
+            self.edge.nodnums1, self.edge.nodnums2
+        )
+
+        _, i_1, _ = np.intersect1d(
+            codes_1, codes_2, return_indices=True
+        )
+
+        tripls = tripls[:, i_1]
+        tripls = tripls[[2, 0, 1], :].T.copy('C')
+
+        return tripls
+
+    def find_triplets(self):
+
+        n_1 = self.edge.nodnums1
+        n_2 = self.edge.nodnums2
+
+        _, i_1, i_2 = np.intersect1d(
+            n_1, n_2, return_indices=True
+        )
+
+        j_1 = n_1[i_2]
+        j_2 = n_2[i_2]
+        j_3 = n_2[i_1]
+
+        return np.vstack([j_1, j_2, j_3])

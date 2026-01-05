@@ -35,14 +35,21 @@
                 <li><a href="#triellipt.fem">triellipt.fem</a>
                     <ul>
                         <li><a href="#getunit">getunit()</a></li>
+                        <li><a href="#getdtn">getdtn()</a></li>
                         <li><a href="#femunit">FEMUnit</a>
                             <ul>
                                 <li><a href="#add_partition">add_partition()</a></li>
                                 <li><a href="#get_partition">get_partition()</a></li>
-                                <li><a href="#set_partition">set_partition()</a></li>
                                 <li><a href="#del_partition">del_partition()</a></li>
                                 <li><a href="#getinterp">getinterp()</a></li>
                                 <li><a href="#massopr">massopr()</a></li>
+                                <li><a href="#average">average()</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#femdtn">FEMDtN</a>
+                            <ul>
+                                <li><a href="#dirich_sides">dirich_sides()</a></li>
+                                <li><a href="#switch_side">switch_side()</a></li>
                             </ul>
                         </li>
                         <li><a href="#fempartt">FEMPartt</a>
@@ -69,16 +76,6 @@
                         <li><a href="#mesh_grad">mesh_grad()</a></li>
                         <li><a href="#mesh_geom">mesh_geom()</a></li>
                         <li><a href="#mesh_metric">mesh_metric()</a></li>
-                        <li><a href="#gettransp">gettransp()</a></li>
-                        <li><a href="#transpunit">TranspUnit</a>
-                            <ul>
-                                <li><a href="#constr">constr()</a></li>
-                                <li><a href="#transp">transp()</a></li>
-                                <li><a href="#source">source()</a></li>
-                                <li><a href="#newdata">newdata()</a></li>
-                                <li><a href="#newcoeff">newcoeff()</a></li>
-                            </ul>
-                        </li>
                     </ul>
                 </li>
             </ul>
@@ -95,7 +92,7 @@
         <div id="doc-box">
 <div class="toc-anchor"></div><h1>triellipt.fem</h1>
 
-<p>Finite-element solver.</p>
+<p>FEM (P1) solver.</p>
 
 <div class="toc-anchor"></div><h2>getunit()</h2>
 
@@ -131,6 +128,44 @@
   FEM computing unit.
 </dd></dl>
 
+<div class="toc-anchor"></div><h2>getdtn()</h2>
+
+<pre class="py-sign">triellipt.fem.<b>getdtn</b>(mesh, anchors, mode=<span>None</span>)</pre>
+
+<p>Creates a FEM-DtN unit.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
+
+<dl><dd>
+  Input triangle mesh.
+</dd></dl>
+
+<p><span class="vardef"><code>anchors</code> : <em>Iterable</em></span></p>
+
+<dl><dd>
+  Provides <code>(float, float)</code> points to partition the mesh boundary.
+</dd></dl>
+
+<p><span class="vardef"><code>mode</code> : <em>str = None</em></span></p>
+
+<dl><dd>
+  Solver mode — <i>&quot;fvm&quot;</i> or <i>&quot;fem&quot;</i> (default).
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>FEMDtN</em></span></p>
+
+<dl><dd>
+  FEM-DtN computing unit.
+</dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>FEM-DtN units are only supported for simply-connected meshes.</p>
+
 <div class="toc-anchor"></div><h2>FEMUnit</h2>
 
 <pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMUnit</b>(mesh=<span>None</span>, meta=<span>None</span>)</pre>
@@ -139,7 +174,7 @@
 
 <p><b>Properties</b></p>
 
-<p>FEM operators as data-streams:</p>
+<p>Basic FEM operators as data-streams:</p>
 
 <table>
     <tr>
@@ -151,24 +186,40 @@
         <td>Mass-matrix</td>
     </tr>
     <tr>
-        <td><code>massdiag</code></td>
+        <td><code>massdig</code></td>
         <td>Mass-matrix lumped</td>
     </tr>
     <tr>
         <td><code>diff_1y</code></td>
-        <td>1st y-derivative</td>
+        <td>1st y-derivative (weak)</td>
     </tr>
     <tr>
         <td><code>diff_1x</code></td>
-        <td>1st x-derivative</td>
+        <td>1st x-derivative (weak)</td>
+    </tr>
+    <tr>
+        <td><code>grad_1y</code></td>
+        <td>1st y-derivative (strong)</td>
+    </tr>
+    <tr>
+        <td><code>grad_1x</code></td>
+        <td>1st x-derivative (strong)</td>
     </tr>
     <tr>
         <td><code>diff_2y</code></td>
-        <td>2nd y-derivative</td>
+        <td>2nd y-derivative (weak)</td>
     </tr>
     <tr>
         <td><code>diff_2x</code></td>
-        <td>2nd x-derivative</td>
+        <td>2nd x-derivative (weak)</td>
+    </tr>
+    <tr>
+        <td><code>diff_yx</code></td>
+        <td>2nd yx-derivative (weak)</td>
+    </tr>
+    <tr>
+        <td><code>diff_xy</code></td>
+        <td>2nd xy-derivative (weak)</td>
     </tr>
 </table>
 
@@ -181,19 +232,19 @@
     </tr>
     <tr>
         <td><code>grad</code></td>
-        <td>Gradient operator.</td>
+        <td>Gradient operator (a).</td>
     </tr>
     <tr>
-        <td><code>trigeo</code></td>
-        <td>Geometric properties.</td>
+        <td><code>geom</code></td>
+        <td>Geometric properties (b).</td>
     </tr>
     <tr>
         <td><code>perm</code></td>
-        <td>Mesh-to-unit permutation.</td>
+        <td>Mesh-to-unit permutation (c).</td>
     </tr>
     <tr>
         <td><code>base</code></td>
-        <td>Base edge-core partition.</td>
+        <td>Basic edge-core partition.</td>
     </tr>
     <tr>
         <td><code>loops</code></td>
@@ -204,6 +255,21 @@
         <td>Map of the unit partitions.</td>
     </tr>
 </table>
+
+<p><b>Notes</b></p>
+
+<p>
+<ul class="md-list">
+    <li>(a) <code>TriGrad</code> as returned by <code>mesh_grad()</code></li>
+    <li>(b) <code>MeshGeom</code> as returned by <code>mesh_geom()</code></li>
+    <li>(c) <code>DataPerm</code> object with the attributes:
+        <ul>
+            <li><code>mesh</code> is the parent mesh</li>
+            <li><code>perm</code> is the permutation from the parent mesh</li>
+        </ul>
+    </li>
+</ul>
+</p>
 
 <div class="toc-anchor"></div><h3>add_partition()</h3>
 
@@ -249,20 +315,6 @@
   Desired unit partition.
 </dd></dl>
 
-<div class="toc-anchor"></div><h3>set_partition()</h3>
-
-<pre class="py-sign">FEMUnit.<b>set_partition</b>(<em>self</em>, partt) → <em>None</em></pre>
-
-<p>Assigns the partition to the unit.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>partt</code> : <em>FEMPartt</em></span></p>
-
-<dl><dd>
-  Input unit partition.
-</dd></dl>
-
 <div class="toc-anchor"></div><h3>del_partition()</h3>
 
 <pre class="py-sign">FEMUnit.<b>del_partition</b>(<em>self</em>, name) → <em>None</em></pre>
@@ -297,6 +349,19 @@
   Callable interpolator.
 </dd></dl>
 
+<p><b>Notes</b></p>
+
+<p><code>TriInterp</code> object has the following attributes:</p>
+
+<p>
+<ul class="md-list">
+    <li><code>xnodes</code> contains interpolation x-nodes</li>
+    <li><code>xnodes</code> contains interpolation y-nodes</li>
+</ul>
+</p>
+
+<p><code>TriInterp()</code> takes nodes-data and returns interpolated one.</p>
+
 <div class="toc-anchor"></div><h3>massopr()</h3>
 
 <pre class="py-sign">FEMUnit.<b>massopr</b>(<em>self</em>, is_lumped, add_constr)</pre>
@@ -323,6 +388,79 @@
 
 <dl><dd>
   Mass operator as a matrix.
+</dd></dl>
+
+<div class="toc-anchor"></div><h3>average()</h3>
+
+<pre class="py-sign">FEMUnit.<b>average</b>(<em>self</em>, data)</pre>
+
+<p>Converts node-based data to triangle-averaged values.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>data</code> : <em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Node-based data.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>float-flat-array</em></span></p>
+
+<dl><dd>
+  Triangle-averaged values.
+</dd></dl>
+
+<div class="toc-anchor"></div><h2>FEMDtN</h2>
+
+<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>FEMDtN</b>(unit=<span>None</span>)</pre>
+
+<p>FEM-DtN computing unit.</p>
+
+<p><b>Properties</b></p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>fem</code></td>
+        <td>Parent FEM unit.</td>
+    </tr>
+    <tr>
+        <td><code>dtn</code></td>
+        <td>DtN partition.</td>
+    </tr>
+</table>
+
+<div class="toc-anchor"></div><h3>dirich_sides()</h3>
+
+<pre class="py-sign">FEMDtN.<b>dirich_sides</b>(<em>self</em>) → <em>list</em></pre>
+
+<p>Returns a list of Dirichlet sides.</p>
+
+<div class="toc-anchor"></div><h3>switch_side()</h3>
+
+<pre class="py-sign">FEMDtN.<b>switch_side</b>(<em>self</em>, key)</pre>
+
+<p>Switches the DtN state of the boundary part.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>key</code> : <em>int</em></span></p>
+
+<dl><dd>
+  Index of the boundary part.
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>self</em></span></p>
+
+<dl><dd>
+  Unit itself.
 </dd></dl>
 
 <div class="toc-anchor"></div><h2>FEMPartt</h2>
@@ -368,7 +506,7 @@
 
 <div class="toc-anchor"></div><h3>new_matrix()</h3>
 
-<pre class="py-sign">FEMPartt.<b>new_matrix</b>(<em>self</em>, operator, add_constr)</pre>
+<pre class="py-sign">FEMPartt.<b>new_matrix</b>(<em>self</em>, operator, add_constr=<span>False</span>)</pre>
 
 <p>Creates a new FEM matrix.</p>
 
@@ -380,7 +518,7 @@
   Linear combination of the basic FEM operators.
 </dd></dl>
 
-<p><span class="vardef"><code>add_constr</code> : <em>bool</em></span></p>
+<p><span class="vardef"><code>add_constr</code> : <em>bool = False</em></span></p>
 
 <dl><dd>
   Constraints are included in the matrix, if <em>True</em>.
@@ -415,6 +553,10 @@
 <dl><dd>
   Points of the partition section stacked horizontally.
 </dd></dl>
+
+<p><b>Notes</b></p>
+
+<p>This method is also available as <code>nodes2d(key)</code>.</p>
 
 <div class="toc-anchor"></div><h2>MatrixFEM</h2>
 
@@ -578,6 +720,17 @@
   Gradient operator on the mesh.
 </dd></dl>
 
+<p><b>Notes</b></p>
+
+<p>
+<ul class="md-list">
+    <li><code>TriGrad</code> operates on nodes-based data</li>
+    <li><code>TriGrad.diff_1x()</code> returns x-grad over triangles</li>
+    <li><code>TriGrad.diff_1y()</code> returns y-grad over triangles</li>
+    <li><code>TriGrad()</code> returns xy-grad over triangles</li>
+</ul>
+</p>
+
 <div class="toc-anchor"></div><h2>mesh_geom()</h2>
 
 <pre class="py-sign">triellipt.fem.<b>mesh_geom</b>(mesh)</pre>
@@ -599,6 +752,17 @@
 <dl><dd>
   Object with the geometric properties of triangles.
 </dd></dl>
+
+<p><b>Notes</b></p>
+
+<p><code>MeshGeom</code> object has the following attributes:</p>
+
+<p>
+<ul class="md-list">
+    <li><code>areas</code> is a flat-array of triangle areas</li>
+    <li><code>sides</code> is a 3col-table of triangle sides</li>
+</ul>
+</p>
 
 <div class="toc-anchor"></div><h2>mesh_metric()</h2>
 
@@ -622,192 +786,17 @@
   Object with the metric properties of triangles.
 </dd></dl>
 
-<div class="toc-anchor"></div><h2>gettransp()</h2>
-
-<pre class="py-sign">triellipt.fem.<b>gettransp</b>(mesh, geom=<span>None</span>)</pre>
-
-<p>Creates an explicit transport unit.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>mesh</code> : <em>TriMesh</em></span></p>
-
-<dl><dd>
-  Input triangle mesh.
-</dd></dl>
-
-<p><span class="vardef"><code>geom</code> : <em>str</em></span></p>
-
-<dl><dd>
-  Geometry mode — <i>&quot;ax&quot;</i> for cylindrical, <i>&quot;2d&quot;</i> for planar (default).
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>TranspUnit</em></span></p>
-
-<dl><dd>
-  Explicit transport unit.
-</dd></dl>
-
-<div class="toc-anchor"></div><h2>TranspUnit</h2>
-
-<pre class="py-sign"><b><em>class</em></b> triellipt.fem.<b>TranspUnit</b>(mesh=<span>None</span>, meta=<span>None</span>, geom=<span>None</span>)</pre>
-
-<p>Explicit transport unit.</p>
-
-<p><b>Properties</b></p>
-
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td><code>mass</code></td>
-        <td>Node-based mass vector</td>
-    </tr>
-</table>
-
-<div class="toc-anchor"></div><h3>constr()</h3>
-
-<pre class="py-sign">TranspUnit.<b>constr</b>(<em>self</em>, data)</pre>
-
-<p>Constrains node-based data on hanging nodes.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Node-based data to constrain.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Constrained data.
-</dd></dl>
-
-<div class="toc-anchor"></div><h3>transp()</h3>
-
-<pre class="py-sign">TranspUnit.<b>transp</b>(<em>self</em>, data, v_x, v_y, d_x, d_y, stab)</pre>
-
-<p>Computes the transport operator.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>data</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Node-based solution field.
-</dd></dl>
-
-<p><span class="vardef"><code>v_x</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Triangle-based x-velocity.
-</dd></dl>
-
-<p><span class="vardef"><code>v_y</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Triangle-based y-velocity.
-</dd></dl>
-
-<p><span class="vardef"><code>d_x</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Triangle-based x-diffusion coefficient.
-</dd></dl>
-
-<p><span class="vardef"><code>d_y</code> : <em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Triangle-based y-diffusion coefficient.
-</dd></dl>
-
-<p><span class="vardef"><code>stab</code> : <em>Callable</em></span></p>
-
-<dl><dd>
-  Stream upwind stabilizator called on velocity arrays.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>flat-float-array</em></span></p>
-
-<dl><dd>
-  Node-based transport operator.
-</dd></dl>
-
-<div class="toc-anchor"></div><h3>source()</h3>
-
-<pre class="py-sign">TranspUnit.<b>source</b>(<em>self</em>, field)</pre>
-
-<p>Computes the source term.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>field</code> : <em>float-flat-array</em></span></p>
-
-<dl><dd>
-  Triangle-based source field.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>float-flat-array</em></span></p>
-
-<dl><dd>
-  Node-based source term.
-</dd></dl>
-
-<div class="toc-anchor"></div><h3>newdata()</h3>
-
-<pre class="py-sign">TranspUnit.<b>newdata</b>(<em>self</em>, value_or_func)</pre>
-
-<p>Creates a new node-based field.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>value_or_func</code> : <em>float-or-callable</em></span></p>
-
-<dl><dd>
-  Coefficient value or function <code>(x, y)</code> on mesh nodes.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>float-flat-array</em></span></p>
-
-<dl><dd>
-  Node-based coefficient.
-</dd></dl>
-
-<div class="toc-anchor"></div><h3>newcoeff()</h3>
-
-<pre class="py-sign">TranspUnit.<b>newcoeff</b>(<em>self</em>, value_or_func)</pre>
-
-<p>Creates a new triangle-based coefficient.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>value_or_func</code> : <em>float-or-callable</em></span></p>
-
-<dl><dd>
-  Coefficient value or function <code>(x, y)</code> on triangle centroids.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>float-flat-array</em></span></p>
-
-<dl><dd>
-  Triangle-based coefficient.
-</dd></dl>
+<p><b>Notes</b></p>
+
+<p><code>MeshMetric</code> object has the following attributes:</p>
+
+<p>
+<ul class="md-list">
+    <li><code>bcoeffs</code> is a 3col-table of b-coefficients.</li>
+    <li><code>ccoeffs</code> is a 3col-table of c-coefficients.</li>
+    <li><code>jacobis</code> is a flat-array of Jacobians.</li>
+</ul>
+</p>
 
 <hr>
         </div>

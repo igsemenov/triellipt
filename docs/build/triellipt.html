@@ -35,8 +35,8 @@
                 <li><a href="#annotations">Annotations</a></li>
                 <li><a href="#reference">Reference</a>
                     <ul>
-                        <li><a href="#triellipt.fem">triellipt.fem</a></li>
                         <li><a href="#triellipt.amr">triellipt.amr</a></li>
+                        <li><a href="#triellipt.fem">triellipt.fem</a></li>
                         <li><a href="#triellipt.geom">triellipt.geom</a></li>
                         <li><a href="#triellipt.mesher">triellipt.mesher</a></li>
                         <li><a href="#triellipt.trimesh">triellipt.trimesh</a></li>
@@ -63,12 +63,12 @@
         <th>Description</th>
     </tr>
     <tr>
-        <td><b>triellipt.fem</b></td>
-        <td>Finite-element solver.</td>
-    </tr>
-    <tr>
         <td><b>triellipt.amr</b></td>
         <td>Mesh refinement tools.</td>
+    </tr>
+    <tr>
+        <td><b>triellipt.fem</b></td>
+        <td>FEM (P1) solver.</td>
     </tr>
     <tr>
         <td><b>triellipt.geom</b></td>
@@ -90,6 +90,43 @@
 
 <div class="toc-anchor"></div><h2>Reference</h2>
 
+<div class="toc-anchor"></div><h3>triellipt.amr</h3>
+
+<p>
+<ul class="ref-list" id="mod-refs">
+    <li><a href="triellipt.amr.html#triellipt.amr">triellipt.amr</a>
+        <ul>
+            <li><a href="triellipt.amr.html#getunit">getunit()</a></li>
+            <li><a href="triellipt.amr.html#amrunit">AMRUnit</a>
+                <ul>
+                    <li><a href="triellipt.amr.html#refine">refine()</a></li>
+                    <li><a href="triellipt.amr.html#coarsen">coarsen()</a></li>
+                    <li><a href="triellipt.amr.html#find_node">find_node()</a></li>
+                    <li><a href="triellipt.amr.html#find_subset">find_subset()</a></li>
+                    <li><a href="triellipt.amr.html#find_masked">find_masked()</a></li>
+                    <li><a href="triellipt.amr.html#front_coarse">front_coarse()</a></li>
+                    <li><a href="triellipt.amr.html#front_fine">front_fine()</a></li>
+                    <li><a href="triellipt.amr.html#from_func">from_func()</a></li>
+                    <li><a href="triellipt.amr.html#constrain">constrain()</a></li>
+                    <li><a href="triellipt.amr.html#getinterp">getinterp()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.amr.html#trifront">TriFront</a>
+                <ul>
+                    <li><a href="triellipt.amr.html#atrank">atrank()</a></li>
+                    <li><a href="triellipt.amr.html#angles">angles()</a></li>
+                    <li><a href="triellipt.amr.html#scales">scales()</a></li>
+                    <li><a href="triellipt.amr.html#filter_by_mask">filter_by_mask()</a></li>
+                    <li><a href="triellipt.amr.html#filter_by_angle">filter_by_angle()</a></li>
+                    <li><a href="triellipt.amr.html#filter_by_scale">filter_by_scale()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.amr.html#join_meshes">join_meshes()</a></li>
+        </ul>
+    </li>
+</ul>
+</p>
+
 <div class="toc-anchor"></div><h3>triellipt.fem</h3>
 
 <p>
@@ -97,14 +134,21 @@
     <li><a href="triellipt.fem.html#triellipt.fem">triellipt.fem</a>
         <ul>
             <li><a href="triellipt.fem.html#getunit">getunit()</a></li>
+            <li><a href="triellipt.fem.html#getdtn">getdtn()</a></li>
             <li><a href="triellipt.fem.html#femunit">FEMUnit</a>
                 <ul>
                     <li><a href="triellipt.fem.html#add_partition">add_partition()</a></li>
                     <li><a href="triellipt.fem.html#get_partition">get_partition()</a></li>
-                    <li><a href="triellipt.fem.html#set_partition">set_partition()</a></li>
                     <li><a href="triellipt.fem.html#del_partition">del_partition()</a></li>
                     <li><a href="triellipt.fem.html#getinterp">getinterp()</a></li>
                     <li><a href="triellipt.fem.html#massopr">massopr()</a></li>
+                    <li><a href="triellipt.fem.html#average">average()</a></li>
+                </ul>
+            </li>
+            <li><a href="triellipt.fem.html#femdtn">FEMDtN</a>
+                <ul>
+                    <li><a href="triellipt.fem.html#dirich_sides">dirich_sides()</a></li>
+                    <li><a href="triellipt.fem.html#switch_side">switch_side()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.fem.html#fempartt">FEMPartt</a>
@@ -131,52 +175,6 @@
             <li><a href="triellipt.fem.html#mesh_grad">mesh_grad()</a></li>
             <li><a href="triellipt.fem.html#mesh_geom">mesh_geom()</a></li>
             <li><a href="triellipt.fem.html#mesh_metric">mesh_metric()</a></li>
-            <li><a href="triellipt.fem.html#gettransp">gettransp()</a></li>
-            <li><a href="triellipt.fem.html#transpunit">TranspUnit</a>
-                <ul>
-                    <li><a href="triellipt.fem.html#constr">constr()</a></li>
-                    <li><a href="triellipt.fem.html#transp">transp()</a></li>
-                    <li><a href="triellipt.fem.html#source">source()</a></li>
-                    <li><a href="triellipt.fem.html#newdata">newdata()</a></li>
-                    <li><a href="triellipt.fem.html#newcoeff">newcoeff()</a></li>
-                </ul>
-            </li>
-        </ul>
-    </li>
-</ul>
-</p>
-
-<div class="toc-anchor"></div><h3>triellipt.amr</h3>
-
-<p>
-<ul class="ref-list" id="mod-refs">
-    <li><a href="triellipt.amr.html#triellipt.amr">triellipt.amr</a>
-        <ul>
-            <li><a href="triellipt.amr.html#getunit">getunit()</a></li>
-            <li><a href="triellipt.amr.html#amrunit">AMRUnit</a>
-                <ul>
-                    <li><a href="triellipt.amr.html#refine">refine()</a></li>
-                    <li><a href="triellipt.amr.html#coarsen">coarsen()</a></li>
-                    <li><a href="triellipt.amr.html#find_node">find_node()</a></li>
-                    <li><a href="triellipt.amr.html#find_subset">find_subset()</a></li>
-                    <li><a href="triellipt.amr.html#find_masked">find_masked()</a></li>
-                    <li><a href="triellipt.amr.html#front_coarse">front_coarse()</a></li>
-                    <li><a href="triellipt.amr.html#front_fine">front_fine()</a></li>
-                    <li><a href="triellipt.amr.html#makedata">makedata()</a></li>
-                    <li><a href="triellipt.amr.html#getinterp">getinterp()</a></li>
-                </ul>
-            </li>
-            <li><a href="triellipt.amr.html#trifront">TriFront</a>
-                <ul>
-                    <li><a href="triellipt.amr.html#atrank">atrank()</a></li>
-                    <li><a href="triellipt.amr.html#angles">angles()</a></li>
-                    <li><a href="triellipt.amr.html#scales">scales()</a></li>
-                    <li><a href="triellipt.amr.html#filter_by_mask">filter_by_mask()</a></li>
-                    <li><a href="triellipt.amr.html#filter_by_angle">filter_by_angle()</a></li>
-                    <li><a href="triellipt.amr.html#filter_by_scale">filter_by_scale()</a></li>
-                </ul>
-            </li>
-            <li><a href="triellipt.amr.html#join_meshes">join_meshes()</a></li>
         </ul>
     </li>
 </ul>
@@ -189,6 +187,7 @@
     <li><a href="triellipt.geom.html#triellipt.geom">triellipt.geom</a>
         <ul>
             <li><a href="triellipt.geom.html#line">line()</a></li>
+            <li><a href="triellipt.geom.html#hyperb">hyperb()</a></li>
             <li><a href="triellipt.geom.html#elliparc">elliparc()</a></li>
             <li><a href="triellipt.geom.html#bezier2">bezier2()</a></li>
             <li><a href="triellipt.geom.html#bezier3">bezier3()</a></li>
@@ -211,18 +210,17 @@
             </li>
             <li><a href="triellipt.geom.html#pathmap">PathMap</a>
                 <ul>
+                    <li><a href="triellipt.geom.html#togeo">togeo()</a></li>
                     <li><a href="triellipt.geom.html#atcolors">atcolors()</a></li>
                     <li><a href="triellipt.geom.html#repaint">repaint()</a></li>
                     <li><a href="triellipt.geom.html#rshift">rshift()</a></li>
                     <li><a href="triellipt.geom.html#lshift">lshift()</a></li>
-                    <li><a href="triellipt.geom.html#split">split()</a></li>
                 </ul>
             </li>
             <li><a href="triellipt.geom.html#cycpath">CycPath</a>
                 <ul>
                     <li><a href="triellipt.geom.html#angles">angles()</a></li>
                     <li><a href="triellipt.geom.html#dissect">dissect()</a></li>
-                    <li><a href="triellipt.geom.html#split-1">split()</a></li>
                 </ul>
             </li>
         </ul>
@@ -257,12 +255,12 @@
                     <li><a href="triellipt.trimesh.html#getvoids">getvoids()</a></li>
                     <li><a href="triellipt.trimesh.html#alignnodes">alignnodes()</a></li>
                     <li><a href="triellipt.trimesh.html#renumed">renumed()</a></li>
-                    <li><a href="triellipt.trimesh.html#shuffled">shuffled()</a></li>
                     <li><a href="triellipt.trimesh.html#meshedge">meshedge()</a></li>
                     <li><a href="triellipt.trimesh.html#edgesmap">edgesmap()</a></li>
                     <li><a href="triellipt.trimesh.html#nodesmap">nodesmap()</a></li>
                     <li><a href="triellipt.trimesh.html#supertriu">supertriu()</a></li>
                     <li><a href="triellipt.trimesh.html#reduced">reduced()</a></li>
+                    <li><a href="triellipt.trimesh.html#scaled">scaled()</a></li>
                     <li><a href="triellipt.trimesh.html#split">split()</a></li>
                 </ul>
             </li>
@@ -296,7 +294,6 @@
                     <li><a href="triellipt.trimesh.html#reduce">reduce()</a></li>
                 </ul>
             </li>
-            <li><a href="triellipt.trimesh.html#merge_mesh">merge_mesh()</a></li>
         </ul>
     </li>
 </ul>

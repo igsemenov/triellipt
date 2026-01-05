@@ -59,8 +59,8 @@ class TestData:
         return self.OPRS['massmat']
 
     @property
-    def massdiag(self):
-        return self.OPRS['massdiag']
+    def massdig(self):
+        return self.OPRS['massdig']
 
 
 class TestOprsNoVoids(TestData, unittest.TestCase):
@@ -99,11 +99,11 @@ class TestOprsNoVoids(TestData, unittest.TestCase):
         assert np.all(self.diff_1x[:, 0] == self.diff_1x[:, 1])
         assert np.all(self.diff_1y[:, 0] == self.diff_1y[:, 2])
 
-    def test_massdiag(self):
-        assert np.all(self.massdiag[:, [1, 2, 3, 5, 6, 7]] == 0.)
+    def test_massdig(self):
+        assert np.all(self.massdig[:, [1, 2, 3, 5, 6, 7]] == 0.)
 
     def test_massmat(self):
-        assert np.sum(self.massmat[0, [0, 1, 2]]) == self.massdiag[0, 0]
+        assert np.sum(self.massmat[0, [0, 1, 2]]) == self.massdig[0, 0]
 
 
 class TestOprsWithVoids(TestData, unittest.TestCase):

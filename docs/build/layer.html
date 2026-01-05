@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Examples — Boundary layer — triellipt documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+    <link rel="stylesheet" href="docpage.css">
+    <link rel="stylesheet" href="default.min.css">
+    <script src="docpage.js"></script>
+    <script src="highlight.min.js"></script>
+</head>
+
+<body>
+
+    <div id="top-panel">
+        <div id="page-logo"></div>
+        <div id="top-panel-tool-bar">
+            <div id="global-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="local-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="home-page-btn" class="top-panel-btn" onclick="gotoHomePage()"></div>
+        </div>
+    </div>
+
+    <div id="global-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>Contents</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="global-toc-box__text" class="toc-box__textbox"></div>
+    </div>
+    <div id="local-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>On this page</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="local-toc-box__text" class="toc-box__textbox">
+            <p>
+            <ul>
+                <li><a href="#boundary-layer">Boundary layer</a>
+                    <ul>
+                        <li><a href="#creating-a-mesh">Creating a mesh</a></li>
+                        <li><a href="#creating-a-dtn-unit.">Creating a DtN unit.</a></li>
+                        <li><a href="#creating-fem-data.">Creating FEM data.</a></li>
+                        <li><a href="#solving-the-problem">Solving the problem</a></li>
+                    </ul>
+                </li>
+            </ul>
+            </p>
+        </div>
+    </div>
+
+    <div id="content-box">
+        <div id="title-box">
+            <h1 id="title-box__title">triellipt — Examples: Boundary layer</h1>
+            <h2 id="title-box__annotation"></h2>
+            <hr>
+        </div>
+        <div id="doc-box">
+<div class="toc-anchor"></div><h2>Boundary layer</h2>
+
+<p>This example solves the 1D boundary layer problem.</p>
+
+<p>The following equation is considered:</p>
+
+<pre class="docstring">uₓ = ν∙Δu</pre>
+
+<p>on the interval <code>[0, 1]</code> along the x-coordinate.</p>
+
+<p>The boundary conditions are:</p>
+
+<pre class="docstring">u(x=0, y) = 0
+
+u(x=1, y) = 1</pre>
+
+<p>In what follows, we assume the following import is used:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">import numpy as np
+from scipy import sparse as sp
+import triellipt as tri</code></pre>
+
+<div class="toc-anchor"></div><h3>Creating a mesh</h3>
+
+<p>For this case, we create a structured triangle mesh:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">mesh = tri.mesher.trigrid(101, 21, &#x27;cross-wise&#x27;) * 0.01</code></pre>
+
+<p>Optionally, we can apply a refinement near <code>x = 0</code>:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">unit = tri.amr.getunit(mesh)
+
+unit = unit.refine(
+  unit.find_masked(lambda x, _: x &lt; 0.5)
+)
+
+unit = unit.refine(
+  unit.find_masked(lambda x, _: x &lt; 0.2)
+)
+
+mesh = unit.mesh.twin()</code></pre>
+
+<div class="toc-anchor"></div><h3>Creating a DtN unit.</h3>
+
+<p>Next, we create the FEM-DtN unit:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">unit = tri.fem.getdtn(
+    mesh, anchors=[(0, 0), (1, 0), (1, 0.2), (0, 0.2)], mode=&#x27;fem&#x27;
+)
+
+unit = unit.switch_side(2)
+unit = unit.switch_side(6)</code></pre>
+
+<p>The FEM-DtN unit represents a FEM unit with a prescribed boundary partition.</p>
+
+<p>The FEM-DtN unit has two basic properties:</p>
+
+<p>
+<ul class="md-list">
+    <li><code>.fem</code> — the FEM unit itself.</li>
+    <li><code>.dtn</code> — the DtN partition.</li>
+</ul>
+</p>
+
+<p>The partition has corners given by the initial anchor points and edges connecting the corner points.
+Partition parts with odd indices correspond to corners and parts with even indices correspond to edges.</p>
+
+<p>All partition parts are considered to be of Dirichlet type by default.
+The Dirichlet/Neumann type of the parts can be changed using the <code>switch_side()</code> method.</p>
+
+<p>The current Dirichlet parts can be obtained by calling the <code>dirich_sides()</code> method.</p>
+
+<div class="toc-anchor"></div><h3>Creating FEM data.</h3>
+
+<p>We now create the FEM operators:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">conv = unit.fem.diff_1x
+diff = unit.fem.diff_2x + unit.fem.diff_2y</code></pre>
+
+<p>where <code>conv</code> and <code>diff</code> are the convection and diffusion operators, respectively.</p>
+
+<p>Based on this, we create the FEM matrix:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">amat = unit.dtn.new_matrix(
+    - conv - VISC * diff, add_constr=True
+)</code></pre>
+
+<p>with <code>VISC</code> being the viscosity coefficient.</p>
+
+<p>We also create the following FEM vectors:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">u = unit.dtn.new_vector()  # Solution vector 
+b = unit.dtn.new_vector()  # RHS vector</code></pre>
+
+<div class="toc-anchor"></div><h3>Solving the problem</h3>
+
+<p>To solve the problem, we first apply the boundary conditions:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python"># BC at x = 1
+for _ in [3, 4, 5]:
+  u[_] = 1
+
+# BC at x = 0
+for _ in [1, 7, 8]:
+  u[_] = 0</code></pre>
+
+<p>After that we define the RHS vector:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">for _ in [1, 3, 4, 5, 7, 8]:
+    b[0] = b[0] - amat(0, _) @ u[_]</code></pre>
+
+<p>Finally, we find the solution:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">u[0] = sp.linalg.spsolve(amat(0, 0), b[0])</code></pre>
+
+<p>The complete solution is available as <code>u.body</code>.</p>
+
+<hr>
+        </div>
+        <p id="footnote">Copyright &copy; 2023, Igor Semenov.</p>
+    </div>
+
+    <footer></footer>
+
+    <script>
+        setDocPage();
+        hljs.highlightAll();
+    </script>
+
+</body>
+
+</html>

@@ -35,6 +35,7 @@
                 <li><a href="#triellipt.geom">triellipt.geom</a>
                     <ul>
                         <li><a href="#line">line()</a></li>
+                        <li><a href="#hyperb">hyperb()</a></li>
                         <li><a href="#elliparc">elliparc()</a></li>
                         <li><a href="#bezier2">bezier2()</a></li>
                         <li><a href="#bezier3">bezier3()</a></li>
@@ -57,18 +58,17 @@
                         </li>
                         <li><a href="#pathmap">PathMap</a>
                             <ul>
+                                <li><a href="#togeo">togeo()</a></li>
                                 <li><a href="#atcolors">atcolors()</a></li>
                                 <li><a href="#repaint">repaint()</a></li>
                                 <li><a href="#rshift">rshift()</a></li>
                                 <li><a href="#lshift">lshift()</a></li>
-                                <li><a href="#split">split()</a></li>
                             </ul>
                         </li>
                         <li><a href="#cycpath">CycPath</a>
                             <ul>
                                 <li><a href="#angles">angles()</a></li>
                                 <li><a href="#dissect">dissect()</a></li>
-                                <li><a href="#split-1">split()</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -117,6 +117,40 @@
   Line as a curve-like object.
 </dd></dl>
 
+<div class="toc-anchor"></div><h2>hyperb()</h2>
+
+<pre class="py-sign">triellipt.geom.<b>hyperb</b>(axes, ksis, etas)</pre>
+
+<p>Creates a hyperbolic curve.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>axes</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Hyperbolic parameters <code>(a, b)</code>.
+</dd></dl>
+
+<p><span class="vardef"><code>ksis</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Interval of <code>ksi</code> parameter (in [-1, 1]).
+</dd></dl>
+
+<p><span class="vardef"><code>etas</code> : <em>(float, float)</em></span></p>
+
+<dl><dd>
+  Interval of <code>eta</code> parameter (≥0).
+</dd></dl>
+
+<p><b>Returns</b></p>
+
+<p><span class="vardef"><em>Hyperb</em></span></p>
+
+<dl><dd>
+  Hyperbola as a curve-like object.
+</dd></dl>
+
 <div class="toc-anchor"></div><h2>elliparc()</h2>
 
 <pre class="py-sign">triellipt.geom.<b>elliparc</b>(center, axes, phis, tilt=0)</pre>
@@ -125,7 +159,7 @@
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>center</code> : <em>complex</em></span></p>
+<p><span class="vardef"><code>center</code> : <em>(float, float)</em></span></p>
 
 <dl><dd>
   Ellipse center.
@@ -261,7 +295,7 @@
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>corner</code> : <em>complex</em></span></p>
+<p><span class="vardef"><code>corner</code> : <em>(float, float)</em></span></p>
 
 <dl><dd>
   South-west rectangle corner.
@@ -289,7 +323,7 @@
 
 <p><b>Parameters</b></p>
 
-<p><span class="vardef"><code>center</code> : <em>complex</em></span></p>
+<p><span class="vardef"><code>center</code> : <em>(float, float)</em></span></p>
 
 <dl><dd>
   Ellipse center.
@@ -519,9 +553,33 @@
     </tr>
     <tr>
         <td><code>points</code></td>
-        <td>Nodes positions.</td>
+        <td>Nodes positions (complex).</td>
+    </tr>
+    <tr>
+        <td><code>points2d</code></td>
+        <td>Nodes positions (xy-rows).</td>
     </tr>
 </table>
+
+<div class="toc-anchor"></div><h3>togeo()</h3>
+
+<pre class="py-sign">PathMap.<b>togeo</b>(<em>self</em>, geopath, seeds) → <em>None</em></pre>
+
+<p>Dumps path to the geo file.</p>
+
+<p><b>Parameters</b></p>
+
+<p><span class="vardef"><code>geopath</code> : <em>str</em></span></p>
+
+<dl><dd>
+  Absolute path to the <code>.geo</code> file.
+</dd></dl>
+
+<p><span class="vardef"><code>seeds</code> : <em>dict</em></span></p>
+
+<dl><dd>
+  Maps colours to the seed mesh sizes.
+</dd></dl>
 
 <div class="toc-anchor"></div><h3>atcolors()</h3>
 
@@ -562,20 +620,6 @@
 <pre class="py-sign">PathMap.<b>lshift</b>(<em>self</em>, color1, color2)</pre>
 
 <p>Shifts the contact of two colors to the left by one node.</p>
-
-<div class="toc-anchor"></div><h3>split()</h3>
-
-<pre class="py-sign">PathMap.<b>split</b>(<em>self</em>) → <em>list</em></pre>
-
-<p>Splits the path into subpaths based on color.</p>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>list[PathMap]</em></span></p>
-
-<dl><dd>
-  List of unicoloured subpaths.
-</dd></dl>
 
 <div class="toc-anchor"></div><h2>CycPath</h2>
 
@@ -626,28 +670,6 @@
 
 <dl><dd>
   Threshold angle for a node to become a corner.
-</dd></dl>
-
-<p><b>Returns</b></p>
-
-<p><span class="vardef"><em>PathMap</em></span></p>
-
-<dl><dd>
-  Partition of a cycle.
-</dd></dl>
-
-<div class="toc-anchor"></div><h3>split()</h3>
-
-<pre class="py-sign">CycPath.<b>split</b>(<em>self</em>, bins)</pre>
-
-<p>Splits the cycle based on bins.</p>
-
-<p><b>Parameters</b></p>
-
-<p><span class="vardef"><code>bins</code> : <em>flat-int-array-like</em></span></p>
-
-<dl><dd>
-  Seed values of splitting bins.
 </dd></dl>
 
 <p><b>Returns</b></p>

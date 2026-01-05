@@ -26,12 +26,33 @@ def line(startpoint, endpoint):
     return curves_.Line(startpoint, endpoint)
 
 
+def hyperb(axes, ksis, etas):
+    """Creates a hyperbolic curve.
+
+    Parameters
+    ----------
+    axes : (float, float)
+        Hyperbolic parameters `(a, b)`.
+    ksis : (float, float)
+        Interval of `ksi` parameter (in [-1, 1]).
+    etas : (float, float)
+        Interval of `eta` parameter (≥0).
+
+    Returns
+    -------
+    Hyperb
+        Hyperbola as a curve-like object.
+
+    """
+    return curves_.Hyperb(axes, ksis, etas)
+
+
 def elliparc(center, axes, phis, tilt=0):
     """Creates an elliptic arc.
 
     Parameters
     ----------
-    center : complex
+    center : (float, float)
         Ellipse center.
     axes : (float, float)
         Major and minor ellipse axes.
@@ -117,7 +138,7 @@ def makerect(corner, dims):
 
     Parameters
     ----------
-    corner : complex
+    corner : (float, float)
         South-west rectangle corner.
     dims : (float, float)
         Width and height of the rectangle.
@@ -134,11 +155,13 @@ def makerect(corner, dims):
     dispx = width
     dispy = height * 1j
 
+    start = corner[0] + 1j * corner[1]
+
     points = [
-        corner,
-        corner + dispx,
-        corner + dispx + dispy,
-        corner + dispy
+        start,
+        start + dispx,
+        start + dispx + dispy,
+        start + dispy
     ]
 
     lines = [
@@ -156,7 +179,7 @@ def makeellip(center, axes, tilt=0):
 
     Parameters
     ----------
-    center : complex
+    center : (float, float)
         Ellipse center.
     axes : (float, float)
         Major and minor axes.

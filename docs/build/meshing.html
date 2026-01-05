@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Meshing — triellipt documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+    <link rel="stylesheet" href="docpage.css">
+    <link rel="stylesheet" href="default.min.css">
+    <script src="docpage.js"></script>
+    <script src="highlight.min.js"></script>
+</head>
+
+<body>
+
+    <div id="top-panel">
+        <div id="page-logo"></div>
+        <div id="top-panel-tool-bar">
+            <div id="global-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="local-toc-btn" class="top-panel-btn" onclick="switchTOC(this)"></div>
+            <div id="home-page-btn" class="top-panel-btn" onclick="gotoHomePage()"></div>
+        </div>
+    </div>
+
+    <div id="global-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>Contents</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="global-toc-box__text" class="toc-box__textbox"></div>
+    </div>
+    <div id="local-toc-box" class="toc-box">
+        <div class="toc-box__header">
+            <p>On this page</p><button onclick="closeTOC(this)">&#x2715;</button>
+        </div>
+        <div id="local-toc-box__text" class="toc-box__textbox">
+            <p>
+            <ul>
+                <li><a href="#mesh-object">Mesh object</a>
+                    <ul>
+                        <li><a href="#nonconformity">Nonconformity</a></li>
+                        <li><a href="#ghost-nodes">Ghost nodes</a></li>
+                        <li><a href="#nodes-alignment">Nodes alignment</a></li>
+                    </ul>
+                </li>
+                <li><a href="#mesh-generation">Mesh generation</a>
+                    <ul>
+                        <li><a href="#geometry">Geometry</a></li>
+                        <li><a href="#gmsh-meshes">Gmsh Meshes</a></li>
+                        <li><a href="#structured-grids">Structured Grids</a></li>
+                        <li><a href="#reduction">Reduction</a></li>
+                        <li><a href="#composition">Composition</a></li>
+                    </ul>
+                </li>
+                <li><a href="#mesh-adaptivity">Mesh adaptivity</a>
+                    <ul>
+                        <li><a href="#amr-unit">AMR unit</a></li>
+                        <li><a href="#fronts">Fronts</a></li>
+                        <li><a href="#data">Data</a></li>
+                    </ul>
+                </li>
+            </ul>
+            </p>
+        </div>
+    </div>
+
+    <div id="content-box">
+        <div id="title-box">
+            <h1 id="title-box__title">triellipt — Meshing</h1>
+            <h2 id="title-box__annotation"></h2>
+            <hr>
+        </div>
+        <div id="doc-box">
+<p>This page introduces the tools for working with meshes in <b>triellipt</b>.</p>
+
+<p>In what follows, we assume the following import is used:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">import triellipt as tri</code></pre>
+
+<div class="toc-anchor"></div><h2>Mesh object</h2>
+
+<p>The <a href="triellipt.trimesh.html#triellipttrimesh">trimesh.TriMesh</a> class is responsible for holding and managing the triangular mesh.</p>
+
+<p>The primary mesh attributes are:</p>
+
+<p>
+<ul class="md-list">
+    <li>the triangulation matrix,</li>
+    <li>the underlying point set.</li>
+</ul>
+</p>
+
+<p>Refer also to additional data structures:</p>
+
+<p>
+<ul class="md-list">
+    <li><a href="triellipt.trimesh.html#meshedge">triellipt.MeshEdge</a></li>
+    <li><a href="triellipt.trimesh.html#edgesmap">triellipt.EdgesMap</a></li>
+    <li><a href="triellipt.trimesh.html#nodesmap">triellipt.NodesMap</a></li>
+    <li><a href="triellipt.trimesh.html#supertriu-1">triellipt.SuperTriu</a></li>
+</ul>
+</p>
+
+<p>Note that the mesh object supports arithmetic operations with float and complex numbers, which modify the mesh points and produce a new mesh.</p>
+
+<div class="toc-anchor"></div><h3>Nonconformity</h3>
+
+<p>The nonconforming element contacts are introduced in the mesh as zero-area triangles.</p>
+
+<p>Assume we have a nonconforming contact that spans the nodes A, B, and C:</p>
+
+<pre class="docstring">   ●
+  / \
+ /   \
+B--C--A
+\ / \ /
+ ●---●
+  \ /
+   ●</pre>
+
+<p>This contact appears in the triangulation matrix as an additional triangle:</p>
+
+<pre class="docstring">│ ... │
+│ ABC │
+│ ... │</pre>
+
+<p>This triangle has zero area, but it restores the combinatorial mesh connectivity.</p>
+
+<p>Terminology:</p>
+
+<p>
+<ul class="md-list">
+    <li>Empty triangles are called <em>void elements</em>.</li>
+    <li>The third vertex of a void element is called the <em>void pivot</em>.</li>
+</ul>
+</p>
+
+<div class="toc-anchor"></div><h3>Ghost nodes</h3>
+
+<p>The mesh may contain <em>ghost nodes</em> — nodes that are not involved in triangles.</p>
+
+<p>Theses nodes can be deleted from the mesh, see <a href="triellipt.trimesh.html#delghosts">triellipt.TriMesh.delghosts()</a>.</p>
+
+<div class="toc-anchor"></div><h3>Nodes alignment</h3>
+
+<p>The mesh nodes can be aligned in an edge–core manner:</p>
+
+<p>
+<ul class="md-list">
+    <li>Edge nodes are placed at the top of the node numbering.</li>
+    <li>Edge numbering can be configured to start at specific points — <em>anchors</em>.</li>
+</ul>
+</p>
+
+<p>For details, see <a href="triellipt.trimesh.html#alignnodes">triellipt.TriMesh.alignnodes()</a>.</p>
+
+<div class="toc-anchor"></div><h2>Mesh generation</h2>
+
+<div class="toc-anchor"></div><h3>Geometry</h3>
+
+<p>The module <code>geom</code> provides tools for creating <code>.geo</code> files for use with Gmsh.</p>
+
+<p>Usual workflow:</p>
+
+<p>
+<ul class="md-list">
+    <li>You create a loop of curves.</li>
+    <li>The loop is split into a colored path (per-curve coloring).</li>
+    <li>The path is dumped into a <code>.geo</code> file.</li>
+</ul>
+</p>
+
+<p>For example we first create four connected lines:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">line1 = tri.geom.line(0 + 0j, 1 + 0j)
+line2 = tri.geom.line(1 + 0j, 1 + 1j)
+line3 = tri.geom.line(1 + 1j, 0 + 1j)
+line4 = tri.geom.line(0 + 1j, 0 + 0j)</code></pre>
+
+<p>We then combine these lines into a loop:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">loop = tri.geom.makeloop(line1, line2, line3, line4)</code></pre>
+
+<p>and discretize the loop:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">path = loop.discretize((10, 1))</code></pre>
+
+<p>For more details, see <a href="triellipt.geom.html#discretize">triellipt.geom.CurvesLoop.discretize()</a>.</p>
+
+<p>The resuting path can be dumped to a <code>.geo</code> file:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">path.togeo(abspath_to_geo, mesh_seeds)</code></pre>
+
+<p>For more details, see <a href="triellipt.geom.html#togeo">triellipt.geom.PathMap.togeo()</a>.</p>
+
+<div class="toc-anchor"></div><h3>Gmsh Meshes</h3>
+
+<p>The module <code>mshread</code> provides an interface for reading Gmsh meshes.</p>
+
+<p>Usual workflow:</p>
+
+<p>
+<ul class="md-list">
+    <li>Create a reader from a forlder with meshes.</li>
+    <li>Read a mesh per the full name with <code>.msh</code> extension.</li>
+</ul>
+</p>
+
+<p>For example we create a reader:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">reader = tri.mshread.getreader(
+  absolute_path_to_folder_with_meshes
+)</code></pre>
+
+<p>and read the mesh:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">mesh = reader.read_mesh(&#x27;some-mesh.msh&#x27;)</code></pre>
+
+<p>The list of available meshes can be obtained as follows:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">read.listmeshes()</code></pre>
+
+<div class="toc-anchor"></div><h3>Structured Grids</h3>
+
+<p>The module <code>mesher</code> provides two functions for generating structured grids:</p>
+
+<p>
+<ul class="md-list">
+    <li>The grid-based meshes are generated using <a href="triellipt.mesher.html#trigrid">triellipt.mesher.trigrid()</a>.</li>
+    <li>The triangle lattices are generated using <a href="triellipt.mesher.html#trilattice">triellipt.mesher.trilattice()</a>.</li>
+</ul>
+</p>
+
+<div class="toc-anchor"></div><h3>Reduction</h3>
+
+<p>The mesh can potentially be coarsened in the bulk region — see <a href="triellipt.trimesh.html#reduced">triellipt.TriMesh.reduced()</a>.</p>
+
+<p>This procedure can produce nonconforming meshes with multiple discretization layers.</p>
+
+<div class="toc-anchor"></div><h3>Composition</h3>
+
+<p>Meshes can also be joined along a common boundary, if present.</p>
+
+<p>This provides an opportunity to construct composite meshes.</p>
+
+<p>For more details, refer to <a href="triellipt.amr.html#join_meshes">triellipt.amr.join_meshes()</a>.</p>
+
+<div class="toc-anchor"></div><h2>Mesh adaptivity</h2>
+
+<div class="toc-anchor"></div><h3>AMR unit</h3>
+
+<p>The module <code>amr</code> provides tools for mesh refinement and coarsening.</p>
+
+<p>The functionality is provided by the AMR unit, which is built upon the input mesh:</p>
+
+<pre><span class="lang-name">Python</span><code class="language-python">unit = tri.amr.getunit(mesh)</code></pre>
+
+<p>The basic tools in the unit are the methods <code>.refine()</code> and <code>.coarsen()</code>.</p>
+
+<p>Both methods take triangle numbers as input arguments.</p>
+
+<p>The AMR unit provides two basic options for selecting triangles:</p>
+
+<p>
+<ul class="md-list">
+    <li>Finders, implemented as a set of <code>.find_</code> prefixed methods.</li>
+    <li>Refinement and coarsing fronts.</li>
+</ul>
+</p>
+
+<div class="toc-anchor"></div><h3>Fronts</h3>
+
+<p>Refinement and coarsening fronts are sets of triangles associated with hanging nodes.</p>
+
+<p>Consider a nonconforming element interface:</p>
+
+<pre class="docstring">    G
+    ●
+   / \
+  /   \
+ B--C--A
+ \ / \ /
+E ●---● F
+   \ /
+    ●
+    D</pre>
+
+<p>
+<ul class="md-list">
+    <li>The refinement front consists of triangles like GBA.</li>
+    <li>The coarsening front constits of super-triangles like ABD (a).</li>
+</ul>
+</p>
+
+<p>(a) Primary data is the number of the core triangle CEF, as passed to the <code>.coarse()</code> method.</p>
+
+<p>For more details, refer to <a href="triellipt.amr.html#trifront">triellipt.amr.TriFront</a>.</p>
+
+<div class="toc-anchor"></div><h3>Data</h3>
+
+<p>It is possible to interpolate data during refinement and coarsening steps. 
+The AMR unit contains a dictionary <code>.data</code> as an attribute, whose entries are automatically interpolated when the unit is refined or coarsened.</p>
+
+<hr>
+        </div>
+        <p id="footnote">Copyright &copy; 2023, Igor Semenov.</p>
+    </div>
+
+    <footer></footer>
+
+    <script>
+        setDocPage();
+        hljs.highlightAll();
+    </script>
+
+</body>
+
+</html>

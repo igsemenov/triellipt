@@ -6,8 +6,9 @@
 }
 -->
 
-This guide covers the basics of how to use **triellipt**.
+This guide covers the basics of how to use the **triellipt** package.
 
 Refer to the following sections for specific topics:
 
-- [FEM Solver](femsolver.md) — Step-by-step guide on how to use the FEM solver.
+- [Meshing](meshing.md) — Guide to working with meshes.
+- [FEM Solver](femsolver.md) — Guide to using the FEM solver.
