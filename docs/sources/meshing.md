@@ -128,7 +128,7 @@ The module `mshread` provides an interface for reading Gmsh meshes.
 
 Usual workflow:
 
-- Create a reader from a forlder with meshes.
+- Create a reader from a folder with meshes.
 - Read a mesh per the full name with `.msh` extension.
 
 For example we create a reader:
